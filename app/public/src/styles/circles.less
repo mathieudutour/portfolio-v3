@@ -1,0 +1,115 @@
+.circle-container > .circle {
+  text-decoration: none;
+}
+
+@base-social: #00ceff;
+@base-job: #00ff89;
+@base-sport: #ff0093;
+@base-divers: #c8ff4b;
+
+.generate-color-social(16);
+.generate-color-job(10);
+.generate-color-sport(14);
+.generate-color-divers(16);
+
+.generate-color-social(@n, @i: 0) when (@i < @n) {
+  @j: 1 + floor(@i / 4) * 7 + mod(@i, 4);
+  .circle-container.social:nth-child(@{j}) > .circle {
+    background-color: spin(@base-social, 8*@i);
+  }
+  .generate-color-social(@n, (@i + 1));
+}
+
+.generate-color-job(@n, @i: 0) when (@i < @n) {
+  @j: 5 + floor(@i / 3) * 7 + mod(@i, 3);
+  .circle-container.job:nth-child(@{j}) > .circle {
+    background-color: spin(@base-job, -8*@i);
+  }
+  .generate-color-job(@n, (@i + 1));
+}
+
+.generate-color-sport(@n, @i: 1) when (@i =< @n) {
+  @j: 26 + floor(@i / 3) * 7 + mod(@i, 3);
+  .circle-container.sport:nth-child(@{j}) > .circle {
+    background-color: spin(@base-sport, 8*@i);
+  }
+  .generate-color-sport(@n, (@i + 1));
+}
+
+.generate-color-divers(@n, @i: 0) when (@i < @n) {
+  @j: 29 + floor(@i / 4) * 7 + mod(@i, 4);
+  .circle-container.divers:nth-child(@{j}) > .circle {
+    background-color: spin(@base-divers, -6*@i);
+  }
+  .generate-color-divers(@n, (@i + 1));
+}
+
+.circle-container > .circle > img, .circle-container > .circle > svg{
+  height: 100%;
+  width: 100%;
+}
+
+.circle-container.presentation > .circle {
+  overflow: hidden;
+}
+
+.circle-container.facebook > .circle {
+  background-color: #3b5998 !important;
+}
+
+.circle-container.twitter > .circle {
+  background-color: #00aced !important;
+}
+
+.circle-container.linkedin > .circle {
+  background-color: #007bb6 !important;
+}
+
+.circle-container.last-tweet > .circle {
+  overflow: hidden;
+}
+
+.circle-container.last-tweet > .circle > p {
+  padding-top: 0;
+  margin-top: 0;
+  display: none;
+  opacity: 0;
+  color: #FFF;
+  -webkit-shape-inside:circle();
+  shape-inside:circle();
+}
+
+.circle-container.circle-big.last-tweet > .circle > p {
+  height: 100%;
+  padding-left: 8%;
+  padding-right: 19%;
+  /* Internet Explorer 10 */
+display:-ms-flexbox;
+-ms-flex-pack:center;
+-ms-flex-align:center;
+
+/* Firefox */
+display:-moz-box;
+-moz-box-pack:center;
+-moz-box-align:center;
+
+/* Safari, Opera, and Chrome */
+display:-webkit-box;
+-webkit-box-pack:center;
+-webkit-box-align:center;
+
+/* W3C */
+display:box;
+box-pack:center;
+box-align:center;
+  opacity: 1;
+  visibility : visible;
+}
+
+.circle-container.last-tweet > .circle > svg {
+  display: block;
+}
+
+.circle-container.circle-big.last-tweet > .circle > svg {
+  display: none;
+}

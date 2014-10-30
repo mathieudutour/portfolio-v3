@@ -1,0 +1,14 @@
+/* TEAM */
+	Software Engineer:Mathieu Dutour
+	Contact: mathieu [at] dutour.me
+	Twitter: @MathieuDutour
+	From:Cranfield, Bedfordshire, UK
+
+/* THANKS */
+		
+
+/* SITE */
+	Last update:2014/10/28
+	Language: English
+	Doctype:HTML5
+	IDE: Bracket, Sketch

@@ -1,0 +1,42 @@
+.shadow(@string: ~"0 1px #f0f0f0 inset, 0 1px 3px rgba(34, 25, 25, 0.4)") {
+  -webkit-box-shadow:  @string;
+  box-shadow:          @string;
+}
+
+.transform(@string) {
+    -webkit-transform:  @string;
+    transform:          @string;
+}
+
+.animation(@string) {
+    -webkit-animation:  @string;
+    animation:          @string;
+}
+
+.rotate(@deg) {
+    .transform(rotate(@deg));
+}
+
+.scale(@factor) {
+    .transform(scale(@deg));
+}
+
+.translate (@x, @y) {
+    .transform(translate(@x, @y));
+}
+
+.transition(@string: all 0.3s ease-out) {
+    -webkit-transition: @string;
+    transition:         @string;
+}
+
+.box-sizing(@value: border-box) {
+    -webkit-box-sizing: @value;
+    -moz-box-sizing:    @value;
+    box-sizing:         @value;
+}
+
+.animation(@value) {
+  -webkit-animation: @value;
+  animation:         @value;
+}
