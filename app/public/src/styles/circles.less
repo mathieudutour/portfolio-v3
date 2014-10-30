@@ -7,6 +7,58 @@
 @base-sport: #ff0093;
 @base-divers: #c8ff4b;
 
+.caption {
+  position: absolute;
+  color: #FFFFFF;
+}
+
+.caption.social {
+  top: 10px;
+  left: 10px;
+  border-top: 0.2em solid #00aced;
+  font-size: 2em;
+  text-align: left;
+}
+.caption.job {
+  top: 10px;
+  right: 10px;
+  border-top: 0.2em solid #43ff00;
+  font-size: 2em;
+  text-align: right;
+}
+.caption.divers {
+  bottom: 10px;
+  left: 10px;
+  border-bottom: 0.2em solid #feff4b;
+  font-size: 2em;
+  text-align: left;
+}
+.caption.sport {
+  bottom: 10px;
+  right: 10px;
+  border-bottom: 0.2em solid #ff002d;
+  font-size: 2em;
+  text-align: right;
+}
+
+#circlesUI.appeared .caption {
+  .animation(opac 1s);
+}
+
+#circlesUI.moved .caption {
+  .animation(opac 1s reverse forwards);
+}
+
+.mixi-frames () {
+	from {opacity:0;}
+};
+
+@-webkit-keyframes opac {.mixi-frames;}
+@-moz-keyframes opac {.mixi-frames;}
+@-ms-keyframes opac {.mixi-frames;}
+@-o-keyframes opac {.mixi-frames;}
+@keyframes opac {.mixi-frames;}
+
 .generate-color-social(16);
 .generate-color-job(10);
 .generate-color-sport(14);

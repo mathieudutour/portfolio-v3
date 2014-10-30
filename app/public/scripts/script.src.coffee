@@ -512,6 +512,8 @@ do (window, document) ->
 
     event.preventDefault()
 
+    addClass(@element, 'moved') unless hasClass(@element, 'moved')
+
     # Cache mouse coordinates.
     clientX = event.clientX
     clientY = event.clientY
