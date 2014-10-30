@@ -11,6 +11,7 @@ var router = require('./controllers');
 app.engine('html', require('ejs').renderFile);
 app.set('views', './views');
 app.set('view engine', 'ejs');
+app.set('port', (process.env.PORT || 5000));
 
 var options = {
   dotfiles: 'ignore',
@@ -31,7 +32,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(router.router);
 
-var server = app.listen(3000, 'localhost', function () {
+var server = app.listen(app.get('port'), function () {
 
   var host = server.address().address;
   var port = server.address().port;
