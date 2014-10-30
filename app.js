@@ -1,15 +1,15 @@
 /*jshint node: true*/
 var express = require('express');
 var session = require('express-session');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 var passport = require('passport');
 
 var app = express();
-var router = require('./controllers');
+var router = require('./app/controllers');
 
 
 app.engine('html', require('ejs').renderFile);
-app.set('views', './views');
+app.set('views', './app/views');
 app.set('view engine', 'ejs');
 app.set('port', (process.env.PORT || 5000));
 
@@ -21,7 +21,7 @@ var options = {
   redirect: false
 };
 
-app.use(express.static('public', options));
+app.use(express.static('app/public', options));
 //app.use(express.cookieParser());
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
