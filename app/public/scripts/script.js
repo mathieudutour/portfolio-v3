@@ -498,6 +498,7 @@
     };
     CirclesUI.prototype.onMouseDown = function(event) {
       var clientX, clientY;
+      console.log("down");
       event.preventDefault();
       clientX = event.clientX;
       clientY = event.clientY;
@@ -513,6 +514,7 @@
       var i;
       this.ix = 0;
       this.iy = 0;
+      console.log("up");
       i = 0;
       while (Math.abs(this.vx) > 0 && Math.abs(this.vx) > 0 && i < 50) {
         this.raf = requestAnimationFrame(this.onAnimationFrame);
@@ -533,6 +535,7 @@
     };
     CirclesUI.prototype.onMouseMove = function(event) {
       var clientX, clientY;
+      console.log("move");
       event.preventDefault();
       if (!hasClass(this.element, 'moved')) {
         addClass(this.element, 'moved');
