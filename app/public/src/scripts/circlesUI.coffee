@@ -471,9 +471,8 @@ do (window, document) ->
     if event.touches? and event.touches.length? and event.touches.length > 0
       for touch in event.touches
         do (touch) ->
-          console.log touch.identifier
-          console.log self.activeTouch
           if touch.identifier is self.activeTouch
+            console.log touch.clientX
             return {clientX: touch.clientX, clientY: touch.clientY}
     else
       return {clientX: event.clientX, clientY: event.clientY}
@@ -486,7 +485,7 @@ do (window, document) ->
         @activeTouch = event.changedTouches[0].identifier
       # Cache event coordinates.
       {clientX, clientY} = @getCoordinatesFromEvent(event)
-
+      console.log clientX
       # Calculate Mouse Input
       if @relativeInput and @clipRelativeInput
         clientX = @clamp(clientX, @ex, @ex + @ew)

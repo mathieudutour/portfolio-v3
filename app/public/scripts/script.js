@@ -499,9 +499,8 @@
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           touch = _ref[_i];
           _results.push((function(touch) {
-            console.log(touch.identifier);
-            console.log(self.activeTouch);
             if (touch.identifier === self.activeTouch) {
+              console.log(touch.clientX);
               return {
                 clientX: touch.clientX,
                 clientY: touch.clientY
@@ -525,6 +524,7 @@
           this.activeTouch = event.changedTouches[0].identifier;
         }
         _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+        console.log(clientX);
         if (this.relativeInput && this.clipRelativeInput) {
           clientX = this.clamp(clientX, this.ex, this.ex + this.ew);
           clientY = this.clamp(clientY, this.ey, this.ey + this.eh);
