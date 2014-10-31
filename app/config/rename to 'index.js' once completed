@@ -20,6 +20,5 @@ exports = {
   linkedin: {
     consumerKey: '',
     consumerSecret: ''
-  },
-  rescuetime: ''
+  }
 };
