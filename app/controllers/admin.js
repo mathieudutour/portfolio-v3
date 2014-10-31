@@ -7,9 +7,6 @@ var sha1 = require('sha1');
 var db = require('../models/').db;
 var config = require('../config/').config;
 
-
-// Rescue Time : B63P6JWu25f2wNujn_9KGrrmzukFTii1656Aelms
-
 var controller = function (req, res, next) {
   db.providers.findOne({name:'basic'}, function(err, doc) {
     if(err) {return next(err);}
