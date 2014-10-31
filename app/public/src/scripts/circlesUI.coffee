@@ -472,8 +472,10 @@ do (window, document) ->
       for touch in event.touches
         do (touch) ->
           if touch.identifier is self.activeTouch
-            console.log touch.clientX
-            return {clientX: touch.clientX, clientY: touch.clientY}
+            x = touch.clientX
+            y = touch.clientY
+            break
+      return {clientX: x, clientY: y}
     else
       return {clientX: event.clientX, clientY: event.clientY}
 

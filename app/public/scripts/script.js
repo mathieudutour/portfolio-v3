@@ -8,7 +8,8 @@
  */
 
 (function() {
-  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var lastTime, vendor, vendors, _fn, _i, _len,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   (function(window, document) {
     var CirclesUI, DEFAULTS, NAME, addClass, classReg, hasClass, removeClass;
@@ -491,24 +492,26 @@
       return this.raf = requestAnimationFrame(this.onAnimationFrame);
     };
     CirclesUI.prototype.getCoordinatesFromEvent = function(event) {
-      var self, touch, _i, _len, _ref, _results;
+      var self, touch, _fn, _i, _len, _ref;
       self = this;
       if ((event.touches != null) && (event.touches.length != null) && event.touches.length > 0) {
         _ref = event.touches;
-        _results = [];
+        _fn = function(touch) {
+          var x, y;
+          if (touch.identifier === self.activeTouch) {
+            x = touch.clientX;
+            y = touch.clientY;
+            break;
+          }
+        };
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           touch = _ref[_i];
-          _results.push((function(touch) {
-            if (touch.identifier === self.activeTouch) {
-              console.log(touch.clientX);
-              return {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-              };
-            }
-          })(touch));
+          _fn(touch);
         }
-        return _results;
+        return {
+          clientX: x,
+          clientY: y
+        };
       } else {
         return {
           clientX: event.clientX,
@@ -583,18 +586,13 @@
     return window[NAME] = CirclesUI;
   })(window, document);
 
-}).call(this);
 
-
-/*
- * Request Animation Frame Polyfill.
- * @author Tino Zijdel
- * @author Paul Irish
- * @see https://gist.github.com/paulirish/1579671
- */
-
-(function() {
-  var lastTime, vendor, vendors, _fn, _i, _len;
+  /*
+   * Request Animation Frame Polyfill.
+   * @author Tino Zijdel
+   * @author Paul Irish
+   * @see https://gist.github.com/paulirish/1579671
+   */
 
   lastTime = 0;
 
@@ -629,3 +627,5 @@
   }
 
 }).call(this);
+
+//# sourceMappingURL=script.js.map
