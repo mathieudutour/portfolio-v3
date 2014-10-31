@@ -467,12 +467,13 @@ do (window, document) ->
     @raf = requestAnimationFrame(@onAnimationFrame)
 
   CirclesUI.prototype.getCoordinatesFromEvent= (event) ->
+    self = this
     if event.touches? and event.touches.length? and event.touches.length > 0
       for touch in event.touches
         do (touch) ->
           console.log touch.identifier
-          console.log @activeTouch
-          if touch.identifier == @activeTouch
+          console.log self.activeTouch
+          if touch.identifier is self.activeTouch
             return {clientX: touch.clientX, clientY: touch.clientY}
     else
       return {clientX: event.clientX, clientY: event.clientY}
