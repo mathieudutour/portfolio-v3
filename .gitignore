@@ -31,7 +31,7 @@ build/Release
 node_modules
 
 # Config.js (contain API keys and secrets)
-app/config/index.js
+#app/config/index.js
 
 # DB
 app/models/*.db
