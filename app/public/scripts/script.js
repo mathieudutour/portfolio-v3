@@ -491,12 +491,13 @@
       return this.raf = requestAnimationFrame(this.onAnimationFrame);
     };
     CirclesUI.prototype.getCoordinatesFromEvent = function(event) {
-      var self, touch, _fn, _i, _len, _ref;
+      var self, touch, x, y, _fn, _i, _len, _ref;
       self = this;
       if ((event.touches != null) && (event.touches.length != null) && event.touches.length > 0) {
+        x = 0;
+        y = 0;
         _ref = event.touches;
         _fn = function(touch) {
-          var x, y;
           if (touch.identifier === self.activeTouch) {
             x = touch.clientX;
             return y = touch.clientY;

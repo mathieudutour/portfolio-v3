@@ -469,6 +469,8 @@ do (window, document) ->
   CirclesUI.prototype.getCoordinatesFromEvent= (event) ->
     self = this
     if event.touches? and event.touches.length? and event.touches.length > 0
+      x = 0
+      y = 0
       for touch in event.touches
         do (touch) ->
           if touch.identifier is self.activeTouch
