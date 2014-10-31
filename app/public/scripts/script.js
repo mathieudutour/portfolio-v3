@@ -8,7 +8,8 @@
  */
 
 (function() {
-  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var lastTime, vendor, vendors, _fn, _i, _len,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   (function(window, document) {
     var CirclesUI, DEFAULTS, NAME, addClass, classReg, hasClass, removeClass;
@@ -294,12 +295,12 @@
         _fn(circle);
       }
       this.appeared();
-      this.miny = Math.min(parseFloat(this.circles[0].y) - parseFloat(this.circleDiameter) / 2, this.eh - parseFloat(this.circleDiameter));
-      this.maxy = Math.max(parseFloat(this.circles[this.circles.length - 1].y) + parseFloat(this.circleDiameter) / 2, this.eh + parseFloat(this.circleDiameter));
+      this.miny = Math.min(parseFloat(this.circles[0].y) - parseFloat(this.circleDiameter) / 2, -parseFloat(this.circleDiameter) / 2);
+      this.maxy = Math.max(parseFloat(this.circles[this.circles.length - 1].y) + parseFloat(this.circleDiameter) / 2, this.eh + parseFloat(this.circleDiameter) / 2);
       this.cy = parseFloat(this.circles[cj + this.numberOfCol * ci].y);
       this.ry = this.maxy - this.miny;
-      this.minx = Math.min(parseFloat(Math.min(this.circles[0].x, this.circles[this.numberOfCol].x)) - parseFloat(this.circleDiameter) / 2, this.ew - parseFloat(this.circleDiameter));
-      this.maxx = Math.max(Math.max(this.circles[this.circles.length - 1].x, this.circles[this.circles.length - 1 - this.numberOfCol].x) + parseFloat(this.circleDiameter), this.ew + parseFloat(this.circleDiameter));
+      this.minx = Math.min(parseFloat(Math.min(this.circles[0].x, this.circles[this.numberOfCol].x)) - parseFloat(this.circleDiameter) / 2, -parseFloat(this.circleDiameter) / 2);
+      this.maxx = Math.max(Math.max(this.circles[this.circles.length - 1].x, this.circles[this.circles.length - 1 - this.numberOfCol].x) + parseFloat(this.circleDiameter), this.ew + parseFloat(this.circleDiameter) / 2);
       this.cx = parseFloat(this.circles[cj + this.numberOfCol * ci].x);
       return this.rx = this.maxx - this.minx;
     };
@@ -469,13 +470,8 @@
       return this.updateDimensions();
     };
     CirclesUI.prototype.onAnimationFrame = function() {
-      if (this.portrait) {
-        this.mx = this.iy;
-        this.my = this.ix;
-      } else {
-        this.mx = this.ix;
-        this.my = this.iy;
-      }
+      this.mx = this.ix;
+      this.my = this.iy;
       this.mx *= this.ew * (this.scalarX / 100);
       this.my *= this.eh * (this.scalarY / 100);
       if (!isNaN(parseFloat(this.limitX))) {
@@ -549,24 +545,21 @@
         this.ix = (clientX - this.fix) / this.ww;
         this.iy = (clientY - this.fiy) / this.wh;
       }
+      console.log(this.ix);
+      console.log(this.iy);
       this.fix = clientX;
       return this.fiy = clientY;
     };
     return window[NAME] = CirclesUI;
   })(window, document);
 
-}).call(this);
 
-
-/*
- * Request Animation Frame Polyfill.
- * @author Tino Zijdel
- * @author Paul Irish
- * @see https://gist.github.com/paulirish/1579671
- */
-
-(function() {
-  var lastTime, vendor, vendors, _fn, _i, _len;
+  /*
+   * Request Animation Frame Polyfill.
+   * @author Tino Zijdel
+   * @author Paul Irish
+   * @see https://gist.github.com/paulirish/1579671
+   */
 
   lastTime = 0;
 
@@ -601,3 +594,5 @@
   }
 
 }).call(this);
+
+//# sourceMappingURL=script.js.map

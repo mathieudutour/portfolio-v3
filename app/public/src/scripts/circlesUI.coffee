@@ -279,12 +279,12 @@ do (window, document) ->
 
     @appeared()
 
-    @miny = Math.min(parseFloat(@circles[0].y) - parseFloat(@circleDiameter)/2, @eh-parseFloat(@circleDiameter))
-    @maxy = Math.max(parseFloat(@circles[@circles.length-1].y) + parseFloat(@circleDiameter)/2, @eh+parseFloat(@circleDiameter))
+    @miny = Math.min(parseFloat(@circles[0].y) - parseFloat(@circleDiameter)/2, -parseFloat(@circleDiameter)/2)
+    @maxy = Math.max(parseFloat(@circles[@circles.length-1].y) + parseFloat(@circleDiameter)/2, @eh+parseFloat(@circleDiameter)/2)
     @cy = parseFloat(@circles[cj + @numberOfCol*ci].y)
     @ry = @maxy - @miny
-    @minx = Math.min(parseFloat(Math.min(@circles[0].x, @circles[@numberOfCol].x)) - parseFloat(@circleDiameter)/2, @ew-parseFloat(@circleDiameter))
-    @maxx = Math.max(Math.max(@circles[@circles.length-1].x, @circles[@circles.length-1-@numberOfCol].x) + parseFloat(@circleDiameter), @ew+parseFloat(@circleDiameter))
+    @minx = Math.min(parseFloat(Math.min(@circles[0].x, @circles[@numberOfCol].x)) - parseFloat(@circleDiameter)/2, -parseFloat(@circleDiameter)/2)
+    @maxx = Math.max(Math.max(@circles[@circles.length-1].x, @circles[@circles.length-1-@numberOfCol].x) + parseFloat(@circleDiameter), @ew+parseFloat(@circleDiameter)/2)
     @cx = parseFloat(@circles[cj + @numberOfCol*ci].x)
     @rx = @maxx - @minx
 
@@ -445,12 +445,8 @@ do (window, document) ->
 
   CirclesUI.prototype.onAnimationFrame = () ->
 
-    if @portrait
-      @mx = @iy
-      @my = @ix
-    else
-      @mx = @ix
-      @my = @iy
+    @mx = @ix
+    @my = @iy
 
     @mx *= @ew * (@scalarX / 100)
     @my *= @eh * (@scalarY / 100)
@@ -531,7 +527,8 @@ do (window, document) ->
       # Calculate input relative to the window.
       @ix = (clientX - @fix) / @ww
       @iy = (clientY - @fiy) / @wh
-
+    console.log @ix
+    console.log @iy
     @fix = clientX
     @fiy = clientY
 
