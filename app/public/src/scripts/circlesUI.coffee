@@ -216,7 +216,7 @@ do (window, document) ->
 
     window.addEventListener('mousedown', @onMouseDown)
     window.addEventListener('mouseup', @onMouseUp)
-    window.addEventListener('touchbegin', @onMouseDown)
+    window.addEventListener('touchstart', @onMouseDown)
     window.addEventListener('touchend', @onMouseUp)
     window.addEventListener('resize', @onWindowResize)
 
@@ -471,7 +471,6 @@ do (window, document) ->
     @raf = requestAnimationFrame(@onAnimationFrame)
 
   CirclesUI.prototype.onMouseDown = (event) ->
-    console.log "down"
     event.preventDefault()
 
     # Cache mouse coordinates.
@@ -489,7 +488,6 @@ do (window, document) ->
   CirclesUI.prototype.onMouseUp = (event) ->
     @ix = 0
     @iy = 0
-    console.log "up"
     # Easing
     i = 0
     while Math.abs(@vx) > 0 and Math.abs(@vx) > 0 and i < 50
@@ -509,7 +507,6 @@ do (window, document) ->
     ), 300###
 
   CirclesUI.prototype.onMouseMove = (event) ->
-    console.log "move"
     event.preventDefault()
 
     addClass(@element, 'moved') unless hasClass(@element, 'moved')

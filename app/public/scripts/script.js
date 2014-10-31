@@ -8,8 +8,7 @@
  */
 
 (function() {
-  var lastTime, vendor, vendors, _fn, _i, _len,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   (function(window, document) {
     var CirclesUI, DEFAULTS, NAME, addClass, classReg, hasClass, removeClass;
@@ -231,7 +230,7 @@
       }
       window.addEventListener('mousedown', this.onMouseDown);
       window.addEventListener('mouseup', this.onMouseUp);
-      window.addEventListener('touchbegin', this.onMouseDown);
+      window.addEventListener('touchstart', this.onMouseDown);
       window.addEventListener('touchend', this.onMouseUp);
       window.addEventListener('resize', this.onWindowResize);
       this.updateDimensions();
@@ -498,7 +497,6 @@
     };
     CirclesUI.prototype.onMouseDown = function(event) {
       var clientX, clientY;
-      console.log("down");
       event.preventDefault();
       clientX = event.clientX;
       clientY = event.clientY;
@@ -514,7 +512,6 @@
       var i;
       this.ix = 0;
       this.iy = 0;
-      console.log("up");
       i = 0;
       while (Math.abs(this.vx) > 0 && Math.abs(this.vx) > 0 && i < 50) {
         this.raf = requestAnimationFrame(this.onAnimationFrame);
@@ -535,7 +532,6 @@
     };
     CirclesUI.prototype.onMouseMove = function(event) {
       var clientX, clientY;
-      console.log("move");
       event.preventDefault();
       if (!hasClass(this.element, 'moved')) {
         addClass(this.element, 'moved');
@@ -559,13 +555,18 @@
     return window[NAME] = CirclesUI;
   })(window, document);
 
+}).call(this);
 
-  /*
-   * Request Animation Frame Polyfill.
-   * @author Tino Zijdel
-   * @author Paul Irish
-   * @see https://gist.github.com/paulirish/1579671
-   */
+
+/*
+ * Request Animation Frame Polyfill.
+ * @author Tino Zijdel
+ * @author Paul Irish
+ * @see https://gist.github.com/paulirish/1579671
+ */
+
+(function() {
+  var lastTime, vendor, vendors, _fn, _i, _len;
 
   lastTime = 0;
 
@@ -600,5 +601,3 @@
   }
 
 }).call(this);
-
-//# sourceMappingURL=script.js.map
