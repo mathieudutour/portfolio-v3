@@ -96,7 +96,7 @@
   .generate-color-divers(@n, (@i + 1));
 }
 
-.circle-container > .circle > img, .circle-container > .circle > svg{
+.circle-container > .circle > img{
   height: 100%;
   width: 100%;
 }
@@ -121,6 +121,10 @@
   overflow: hidden;
 }
 
+.circle-container.disabled > .circle {
+  background-color: #7e7e7e !important;
+}
+
 .circle-container.last-tweet > .circle > p {
   padding-top: 0;
   margin-top: 0;
@@ -140,11 +144,11 @@
   visibility : visible;
 }
 
-.circle-container.last-tweet > .circle > svg {
+.circle-container.last-tweet > .circle > img {
   display: block;
 }
 
-.circle-container.circle-big.last-tweet > .circle > svg {
+.circle-container.circle-big.last-tweet > .circle > img {
   display: none;
 }
 
@@ -174,13 +178,13 @@
   font-size: 0.8em;
 }
 
-.circle-container.step > .circle > svg {
+.circle-container.step > .circle > img {
   display: block;
   position: relative;
   .transition;
 }
 
-.circle-container.circle-big.step > .circle > svg {
+.circle-container.circle-big.step > .circle > img {
   width: 50%;
   height: 50%;
   left: 50%;
