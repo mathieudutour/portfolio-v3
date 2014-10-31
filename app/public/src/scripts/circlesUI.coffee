@@ -470,9 +470,9 @@ do (window, document) ->
     if event.touches? and event.touches.length? and event.touches.length > 0
       for touch in event.touches
         do (touch) ->
-          console.log touch.clientX
-          if touch.identifier is @activeTouch
-
+          console.log touch.identifier
+          console.log @activeTouch
+          if touch.identifier == @activeTouch
             return {clientX: touch.clientX, clientY: touch.clientY}
     else
       return {clientX: event.clientX, clientY: event.clientY}
