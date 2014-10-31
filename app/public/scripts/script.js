@@ -8,8 +8,7 @@
  */
 
 (function() {
-  var lastTime, vendor, vendors, _fn, _i, _len,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   (function(window, document) {
     var CirclesUI, DEFAULTS, NAME, addClass, classReg, hasClass, removeClass;
@@ -499,8 +498,8 @@
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           touch = _ref[_i];
           _results.push((function(touch) {
+            console.log(touch.clientX);
             if (touch.identifier === this.activeTouch) {
-              console.log(touch.clientX);
               return {
                 clientX: touch.clientX,
                 clientY: touch.clientY
@@ -582,13 +581,18 @@
     return window[NAME] = CirclesUI;
   })(window, document);
 
+}).call(this);
 
-  /*
-   * Request Animation Frame Polyfill.
-   * @author Tino Zijdel
-   * @author Paul Irish
-   * @see https://gist.github.com/paulirish/1579671
-   */
+
+/*
+ * Request Animation Frame Polyfill.
+ * @author Tino Zijdel
+ * @author Paul Irish
+ * @see https://gist.github.com/paulirish/1579671
+ */
+
+(function() {
+  var lastTime, vendor, vendors, _fn, _i, _len;
 
   lastTime = 0;
 
@@ -623,5 +627,3 @@
   }
 
 }).call(this);
-
-//# sourceMappingURL=script.js.map
