@@ -467,7 +467,7 @@ do (window, document) ->
     @raf = requestAnimationFrame(@onAnimationFrame)
 
   CirclesUI.prototype.getCoordinatesFromEvent= (event) ->
-
+    console.log event
     if event.touches? and event.touches.length? and event.touches.length > 0
       for touch in event.touches
         do (touch) ->
