@@ -474,7 +474,6 @@ do (window, document) ->
           if touch.identifier is self.activeTouch
             x = touch.clientX
             y = touch.clientY
-            break
       return {clientX: x, clientY: y}
     else
       return {clientX: event.clientX, clientY: event.clientY}
