@@ -491,23 +491,52 @@
       this.moveCircles(this.vx, this.vy);
       return this.raf = requestAnimationFrame(this.onAnimationFrame);
     };
-    CirclesUI.prototype.onMouseDown = function(event) {
-      var clientX, clientY;
-      event.preventDefault();
-      clientX = event.clientX;
-      clientY = event.clientY;
-      if (this.relativeInput && this.clipRelativeInput) {
-        clientX = this.clamp(clientX, this.ex, this.ex + this.ew);
-        clientY = this.clamp(clientY, this.ey, this.ey + this.eh);
+    CirclesUI.prototype.getCoordinatesFromEvent = function(event) {
+      var touch, _i, _len, _ref, _results;
+      if ((event.touches != null) && (event.touches.length != null) && event.touches.length > 0) {
+        _ref = event.touches;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          touch = _ref[_i];
+          _results.push((function(touch) {
+            if (touch.identifier === this.activeTouch) {
+              return {
+                clientX: touch.pageX,
+                clientY: touch.pageY
+              };
+            }
+          })(touch));
+        }
+        return _results;
+      } else {
+        return {
+          clientX: event.clientX,
+          clientY: event.clientY
+        };
       }
-      this.fix = clientX;
-      this.fiy = clientY;
-      return this.enable();
+    };
+    CirclesUI.prototype.onMouseDown = function(event) {
+      var clientX, clientY, _ref;
+      event.preventDefault();
+      if (!this.enabled) {
+        if ((event.changedTouches != null) && event.changedTouches.length > 0) {
+          this.activeTouch = event.changedTouches[0].identifier;
+        }
+        _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+        if (this.relativeInput && this.clipRelativeInput) {
+          clientX = this.clamp(clientX, this.ex, this.ex + this.ew);
+          clientY = this.clamp(clientY, this.ey, this.ey + this.eh);
+        }
+        this.fix = clientX;
+        this.fiy = clientY;
+        return this.enable();
+      }
     };
     CirclesUI.prototype.onMouseUp = function(event) {
       var i;
       this.ix = 0;
       this.iy = 0;
+      this.activeTouch = null;
       i = 0;
       while (Math.abs(this.vx) > 0 && Math.abs(this.vx) > 0 && i < 50) {
         this.raf = requestAnimationFrame(this.onAnimationFrame);
@@ -527,13 +556,12 @@
        */
     };
     CirclesUI.prototype.onMouseMove = function(event) {
-      var clientX, clientY;
+      var clientX, clientY, _ref;
       event.preventDefault();
       if (!hasClass(this.element, 'moved')) {
         addClass(this.element, 'moved');
       }
-      clientX = event.clientX;
-      clientY = event.clientY;
+      _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
       if (this.relativeInput) {
         if (this.clipRelativeInput) {
           clientX = this.clamp(clientX, this.ex, this.ex + this.ew);

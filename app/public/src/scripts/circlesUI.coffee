@@ -466,24 +466,37 @@ do (window, document) ->
 
     @raf = requestAnimationFrame(@onAnimationFrame)
 
+  CirclesUI.prototype.getCoordinatesFromEvent= (event) ->
+
+    if event.touches? and event.touches.length? and event.touches.length > 0
+      for touch in event.touches
+        do (touch) ->
+          if touch.identifier is @activeTouch
+            return {clientX: touch.pageX, clientY: touch.pageY}
+    else
+      return {clientX: event.clientX, clientY: event.clientY}
+
   CirclesUI.prototype.onMouseDown = (event) ->
     event.preventDefault()
 
-    # Cache mouse coordinates.
-    clientX = event.clientX
-    clientY = event.clientY
+    unless @enabled
+      if event.changedTouches? and event.changedTouches.length > 0
+        @activeTouch = event.changedTouches[0].identifier
+      # Cache event coordinates.
+      {clientX, clientY} = @getCoordinatesFromEvent(event)
 
-    # Calculate Mouse Input
-    if @relativeInput and @clipRelativeInput
-      clientX = @clamp(clientX, @ex, @ex + @ew)
-      clientY = @clamp(clientY, @ey, @ey + @eh)
-    @fix = clientX
-    @fiy = clientY
-    @enable()
+      # Calculate Mouse Input
+      if @relativeInput and @clipRelativeInput
+        clientX = @clamp(clientX, @ex, @ex + @ew)
+        clientY = @clamp(clientY, @ey, @ey + @eh)
+      @fix = clientX
+      @fiy = clientY
+      @enable()
 
   CirclesUI.prototype.onMouseUp = (event) ->
     @ix = 0
     @iy = 0
+    @activeTouch = null
     # Easing
     i = 0
     while Math.abs(@vx) > 0 and Math.abs(@vx) > 0 and i < 50
@@ -507,9 +520,8 @@ do (window, document) ->
 
     addClass(@element, 'moved') unless hasClass(@element, 'moved')
 
-    # Cache mouse coordinates.
-    clientX = event.clientX
-    clientY = event.clientY
+    # Cache event coordinates.
+    {clientX, clientY} = @getCoordinatesFromEvent(event)
 
     # Calculate Mouse Input
     if @relativeInput
