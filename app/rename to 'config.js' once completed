@@ -1,0 +1,24 @@
+/*jshint node: true*/
+exports = {
+  siteURL: "",
+  facebook: {
+    clientID: '',
+    clientSecret: ''
+  }, 
+  strava: {
+    clientID: '',
+    clientSecret: ''
+  },
+  twitter: {
+    consumerKey: '',
+    consumerSecret: ''
+  },
+  github: {
+    clientID: '',
+    clientSecret: ''
+  },
+  linkedin: {
+    consumerKey: '',
+    consumerSecret: ''
+  }
+};

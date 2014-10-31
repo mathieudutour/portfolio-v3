@@ -229,9 +229,8 @@ do (window, document) ->
     # Cache Circle Elements
     @circles = @element.getElementsByClassName('circle-container')
     circlesMatrix = []
-    numberOfCol = Math.floor(Math.sqrt(@circles.length))
-
-    if numberOfCol < 7
+    numberOfCol = Math.ceil(Math.sqrt(2*@circles.length)/2)
+    if numberOfCol < 4
       # TODO
       console.log "need more for now"
 
@@ -256,8 +255,9 @@ do (window, document) ->
     @numberOfRow = @circles[@circles.length-1].i + 1
 
     # Find central Element
-    ci = Math.floor(@numberOfRow/2)
-    cj = Math.floor(@numberOfCol/2)
+    ci = Math.floor(@numberOfRow/2)-1
+    cj = Math.floor(@numberOfCol/2)-2
+
     @layoutCircles(ci, cj)
 
   CirclesUI.prototype.layoutCircles = (ci, cj) ->
@@ -271,7 +271,7 @@ do (window, document) ->
         if (circle.i - ci) % 2 is 1 or (circle.i - ci) % 2 is -1
           offset = -7
         else
-          offset = 0
+          offset = -14
         circle.x = offset + 12 + (circle.j - cj) * 14
         circle.y = circle.y/34 * if self.portrait then self.ew else self.eh
         circle.x = circle.x/44 * if self.portrait then self.eh else self.ew
@@ -279,12 +279,12 @@ do (window, document) ->
 
     @appeared()
 
-    @miny = parseFloat(@circles[0].y) - parseFloat(@circleDiameter)/2
-    @maxy = parseFloat(@circles[@circles.length-1].y) + parseFloat(@circleDiameter)/2
+    @miny = Math.min(parseFloat(@circles[0].y) - parseFloat(@circleDiameter)/2, @eh-parseFloat(@circleDiameter))
+    @maxy = Math.max(parseFloat(@circles[@circles.length-1].y) + parseFloat(@circleDiameter)/2, @eh+parseFloat(@circleDiameter))
     @cy = parseFloat(@circles[cj + @numberOfCol*ci].y)
     @ry = @maxy - @miny
-    @minx = parseFloat(Math.min(@circles[0].x, @circles[@numberOfCol].x)) - parseFloat(@circleDiameter)/2
-    @maxx = Math.max(@circles[@circles.length-1].x, @circles[@circles.length-1-@numberOfCol].x) + parseFloat(@circleDiameter)
+    @minx = Math.min(parseFloat(Math.min(@circles[0].x, @circles[@numberOfCol].x)) - parseFloat(@circleDiameter)/2, @ew-parseFloat(@circleDiameter))
+    @maxx = Math.max(Math.max(@circles[@circles.length-1].x, @circles[@circles.length-1-@numberOfCol].x) + parseFloat(@circleDiameter), @ew+parseFloat(@circleDiameter))
     @cx = parseFloat(@circles[cj + @numberOfCol*ci].x)
     @rx = @maxx - @minx
 

@@ -5,6 +5,7 @@ var gravatar = require('gravatar');
 var Cron = require('cron').CronJob;
 var sha1 = require('sha1');
 var db = require('../models/').db;
+var config = require('../config');
 
 
 // Rescue Time : B63P6JWu25f2wNujn_9KGrrmzukFTii1656Aelms
@@ -31,9 +32,9 @@ var inscription = function (req, res) {
 };
 
 var facebookStrategy = new (require('passport-facebook').Strategy)({
-  clientID: '346040448909652',
-  clientSecret: 'bd815c44db5cff3437d71af27c8bc69f',
-  callbackURL: 'http://localhost:3000/admin/auth/facebook/callback'
+  clientID: config.facebook.clientID,
+  clientSecret: config.facebook.clientSecret,
+  callbackURL: config.siteURL + '/admin/auth/facebook/callback'
   },
   function(accessToken, refreshToken, profile, done) {
     db.providers.update({name: profile.provider}, {name: profile.provider, accessToken: accessToken, refreshToken: refreshToken, link: profile._json.link, _raw: profile._json}, {upsert: true}, function() {
@@ -43,9 +44,9 @@ var facebookStrategy = new (require('passport-facebook').Strategy)({
 );
 
 var stravaStrategy = new (require('passport-strava').Strategy)({
-  clientID: '3439',
-  clientSecret: '8b60bd2e5797d8e327fc8ed1055e9c990c64b46b',
-  callbackURL: 'http://localhost:3000/admin/auth/strava/callback'
+  clientID: config.strava.clientID,
+  clientSecret: config.strava.clientSecret,
+  callbackURL: config.siteURL + '/admin/auth/strava/callback'
   },
   function(accessToken, refreshToken, profile, done) {
     db.providers.update({name: profile.provider}, {name: profile.provider, accessToken: accessToken, refreshToken: refreshToken, link: "http://www.strava.com/athletes/" + profile.id, _raw: profile._json}, {upsert: true}, function() {
@@ -55,9 +56,9 @@ var stravaStrategy = new (require('passport-strava').Strategy)({
 );
 
 var twitterStrategy = new (require('passport-twitter').Strategy)({
-  consumerKey: 'lgiadg6aHE9hp5ga75TrKhil2',
-  consumerSecret: 'S6Wtwc6dONJ24VaM518BqLZmLBIAaTIqMVemKgjqN8iiPG09J3',
-  callbackURL: 'http://localhost:3000/admin/auth/twitter/callback'
+  consumerKey: config.twitter.consumerKey,
+  consumerSecret: config.twitter.consumerSecret,
+  callbackURL: config.siteURL + '/admin/auth/twitter/callback'
   },
   function(token, tokenSecret, profile, done) {
     db.providers.update({name: profile.provider}, {name: profile.provider, accessToken: token, tokenSecret: tokenSecret, link: "https://twitter.com/" + profile._json.screen_name, _raw: profile._json}, {upsert: true}, function() {
@@ -72,9 +73,9 @@ var twitterStrategy = new (require('passport-twitter').Strategy)({
 );
 
 var githubStrategy = new (require('passport-github').Strategy)({
-  clientID: 'bde1aa08409be679edd9',
-  clientSecret: 'af7b325388f315b48999f2560f39f312d43fb474',
-  callbackURL: 'http://localhost:3000/admin/auth/github/callback'
+  clientID: config.github.clientID,
+  clientSecret: config.github.clientSecret,
+  callbackURL: config.siteURL + '/admin/auth/github/callback'
   },
   function(accessToken, refreshToken, profile, done) {
     db.providers.update({name: profile.provider}, {name: profile.provider, accessToken: accessToken, refreshToken: refreshToken, link: profile._json.html_url, _raw: profile._json}, {upsert: true}, function() {
@@ -84,9 +85,9 @@ var githubStrategy = new (require('passport-github').Strategy)({
 );
 
 var linkedinStrategy = new (require('passport-linkedin').Strategy)({
-  consumerKey: '75jl1oy2kd1jzp',
-  consumerSecret: 'iybnchpVIC10SfU9',
-  callbackURL: 'http://localhost:3000/admin/auth/linkedin/callback'
+  consumerKey: config.linkedin.consumerKey,
+  consumerSecret: config.linkedin.consumerSecret,
+  callbackURL: config.siteURL + '/admin/auth/linkedin/callback'
   },
   function(token, tokenSecret, profile, done) {
     db.providers.update({name: profile.provider}, {name: profile.provider, accessToken: token, tokenSecret: tokenSecret, link: "http://www.linkedin.com/profile/view?id=" + profile.id, _raw: profile._json}, {upsert: true}, function() {

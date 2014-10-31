@@ -59,13 +59,13 @@
 @-o-keyframes opac {.mixi-frames;}
 @keyframes opac {.mixi-frames;}
 
-.generate-color-social(16);
-.generate-color-job(10);
-.generate-color-sport(14);
-.generate-color-divers(16);
+.generate-color-social(6);
+.generate-color-job(6);
+.generate-color-sport(10);
+.generate-color-divers(10);
 
 .generate-color-social(@n, @i: 0) when (@i < @n) {
-  @j: 1 + floor(@i / 4) * 7 + mod(@i, 4);
+  @j: 1 + floor(@i / 2) * 4 + mod(@i, 2);
   .circle-container.social:nth-child(@{j}) > .circle {
     background-color: spin(@base-social, 8*@i);
   }
@@ -73,25 +73,25 @@
 }
 
 .generate-color-job(@n, @i: 0) when (@i < @n) {
-  @j: 5 + floor(@i / 3) * 7 + mod(@i, 3);
+  @j: 3 + floor(@i / 2) * 4 + mod(@i, 2);
   .circle-container.job:nth-child(@{j}) > .circle {
     background-color: spin(@base-job, -8*@i);
   }
   .generate-color-job(@n, (@i + 1));
 }
 
-.generate-color-sport(@n, @i: 1) when (@i =< @n) {
-  @j: 26 + floor(@i / 3) * 7 + mod(@i, 3);
+.generate-color-sport(@n, @i: 0) when (@i =< @n) {
+  @j: 15 + floor(@i / 2) * 4 + mod(@i, 2);
   .circle-container.sport:nth-child(@{j}) > .circle {
-    background-color: spin(@base-sport, 8*@i);
+    background-color: spin(@base-sport, 5*@i);
   }
   .generate-color-sport(@n, (@i + 1));
 }
 
 .generate-color-divers(@n, @i: 0) when (@i < @n) {
-  @j: 29 + floor(@i / 4) * 7 + mod(@i, 4);
+  @j: 13 + floor(@i / 2) * 4 + mod(@i, 2);
   .circle-container.divers:nth-child(@{j}) > .circle {
-    background-color: spin(@base-divers, -6*@i);
+    background-color: spin(@base-divers, -5*@i);
   }
   .generate-color-divers(@n, (@i + 1));
 }
@@ -135,25 +135,7 @@
   height: 100%;
   padding-left: 8%;
   padding-right: 19%;
-  /* Internet Explorer 10 */
-display:-ms-flexbox;
--ms-flex-pack:center;
--ms-flex-align:center;
-
-/* Firefox */
-display:-moz-box;
--moz-box-pack:center;
--moz-box-align:center;
-
-/* Safari, Opera, and Chrome */
-display:-webkit-box;
--webkit-box-pack:center;
--webkit-box-align:center;
-
-/* W3C */
-display:box;
-box-pack:center;
-box-align:center;
+  .center;
   opacity: 1;
   visibility : visible;
 }
@@ -164,4 +146,43 @@ box-align:center;
 
 .circle-container.circle-big.last-tweet > .circle > svg {
   display: none;
+}
+
+.circle-container.step > .circle > p {
+  padding-top: 0;
+  margin-top: 0;
+  display: none;
+  opacity: 0;
+  color: #FFF;
+  .transition;
+  -webkit-shape-inside:circle();
+  shape-inside:circle();
+}
+
+.circle-container.circle-big.step > .circle > p {
+  width: 0%;
+  padding-left: 10%;
+  margin-top: -9px;
+  display: block;
+  text-align: right;
+  opacity: 1;
+  visibility : visible;
+  font-size: 1.3em;
+}
+
+.circle-container.step > .circle > p > span {
+  font-size: 0.8em;
+}
+
+.circle-container.step > .circle > svg {
+  display: block;
+  position: relative;
+  .transition;
+}
+
+.circle-container.circle-big.step > .circle > svg {
+  width: 50%;
+  height: 50%;
+  left: 50%;
+  top: 25%;
 }

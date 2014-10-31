@@ -241,8 +241,8 @@
       var ci, circle, circlesMatrix, cj, i, j, numberOfCol, self, _fn, _i, _len, _ref;
       this.circles = this.element.getElementsByClassName('circle-container');
       circlesMatrix = [];
-      numberOfCol = Math.floor(Math.sqrt(this.circles.length));
-      if (numberOfCol < 7) {
+      numberOfCol = Math.ceil(Math.sqrt(2 * this.circles.length) / 2);
+      if (numberOfCol < 4) {
         console.log("need more for now");
       }
       j = 0;
@@ -269,8 +269,8 @@
       }
       this.numberOfCol = numberOfCol;
       this.numberOfRow = this.circles[this.circles.length - 1].i + 1;
-      ci = Math.floor(this.numberOfRow / 2);
-      cj = Math.floor(this.numberOfCol / 2);
+      ci = Math.floor(this.numberOfRow / 2) - 1;
+      cj = Math.floor(this.numberOfCol / 2) - 2;
       return this.layoutCircles(ci, cj);
     };
     CirclesUI.prototype.layoutCircles = function(ci, cj) {
@@ -283,7 +283,7 @@
         if ((circle.i - ci) % 2 === 1 || (circle.i - ci) % 2 === -1) {
           offset = -7;
         } else {
-          offset = 0;
+          offset = -14;
         }
         circle.x = offset + 12 + (circle.j - cj) * 14;
         circle.y = circle.y / 34 * (self.portrait ? self.ew : self.eh);
@@ -295,12 +295,12 @@
         _fn(circle);
       }
       this.appeared();
-      this.miny = parseFloat(this.circles[0].y) - parseFloat(this.circleDiameter) / 2;
-      this.maxy = parseFloat(this.circles[this.circles.length - 1].y) + parseFloat(this.circleDiameter) / 2;
+      this.miny = Math.min(parseFloat(this.circles[0].y) - parseFloat(this.circleDiameter) / 2, this.eh - parseFloat(this.circleDiameter));
+      this.maxy = Math.max(parseFloat(this.circles[this.circles.length - 1].y) + parseFloat(this.circleDiameter) / 2, this.eh + parseFloat(this.circleDiameter));
       this.cy = parseFloat(this.circles[cj + this.numberOfCol * ci].y);
       this.ry = this.maxy - this.miny;
-      this.minx = parseFloat(Math.min(this.circles[0].x, this.circles[this.numberOfCol].x)) - parseFloat(this.circleDiameter) / 2;
-      this.maxx = Math.max(this.circles[this.circles.length - 1].x, this.circles[this.circles.length - 1 - this.numberOfCol].x) + parseFloat(this.circleDiameter);
+      this.minx = Math.min(parseFloat(Math.min(this.circles[0].x, this.circles[this.numberOfCol].x)) - parseFloat(this.circleDiameter) / 2, this.ew - parseFloat(this.circleDiameter));
+      this.maxx = Math.max(Math.max(this.circles[this.circles.length - 1].x, this.circles[this.circles.length - 1 - this.numberOfCol].x) + parseFloat(this.circleDiameter), this.ew + parseFloat(this.circleDiameter));
       this.cx = parseFloat(this.circles[cj + this.numberOfCol * ci].x);
       return this.rx = this.maxx - this.minx;
     };
