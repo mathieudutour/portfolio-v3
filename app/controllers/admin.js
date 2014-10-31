@@ -5,7 +5,7 @@ var gravatar = require('gravatar');
 var Cron = require('cron').CronJob;
 var sha1 = require('sha1');
 var db = require('../models/').db;
-var config = require('../config').config;
+var config = require('../config/').config;
 
 
 // Rescue Time : B63P6JWu25f2wNujn_9KGrrmzukFTii1656Aelms
