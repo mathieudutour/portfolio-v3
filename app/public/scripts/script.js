@@ -491,25 +491,24 @@
       return this.raf = requestAnimationFrame(this.onAnimationFrame);
     };
     CirclesUI.prototype.getCoordinatesFromEvent = function(event) {
-      var self, touch, x, y, _fn, _i, _len, _ref;
+      var find, self, touch;
       self = this;
       if ((event.touches != null) && (event.touches.length != null) && event.touches.length > 0) {
-        x = 0;
-        y = 0;
-        _ref = event.touches;
-        _fn = function(touch) {
-          if (touch.identifier === self.activeTouch) {
-            x = touch.clientX;
-            return y = touch.clientY;
+        find = function(arr, f) {
+          var e, _i, _len;
+          for (_i = 0, _len = arr.length; _i < _len; _i++) {
+            e = arr[_i];
+            if (f(e)) {
+              return e;
+            }
           }
         };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          touch = _ref[_i];
-          _fn(touch);
-        }
+        touch = find(event.touches, function(touch) {
+          return touch.identifier === self.activeTouch;
+        });
         return {
-          clientX: x,
-          clientY: y
+          clientX: touch.clientX,
+          clientY: touch.clientY
         };
       } else {
         return {
@@ -526,7 +525,6 @@
           this.activeTouch = event.changedTouches[0].identifier;
         }
         _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
-        console.log(clientX);
         if (this.relativeInput && this.clipRelativeInput) {
           clientX = this.clamp(clientX, this.ex, this.ex + this.ew);
           clientY = this.clamp(clientY, this.ey, this.ey + this.eh);
@@ -577,8 +575,6 @@
         this.ix = (clientX - this.fix) / this.ww;
         this.iy = (clientY - this.fiy) / this.wh;
       }
-      console.log(this.ix);
-      console.log(this.iy);
       this.fix = clientX;
       return this.fiy = clientY;
     };

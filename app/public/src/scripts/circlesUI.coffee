@@ -469,14 +469,12 @@ do (window, document) ->
   CirclesUI.prototype.getCoordinatesFromEvent= (event) ->
     self = this
     if event.touches? and event.touches.length? and event.touches.length > 0
-      x = 0
-      y = 0
-      for touch in event.touches
-        do (touch) ->
-          if touch.identifier is self.activeTouch
-            x = touch.clientX
-            y = touch.clientY
-      return {clientX: x, clientY: y}
+      find = (arr, f) ->
+        for e in arr when f e
+          return e
+        return
+      touch= find event.touches, (touch) -> touch.identifier is self.activeTouch
+      return {clientX: touch.clientX, clientY: touch.clientY}
     else
       return {clientX: event.clientX, clientY: event.clientY}
 
@@ -488,7 +486,6 @@ do (window, document) ->
         @activeTouch = event.changedTouches[0].identifier
       # Cache event coordinates.
       {clientX, clientY} = @getCoordinatesFromEvent(event)
-      console.log clientX
       # Calculate Mouse Input
       if @relativeInput and @clipRelativeInput
         clientX = @clamp(clientX, @ex, @ex + @ew)
@@ -543,8 +540,7 @@ do (window, document) ->
       # Calculate input relative to the window.
       @ix = (clientX - @fix) / @ww
       @iy = (clientY - @fiy) / @wh
-    console.log @ix
-    console.log @iy
+
     @fix = clientX
     @fiy = clientY
 
