@@ -12,9 +12,9 @@
   (function(window, document) {
     var CirclesUI, DEFAULTS, NAME, Timer, addClass, classReg, hasClass, removeClass;
     Timer = function() {
-      this.elapsed = 0;
-      this.last = null;
-      this.before = 0;
+      this.framesUntilNextStat = 60;
+      this.fps = 0;
+      this.last = new Date;
       this.timerShow = document.createElement("div");
       document.body.insertBefore(this.timerShow, null);
       this.timerShow.style['position'] = "absolute";
@@ -23,15 +23,13 @@
       return this.timerShow.style['color'] = "#FFF";
     };
     Timer.prototype.tick = function(now) {
-      this.elapsed = (now - (this.last || now)) / 1000;
-      this.last = now;
-      if (now - this.before > 1000) {
-        this.before = now;
-        return this.timerShow.innerHTML = this.fps();
+      this.framesUntilNextStat--;
+      if (this.framesUntilNextStat <= 0) {
+        this.framesUntilNextStat = 60;
+        this.fps = ~~(60 * 1000 / (now - this.last));
+        this.last = now;
+        return this.timerShow.innerHTML = " FPS : " + this.fps;
       }
-    };
-    Timer.prototype.fps = function() {
-      return Math.round(1 / this.elapsed);
     };
     classReg = function(className) {
       return new RegExp("(^|\\s+)" + className + "(\\s+|$)");

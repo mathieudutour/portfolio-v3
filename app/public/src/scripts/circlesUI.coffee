@@ -6,9 +6,9 @@
 do (window, document) ->
 
   Timer = () ->
-    @elapsed = 0
-    @last = null
-    @before = 0
+    @framesUntilNextStat = 60
+    @fps = 0
+    @last = new Date
     @timerShow = document.createElement("div")
     document.body.insertBefore @timerShow, null
     @timerShow.style['position'] = "absolute"
@@ -17,14 +17,12 @@ do (window, document) ->
     @timerShow.style['color'] = "#FFF"
 
   Timer.prototype.tick = (now)->
-    @elapsed = (now - (@last or now)) / 1000
-    @last = now
-    if now - @before > 1000
-      @before = now
-      @timerShow.innerHTML = @fps()
-
-  Timer.prototype.fps = ()->
-    Math.round(1 / @elapsed)
+    @framesUntilNextStat--
+    if @framesUntilNextStat <= 0
+      @framesUntilNextStat = 60 # Scheduling the next statistics
+      @fps = ~~(60 * 1000 / (now - @last))
+      @last = now
+      @timerShow.innerHTML = " FPS : #{@fps}"
 
   # class helper functions from classie https://github.com/desandro/classie
   classReg = ( className ) ->
