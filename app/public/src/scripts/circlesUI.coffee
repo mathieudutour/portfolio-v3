@@ -53,8 +53,8 @@ do (window, document) ->
     invertY: false
     limitX: false
     limitY: false
-    scalarX: 100.0
-    scalarY: 100.0
+    scalarX: 1.0
+    scalarY: 1.0
     frictionX: 0.1
     frictionY: 0.1
     precision: 1
@@ -151,7 +151,7 @@ do (window, document) ->
       @vy = 0
 
       # Timer for FPS
-      @timer = new Timer()
+      if @showFPS then @timer = new Timer()
 
       # Vendor Prefixe from http://davidwalsh.name/vendor-prefix
       @vendorPrefix = (->
@@ -193,76 +193,65 @@ do (window, document) ->
         element.style.left = x
         element.style.top = y
 
-      @onAnimationFrame = if !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then (now) ->
-        @mx = @ix
-        @my = @iy
-
-        @mx *= @ew * (@scalarX / 100)
-        @my *= @eh * (@scalarY / 100)
-
-        @mx = @clamp(@mx, -@limitX, @limitX)
-        @my = @clamp(@my, -@limitY, @limitY)
-
+      @onAnimationFrame = if @showFPS and !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then (now) ->
+        @mx = @clamp(@ix * @ew * @scalarX, -@limitX, @limitX)
+        @my = @clamp(@iy * @eh * @scalarY, -@limitY, @limitY)
         @vx += (@mx - @vx) * @frictionX
         @vy += (@my - @vy) * @frictionY
-
-        if Math.abs(@vx) < 1 then @vx = 0
-        if Math.abs(@vy) < 1 then @vy = 0
-
         @moveCircles(@vx, @vy)
         @timer.tick(now)
+        @raf = requestAnimationFrame(@onAnimationFrame)
+      else if @showFPS and !isNaN(parseFloat(@limitX)) then (now) ->
+        @mx = @clamp(@ix * @ew * @scalarX, -@limitX, @limitX)
+        @my = @iy * @eh * @scalarY
+        @vx += (@mx - @vx) * @frictionX
+        @vy += (@my - @vy) * @frictionY
+        @moveCircles(@vx, @vy)
+        @timer.tick(now)
+        @raf = requestAnimationFrame(@onAnimationFrame)
+      else if @showFPS and !isNaN(parseFloat(@limitY)) then (now) ->
+        @mx = @ix * @ew * @scalarX
+        @my = @clamp(@iy * @eh * @scalarY, -@limitY, @limitY)
+        @vx += (@mx - @vx) * @frictionX
+        @vy += (@my - @vy) * @frictionY
+        @moveCircles(@vx, @vy)
+        @timer.tick(now)
+        @raf = requestAnimationFrame(@onAnimationFrame)
+      else if @showFPS then (now) ->
+        @mx = @ix * @ew * @scalarX
+        @my = @iy * @eh * @scalarY
+        @vx += (@mx - @vx) * @frictionX
+        @vy += (@my - @vy) * @frictionY
+        @moveCircles(@vx, @vy)
+        @timer.tick(now)
+        @raf = requestAnimationFrame(@onAnimationFrame)
+      else if !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then (now) ->
+        @mx = @clamp(@ix * @ew * @scalarX, -@limitX, @limitX)
+        @my = @clamp(@iy * @eh * @scalarY, -@limitY, @limitY)
+        @vx += (@mx - @vx) * @frictionX
+        @vy += (@my - @vy) * @frictionY
+        @moveCircles(@vx, @vy)
         @raf = requestAnimationFrame(@onAnimationFrame)
       else if !isNaN(parseFloat(@limitX)) then (now) ->
-        @mx = @ix
-        @my = @iy
-
-        @mx *= @ew * (@scalarX / 100)
-        @my *= @eh * (@scalarY / 100)
-
-        @mx = @clamp(@mx, -@limitX, @limitX)
-
+        @mx = @clamp(@ix * @ew * @scalarX, -@limitX, @limitX)
+        @my = @iy * @eh * @scalarY
         @vx += (@mx - @vx) * @frictionX
         @vy += (@my - @vy) * @frictionY
-
-        if Math.abs(@vx) < 1 then @vx = 0
-        if Math.abs(@vy) < 1 then @vy = 0
-
         @moveCircles(@vx, @vy)
-        @timer.tick(now)
         @raf = requestAnimationFrame(@onAnimationFrame)
       else if !isNaN(parseFloat(@limitY)) then (now) ->
-        @mx = @ix
-        @my = @iy
-
-        @mx *= @ew * (@scalarX / 100)
-        @my *= @eh * (@scalarY / 100)
-
-        @my = @clamp(@my, -@limitY, @limitY)
-
+        @mx = @ix * @ew * @scalarX
+        @my = @clamp(@iy * @eh * @scalarY, -@limitY, @limitY)
         @vx += (@mx - @vx) * @frictionX
         @vy += (@my - @vy) * @frictionY
-
-        if Math.abs(@vx) < 1 then @vx = 0
-        if Math.abs(@vy) < 1 then @vy = 0
-
         @moveCircles(@vx, @vy)
-        @timer.tick(now)
         @raf = requestAnimationFrame(@onAnimationFrame)
       else (now) ->
-        @mx = @ix
-        @my = @iy
-
-        @mx *= @ew * (@scalarX / 100)
-        @my *= @eh * (@scalarY / 100)
-
+        @mx = @ix * @ew * @scalarX
+        @my = @iy * @eh * @scalarY
         @vx += (@mx - @vx) * @frictionX
         @vy += (@my - @vy) * @frictionY
-
-        if Math.abs(@vx) < 1 then @vx = 0
-        if Math.abs(@vy) < 1 then @vy = 0
-
         @moveCircles(@vx, @vy)
-        @timer.tick(now)
         @raf = requestAnimationFrame(@onAnimationFrame)
 
       @onMouseDown = if @relativeInput and @clipRelativeInput then (event) ->
@@ -439,10 +428,10 @@ do (window, document) ->
       do (circle) ->
         circle.y = 14 + (circle.i - ci) * 5
         if (circle.i - ci) % 2 is 1 or (circle.i - ci) % 2 is -1
-          offset = -7
+          offset = 5
         else
-          offset = -14
-        circle.x = offset + 12 + (circle.j - cj) * 14
+          offset = -2
+        circle.x = offset + (circle.j - cj) * 14
         circle.y = circle.y/34 * if self.portrait then self.ew else self.eh
         circle.x = circle.x/44 * if self.portrait then self.eh else self.ew
         self.setCirclePosition(circle)

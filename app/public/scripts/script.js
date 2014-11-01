@@ -65,8 +65,8 @@
       invertY: false,
       limitX: false,
       limitY: false,
-      scalarX: 100.0,
-      scalarY: 100.0,
+      scalarX: 1.0,
+      scalarY: 1.0,
       frictionX: 0.1,
       frictionY: 0.1,
       precision: 1,
@@ -133,7 +133,9 @@
         this.my = 0;
         this.vx = 0;
         this.vy = 0;
-        this.timer = new Timer();
+        if (this.showFPS) {
+          this.timer = new Timer();
+        }
         this.vendorPrefix = (function() {
           var dom, pre, styles;
           styles = window.getComputedStyle(document.documentElement, "");
@@ -173,73 +175,65 @@
           element.style.left = x;
           return element.style.top = y;
         };
-        this.onAnimationFrame = !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function(now) {
-          this.mx = this.ix;
-          this.my = this.iy;
-          this.mx *= this.ew * (this.scalarX / 100);
-          this.my *= this.eh * (this.scalarY / 100);
-          this.mx = this.clamp(this.mx, -this.limitX, this.limitX);
-          this.my = this.clamp(this.my, -this.limitY, this.limitY);
+        this.onAnimationFrame = this.showFPS && !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function(now) {
+          this.mx = this.clamp(this.ix * this.ew * this.scalarX, -this.limitX, this.limitX);
+          this.my = this.clamp(this.iy * this.eh * this.scalarY, -this.limitY, this.limitY);
           this.vx += (this.mx - this.vx) * this.frictionX;
           this.vy += (this.my - this.vy) * this.frictionY;
-          if (Math.abs(this.vx) < 1) {
-            this.vx = 0;
-          }
-          if (Math.abs(this.vy) < 1) {
-            this.vy = 0;
-          }
           this.moveCircles(this.vx, this.vy);
           this.timer.tick(now);
+          return this.raf = requestAnimationFrame(this.onAnimationFrame);
+        } : this.showFPS && !isNaN(parseFloat(this.limitX)) ? function(now) {
+          this.mx = this.clamp(this.ix * this.ew * this.scalarX, -this.limitX, this.limitX);
+          this.my = this.iy * this.eh * this.scalarY;
+          this.vx += (this.mx - this.vx) * this.frictionX;
+          this.vy += (this.my - this.vy) * this.frictionY;
+          this.moveCircles(this.vx, this.vy);
+          this.timer.tick(now);
+          return this.raf = requestAnimationFrame(this.onAnimationFrame);
+        } : this.showFPS && !isNaN(parseFloat(this.limitY)) ? function(now) {
+          this.mx = this.ix * this.ew * this.scalarX;
+          this.my = this.clamp(this.iy * this.eh * this.scalarY, -this.limitY, this.limitY);
+          this.vx += (this.mx - this.vx) * this.frictionX;
+          this.vy += (this.my - this.vy) * this.frictionY;
+          this.moveCircles(this.vx, this.vy);
+          this.timer.tick(now);
+          return this.raf = requestAnimationFrame(this.onAnimationFrame);
+        } : this.showFPS ? function(now) {
+          this.mx = this.ix * this.ew * this.scalarX;
+          this.my = this.iy * this.eh * this.scalarY;
+          this.vx += (this.mx - this.vx) * this.frictionX;
+          this.vy += (this.my - this.vy) * this.frictionY;
+          this.moveCircles(this.vx, this.vy);
+          this.timer.tick(now);
+          return this.raf = requestAnimationFrame(this.onAnimationFrame);
+        } : !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function(now) {
+          this.mx = this.clamp(this.ix * this.ew * this.scalarX, -this.limitX, this.limitX);
+          this.my = this.clamp(this.iy * this.eh * this.scalarY, -this.limitY, this.limitY);
+          this.vx += (this.mx - this.vx) * this.frictionX;
+          this.vy += (this.my - this.vy) * this.frictionY;
+          this.moveCircles(this.vx, this.vy);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
         } : !isNaN(parseFloat(this.limitX)) ? function(now) {
-          this.mx = this.ix;
-          this.my = this.iy;
-          this.mx *= this.ew * (this.scalarX / 100);
-          this.my *= this.eh * (this.scalarY / 100);
-          this.mx = this.clamp(this.mx, -this.limitX, this.limitX);
+          this.mx = this.clamp(this.ix * this.ew * this.scalarX, -this.limitX, this.limitX);
+          this.my = this.iy * this.eh * this.scalarY;
           this.vx += (this.mx - this.vx) * this.frictionX;
           this.vy += (this.my - this.vy) * this.frictionY;
-          if (Math.abs(this.vx) < 1) {
-            this.vx = 0;
-          }
-          if (Math.abs(this.vy) < 1) {
-            this.vy = 0;
-          }
           this.moveCircles(this.vx, this.vy);
-          this.timer.tick(now);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
         } : !isNaN(parseFloat(this.limitY)) ? function(now) {
-          this.mx = this.ix;
-          this.my = this.iy;
-          this.mx *= this.ew * (this.scalarX / 100);
-          this.my *= this.eh * (this.scalarY / 100);
-          this.my = this.clamp(this.my, -this.limitY, this.limitY);
+          this.mx = this.ix * this.ew * this.scalarX;
+          this.my = this.clamp(this.iy * this.eh * this.scalarY, -this.limitY, this.limitY);
           this.vx += (this.mx - this.vx) * this.frictionX;
           this.vy += (this.my - this.vy) * this.frictionY;
-          if (Math.abs(this.vx) < 1) {
-            this.vx = 0;
-          }
-          if (Math.abs(this.vy) < 1) {
-            this.vy = 0;
-          }
           this.moveCircles(this.vx, this.vy);
-          this.timer.tick(now);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
         } : function(now) {
-          this.mx = this.ix;
-          this.my = this.iy;
-          this.mx *= this.ew * (this.scalarX / 100);
-          this.my *= this.eh * (this.scalarY / 100);
+          this.mx = this.ix * this.ew * this.scalarX;
+          this.my = this.iy * this.eh * this.scalarY;
           this.vx += (this.mx - this.vx) * this.frictionX;
           this.vy += (this.my - this.vy) * this.frictionY;
-          if (Math.abs(this.vx) < 1) {
-            this.vx = 0;
-          }
-          if (Math.abs(this.vy) < 1) {
-            this.vy = 0;
-          }
           this.moveCircles(this.vx, this.vy);
-          this.timer.tick(now);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
         };
         this.onMouseDown = this.relativeInput && this.clipRelativeInput ? function(event) {
@@ -412,11 +406,11 @@
         var offset;
         circle.y = 14 + (circle.i - ci) * 5;
         if ((circle.i - ci) % 2 === 1 || (circle.i - ci) % 2 === -1) {
-          offset = -7;
+          offset = 5;
         } else {
-          offset = -14;
+          offset = -2;
         }
-        circle.x = offset + 12 + (circle.j - cj) * 14;
+        circle.x = offset + (circle.j - cj) * 14;
         circle.y = circle.y / 34 * (self.portrait ? self.ew : self.eh);
         circle.x = circle.x / 44 * (self.portrait ? self.eh : self.ew);
         return self.setCirclePosition(circle);
