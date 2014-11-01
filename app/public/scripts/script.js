@@ -10,7 +10,29 @@
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   (function(window, document) {
-    var CirclesUI, DEFAULTS, NAME, addClass, classReg, hasClass, removeClass;
+    var CirclesUI, DEFAULTS, NAME, Timer, addClass, classReg, hasClass, removeClass;
+    Timer = function() {
+      this.elapsed = 0;
+      this.last = null;
+      this.before = 0;
+      this.timerShow = document.createElement("div");
+      document.body.insertBefore(this.timerShow, null);
+      this.timerShow.style['position'] = "absolute";
+      this.timerShow.style['top'] = "10px";
+      this.timerShow.style['left'] = "10px";
+      return this.timerShow.style['color'] = "#FFF";
+    };
+    Timer.prototype.tick = function(now) {
+      this.elapsed = (now - (this.last || now)) / 1000;
+      this.last = now;
+      if (now - this.before > 1000) {
+        this.before = now;
+        return this.timerShow.innerHTML = this.fps();
+      }
+    };
+    Timer.prototype.fps = function() {
+      return Math.round(1 / this.elapsed);
+    };
     classReg = function(className) {
       return new RegExp("(^|\\s+)" + className + "(\\s+|$)");
     };
@@ -51,7 +73,8 @@
       frictionY: 0.1,
       precision: 1,
       classBig: "circle-big",
-      classVisible: "circle-visible"
+      classVisible: "circle-visible",
+      showFPS: false
     };
     CirclesUI = function(element, options) {
       var data, key;
@@ -73,7 +96,8 @@
           frictionY: this.data(this.element, 'friction-y'),
           precision: this.data(this.element, 'precision'),
           classBig: this.data(this.element, 'class-big'),
-          classVisible: this.data(this.element, 'class-visible')
+          classVisible: this.data(this.element, 'class-visible'),
+          showFPS: this.data(this.element, 'show-fps')
         };
         for (key in data) {
           if (data[key] === null) {
@@ -111,6 +135,7 @@
         this.my = 0;
         this.vx = 0;
         this.vy = 0;
+        this.timer = new Timer();
         this.vendorPrefix = (function() {
           var dom, pre, styles;
           styles = window.getComputedStyle(document.documentElement, "");
@@ -150,7 +175,7 @@
           element.style.left = x;
           return element.style.top = y;
         };
-        this.onAnimationFrame = !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function() {
+        this.onAnimationFrame = !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function(now) {
           this.mx = this.ix;
           this.my = this.iy;
           this.mx *= this.ew * (this.scalarX / 100);
@@ -166,8 +191,9 @@
             this.vy = 0;
           }
           this.moveCircles(this.vx, this.vy);
+          this.timer.tick(now);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
-        } : !isNaN(parseFloat(this.limitX)) ? function() {
+        } : !isNaN(parseFloat(this.limitX)) ? function(now) {
           this.mx = this.ix;
           this.my = this.iy;
           this.mx *= this.ew * (this.scalarX / 100);
@@ -182,8 +208,9 @@
             this.vy = 0;
           }
           this.moveCircles(this.vx, this.vy);
+          this.timer.tick(now);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
-        } : !isNaN(parseFloat(this.limitY)) ? function() {
+        } : !isNaN(parseFloat(this.limitY)) ? function(now) {
           this.mx = this.ix;
           this.my = this.iy;
           this.mx *= this.ew * (this.scalarX / 100);
@@ -198,8 +225,9 @@
             this.vy = 0;
           }
           this.moveCircles(this.vx, this.vy);
+          this.timer.tick(now);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
-        } : function() {
+        } : function(now) {
           this.mx = this.ix;
           this.my = this.iy;
           this.mx *= this.ew * (this.scalarX / 100);
@@ -213,6 +241,7 @@
             this.vy = 0;
           }
           this.moveCircles(this.vx, this.vy);
+          this.timer.tick(now);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
         };
         this.onMouseDown = this.relativeInput && this.clipRelativeInput ? function(event) {
@@ -407,18 +436,27 @@
       return this.rx = this.maxx - this.minx;
     };
     CirclesUI.prototype.appeared = function() {
-      var css, keyframes, s, self;
+      var addCSSRule, css, keyframes, s, self;
       addClass(this.element, "appeared");
       removeClass(this.element, "moved");
       this.moved = false;
-      css = "#circlesUI.appeared > .circle-container.circle-visible { " + this.vendorPrefix.css + "animation : appear 1s; " + this.vendorPrefix.css + "animation-delay: -400ms; }";
-      keyframes = "@" + this.vendorPrefix.css + "keyframes appear { 0% { " + this.vendorPrefix.css + "transform:translate3d(" + ((this.ew - this.circleDiameter) / 2) + "px, " + ((this.eh - this.circleDiameter) / 2) + "px, 0); opacity: 0; } 40% { opacity: 0; } }";
+      css = "" + this.vendorPrefix.css + "animation : appear 1s; " + this.vendorPrefix.css + "animation-delay: -400ms;";
+      keyframes = "0% { " + this.vendorPrefix.css + "transform:translate3d(" + ((this.ew - this.circleDiameter) / 2) + "px, " + ((this.eh - this.circleDiameter) / 2) + "px, 0); opacity: 0; } 40% { opacity: 0; }";
+      addCSSRule = function(sheet, selector, rules, index) {
+        if ("insertRule" in sheet) {
+          return sheet.insertRule(selector + "{" + rules + "}", index);
+        } else {
+          if ("addRule" in sheet) {
+            return sheet.addRule(selector, rules, index);
+          }
+        }
+      };
       if (document.styleSheets && document.styleSheets.length) {
-        document.styleSheets[0].insertRule(keyframes, 0);
-        document.styleSheets[0].insertRule(css, 0);
+        addCSSRule(document.styleSheets[0], "@" + this.vendorPrefix.css + "keyframes appear", keyframes, 0);
+        addCSSRule(document.styleSheets[0], '#circlesUI.appeared > .circle-container.circle-visible', css, 0);
       } else {
         s = document.createElement('style');
-        s.innerHTML = keyframes + css;
+        s.innerHTML = ("@" + this.vendorPrefix.css + "keyframes appear {") + keyframes + '} #circlesUI.appeared > .circle-container.circle-visible {' + css;
         document.getElementsByTagName('head')[0].appendChild(s);
       }
       self = this;

@@ -5,6 +5,27 @@
 ###
 do (window, document) ->
 
+  Timer = () ->
+    @elapsed = 0
+    @last = null
+    @before = 0
+    @timerShow = document.createElement("div")
+    document.body.insertBefore @timerShow, null
+    @timerShow.style['position'] = "absolute"
+    @timerShow.style['top'] = "10px"
+    @timerShow.style['left'] = "10px"
+    @timerShow.style['color'] = "#FFF"
+
+  Timer.prototype.tick = (now)->
+    @elapsed = (now - (@last or now)) / 1000
+    @last = now
+    if now - @before > 1000
+      @before = now
+      @timerShow.innerHTML = @fps()
+
+  Timer.prototype.fps = ()->
+    Math.round(1 / @elapsed)
+
   # class helper functions from classie https://github.com/desandro/classie
   classReg = ( className ) ->
     return new RegExp("(^|\\s+)" + className + "(\\s+|$)")
@@ -28,19 +49,20 @@ do (window, document) ->
   # Constants
   NAME = 'CirclesUI'
   DEFAULTS =
-    relativeInput: false,
-    clipRelativeInput: false,
-    invertX: false,
-    invertY: false,
-    limitX: false,
-    limitY: false,
-    scalarX: 200.0,
-    scalarY: 200.0,
-    frictionX: 0.1,
-    frictionY: 0.1,
-    precision: 1,
+    relativeInput: false
+    clipRelativeInput: false
+    invertX: false
+    invertY: false
+    limitX: false
+    limitY: false
+    scalarX: 200.0
+    scalarY: 200.0
+    frictionX: 0.1
+    frictionY: 0.1
+    precision: 1
     classBig: "circle-big"
     classVisible: "circle-visible"
+    showFPS: false
 
   CirclesUI = (element, options) ->
 
@@ -53,19 +75,20 @@ do (window, document) ->
     else
       # Data Extraction
       data =
-        relativeInput: @data(@element, 'relative-input'),
-        clipRelativeInput: @data(@element, 'clipe-relative-input'),
-        invertX: @data(@element, 'invert-x'),
-        invertY: @data(@element, 'invert-y'),
-        limitX: @data(@element, 'limit-x'),
-        limitY: @data(@element, 'limit-y'),
-        scalarX: @data(@element, 'scalar-x'),
-        scalarY: @data(@element, 'scalar-y'),
-        frictionX: @data(@element, 'friction-x'),
-        frictionY: @data(@element, 'friction-y'),
+        relativeInput: @data(@element, 'relative-input')
+        clipRelativeInput: @data(@element, 'clipe-relative-input')
+        invertX: @data(@element, 'invert-x')
+        invertY: @data(@element, 'invert-y')
+        limitX: @data(@element, 'limit-x')
+        limitY: @data(@element, 'limit-y')
+        scalarX: @data(@element, 'scalar-x')
+        scalarY: @data(@element, 'scalar-y')
+        frictionX: @data(@element, 'friction-x')
+        frictionY: @data(@element, 'friction-y')
         precision: @data(@element, 'precision')
         classBig: @data(@element, 'class-big')
         classVisible: @data(@element, 'class-visible')
+        showFPS: @data(@element, 'show-fps')
 
       # Delete Null Data Values
       for key of data
@@ -129,6 +152,9 @@ do (window, document) ->
       @vx = 0
       @vy = 0
 
+      # Timer for FPS
+      @timer = new Timer()
+
       # Vendor Prefixe from http://davidwalsh.name/vendor-prefix
       @vendorPrefix = (->
         styles = window.getComputedStyle(document.documentElement, "")
@@ -169,7 +195,7 @@ do (window, document) ->
         element.style.left = x
         element.style.top = y
 
-      @onAnimationFrame = if !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then () ->
+      @onAnimationFrame = if !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then (now) ->
         @mx = @ix
         @my = @iy
 
@@ -186,9 +212,9 @@ do (window, document) ->
         if Math.abs(@vy) < 1 then @vy = 0
 
         @moveCircles(@vx, @vy)
-
+        @timer.tick(now)
         @raf = requestAnimationFrame(@onAnimationFrame)
-      else if !isNaN(parseFloat(@limitX)) then () ->
+      else if !isNaN(parseFloat(@limitX)) then (now) ->
         @mx = @ix
         @my = @iy
 
@@ -204,9 +230,9 @@ do (window, document) ->
         if Math.abs(@vy) < 1 then @vy = 0
 
         @moveCircles(@vx, @vy)
-
+        @timer.tick(now)
         @raf = requestAnimationFrame(@onAnimationFrame)
-      else if !isNaN(parseFloat(@limitY)) then () ->
+      else if !isNaN(parseFloat(@limitY)) then (now) ->
         @mx = @ix
         @my = @iy
 
@@ -222,9 +248,9 @@ do (window, document) ->
         if Math.abs(@vy) < 1 then @vy = 0
 
         @moveCircles(@vx, @vy)
-
+        @timer.tick(now)
         @raf = requestAnimationFrame(@onAnimationFrame)
-      else () ->
+      else (now) ->
         @mx = @ix
         @my = @iy
 
@@ -238,7 +264,7 @@ do (window, document) ->
         if Math.abs(@vy) < 1 then @vy = 0
 
         @moveCircles(@vx, @vy)
-
+        @timer.tick(now)
         @raf = requestAnimationFrame(@onAnimationFrame)
 
       @onMouseDown = if @relativeInput and @clipRelativeInput then (event) ->
@@ -438,28 +464,42 @@ do (window, document) ->
     removeClass(@element, "moved")
     @moved = false
 
-    css = "
-      #circlesUI.appeared > .circle-container.circle-visible {
-        #{@vendorPrefix.css}animation : appear 1s;
-        #{@vendorPrefix.css}animation-delay: -400ms;
-      }"
+    css = "#{@vendorPrefix.css}animation : appear 1s;
+        #{@vendorPrefix.css}animation-delay: -400ms;"
     keyframes = "
-      @#{@vendorPrefix.css}keyframes appear {
         0% {
           #{@vendorPrefix.css}transform:translate3d(#{(@ew-@circleDiameter)/2}px, #{(@eh-@circleDiameter)/2}px, 0);
           opacity: 0;
         }
         40% {
           opacity: 0;
-        }
-      }"
+        }"
+
+    # http://davidwalsh.name/add-rules-stylesheets
+    addCSSRule = (sheet, selector, rules, index) ->
+      if "insertRule" of sheet
+        sheet.insertRule selector + "{" + rules + "}", index
+      else sheet.addRule selector, rules, index  if "addRule" of sheet
 
     if document.styleSheets and document.styleSheets.length
-      document.styleSheets[0].insertRule(keyframes, 0)
-      document.styleSheets[0].insertRule(css, 0)
+      addCSSRule(
+        document.styleSheets[0],
+        "@#{@vendorPrefix.css}keyframes appear",
+        keyframes,
+        0
+      )
+      addCSSRule(
+        document.styleSheets[0],
+        '#circlesUI.appeared > .circle-container.circle-visible',
+        css,
+        0
+      )
     else
       s = document.createElement('style')
-      s.innerHTML = keyframes + css
+      s.innerHTML = "@#{@vendorPrefix.css}keyframes appear {" +
+        keyframes +
+        '} #circlesUI.appeared > .circle-container.circle-visible {' +
+        css
       document.getElementsByTagName('head')[0].appendChild(s)
 
     self = this
