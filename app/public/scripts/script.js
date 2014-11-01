@@ -10,27 +10,7 @@
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   (function(window, document) {
-    var CirclesUI, DEFAULTS, NAME, Timer, addClass, classReg, hasClass, removeClass;
-    Timer = function() {
-      this.framesUntilNextStat = 60;
-      this.fps = 0;
-      this.last = new Date;
-      this.timerShow = document.createElement("div");
-      document.body.insertBefore(this.timerShow, null);
-      this.timerShow.style['position'] = "absolute";
-      this.timerShow.style['top'] = "10px";
-      this.timerShow.style['left'] = "10px";
-      return this.timerShow.style['color'] = "#FFF";
-    };
-    Timer.prototype.tick = function(now) {
-      this.framesUntilNextStat--;
-      if (this.framesUntilNextStat <= 0) {
-        this.framesUntilNextStat = 60;
-        this.fps = ~~(60 * 1000 / (now - this.last));
-        this.last = now;
-        return this.timerShow.innerHTML = " FPS : " + this.fps;
-      }
-    };
+    var CirclesUI, DEFAULTS, NAME, addClass, classReg, hasClass, removeClass;
     classReg = function(className) {
       return new RegExp("(^|\\s+)" + className + "(\\s+|$)");
     };
@@ -71,8 +51,7 @@
       frictionY: 0.1,
       precision: 1,
       classBig: "circle-big",
-      classVisible: "circle-visible",
-      showFPS: false
+      classVisible: "circle-visible"
     };
     CirclesUI = function(element, options) {
       var data, key;
@@ -94,8 +73,7 @@
           frictionY: this.data(this.element, 'friction-y'),
           precision: this.data(this.element, 'precision'),
           classBig: this.data(this.element, 'class-big'),
-          classVisible: this.data(this.element, 'class-visible'),
-          showFPS: this.data(this.element, 'show-fps')
+          classVisible: this.data(this.element, 'class-visible')
         };
         for (key in data) {
           if (data[key] === null) {
@@ -133,9 +111,6 @@
         this.my = 0;
         this.vx = 0;
         this.vy = 0;
-        if (this.showFPS) {
-          this.timer = new Timer();
-        }
         this.vendorPrefix = (function() {
           var dom, pre, styles;
           styles = window.getComputedStyle(document.documentElement, "");
@@ -175,39 +150,7 @@
           element.style.left = x;
           return element.style.top = y;
         };
-        this.onAnimationFrame = this.showFPS && !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function(now) {
-          this.mx = this.clamp(this.ix * this.ew * this.scalarX, -this.limitX, this.limitX);
-          this.my = this.clamp(this.iy * this.eh * this.scalarY, -this.limitY, this.limitY);
-          this.vx += (this.mx - this.vx) * this.frictionX;
-          this.vy += (this.my - this.vy) * this.frictionY;
-          this.moveCircles(this.vx, this.vy);
-          this.timer.tick(now);
-          return this.raf = requestAnimationFrame(this.onAnimationFrame);
-        } : this.showFPS && !isNaN(parseFloat(this.limitX)) ? function(now) {
-          this.mx = this.clamp(this.ix * this.ew * this.scalarX, -this.limitX, this.limitX);
-          this.my = this.iy * this.eh * this.scalarY;
-          this.vx += (this.mx - this.vx) * this.frictionX;
-          this.vy += (this.my - this.vy) * this.frictionY;
-          this.moveCircles(this.vx, this.vy);
-          this.timer.tick(now);
-          return this.raf = requestAnimationFrame(this.onAnimationFrame);
-        } : this.showFPS && !isNaN(parseFloat(this.limitY)) ? function(now) {
-          this.mx = this.ix * this.ew * this.scalarX;
-          this.my = this.clamp(this.iy * this.eh * this.scalarY, -this.limitY, this.limitY);
-          this.vx += (this.mx - this.vx) * this.frictionX;
-          this.vy += (this.my - this.vy) * this.frictionY;
-          this.moveCircles(this.vx, this.vy);
-          this.timer.tick(now);
-          return this.raf = requestAnimationFrame(this.onAnimationFrame);
-        } : this.showFPS ? function(now) {
-          this.mx = this.ix * this.ew * this.scalarX;
-          this.my = this.iy * this.eh * this.scalarY;
-          this.vx += (this.mx - this.vx) * this.frictionX;
-          this.vy += (this.my - this.vy) * this.frictionY;
-          this.moveCircles(this.vx, this.vy);
-          this.timer.tick(now);
-          return this.raf = requestAnimationFrame(this.onAnimationFrame);
-        } : !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function(now) {
+        this.onAnimationFrame = !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function(now) {
           this.mx = this.clamp(this.ix * this.ew * this.scalarX, -this.limitX, this.limitX);
           this.my = this.clamp(this.iy * this.eh * this.scalarY, -this.limitY, this.limitY);
           this.vx += (this.mx - this.vx) * this.frictionX;

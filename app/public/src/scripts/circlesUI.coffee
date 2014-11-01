@@ -5,25 +5,6 @@
 ###
 do (window, document) ->
 
-  Timer = () ->
-    @framesUntilNextStat = 60
-    @fps = 0
-    @last = new Date
-    @timerShow = document.createElement("div")
-    document.body.insertBefore @timerShow, null
-    @timerShow.style['position'] = "absolute"
-    @timerShow.style['top'] = "10px"
-    @timerShow.style['left'] = "10px"
-    @timerShow.style['color'] = "#FFF"
-
-  Timer.prototype.tick = (now)->
-    @framesUntilNextStat--
-    if @framesUntilNextStat <= 0
-      @framesUntilNextStat = 60 # Scheduling the next statistics
-      @fps = ~~(60 * 1000 / (now - @last))
-      @last = now
-      @timerShow.innerHTML = " FPS : #{@fps}"
-
   # class helper functions from classie https://github.com/desandro/classie
   classReg = ( className ) ->
     return new RegExp("(^|\\s+)" + className + "(\\s+|$)")
@@ -60,7 +41,6 @@ do (window, document) ->
     precision: 1
     classBig: "circle-big"
     classVisible: "circle-visible"
-    showFPS: false
 
   CirclesUI = (element, options) ->
 
@@ -86,7 +66,6 @@ do (window, document) ->
         precision: @data(@element, 'precision')
         classBig: @data(@element, 'class-big')
         classVisible: @data(@element, 'class-visible')
-        showFPS: @data(@element, 'show-fps')
 
       # Delete Null Data Values
       for key of data
@@ -150,9 +129,6 @@ do (window, document) ->
       @vx = 0
       @vy = 0
 
-      # Timer for FPS
-      if @showFPS then @timer = new Timer()
-
       # Vendor Prefixe from http://davidwalsh.name/vendor-prefix
       @vendorPrefix = (->
         styles = window.getComputedStyle(document.documentElement, "")
@@ -193,39 +169,7 @@ do (window, document) ->
         element.style.left = x
         element.style.top = y
 
-      @onAnimationFrame = if @showFPS and !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then (now) ->
-        @mx = @clamp(@ix * @ew * @scalarX, -@limitX, @limitX)
-        @my = @clamp(@iy * @eh * @scalarY, -@limitY, @limitY)
-        @vx += (@mx - @vx) * @frictionX
-        @vy += (@my - @vy) * @frictionY
-        @moveCircles(@vx, @vy)
-        @timer.tick(now)
-        @raf = requestAnimationFrame(@onAnimationFrame)
-      else if @showFPS and !isNaN(parseFloat(@limitX)) then (now) ->
-        @mx = @clamp(@ix * @ew * @scalarX, -@limitX, @limitX)
-        @my = @iy * @eh * @scalarY
-        @vx += (@mx - @vx) * @frictionX
-        @vy += (@my - @vy) * @frictionY
-        @moveCircles(@vx, @vy)
-        @timer.tick(now)
-        @raf = requestAnimationFrame(@onAnimationFrame)
-      else if @showFPS and !isNaN(parseFloat(@limitY)) then (now) ->
-        @mx = @ix * @ew * @scalarX
-        @my = @clamp(@iy * @eh * @scalarY, -@limitY, @limitY)
-        @vx += (@mx - @vx) * @frictionX
-        @vy += (@my - @vy) * @frictionY
-        @moveCircles(@vx, @vy)
-        @timer.tick(now)
-        @raf = requestAnimationFrame(@onAnimationFrame)
-      else if @showFPS then (now) ->
-        @mx = @ix * @ew * @scalarX
-        @my = @iy * @eh * @scalarY
-        @vx += (@mx - @vx) * @frictionX
-        @vy += (@my - @vy) * @frictionY
-        @moveCircles(@vx, @vy)
-        @timer.tick(now)
-        @raf = requestAnimationFrame(@onAnimationFrame)
-      else if !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then (now) ->
+      @onAnimationFrame = if !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then (now) ->
         @mx = @clamp(@ix * @ew * @scalarX, -@limitX, @limitX)
         @my = @clamp(@iy * @eh * @scalarY, -@limitY, @limitY)
         @vx += (@mx - @vx) * @frictionX
