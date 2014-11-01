@@ -53,8 +53,8 @@ do (window, document) ->
     invertY: false
     limitX: false
     limitY: false
-    scalarX: 200.0
-    scalarY: 200.0
+    scalarX: 100.0
+    scalarY: 100.0
     frictionX: 0.1
     frictionY: 0.1
     precision: 1
