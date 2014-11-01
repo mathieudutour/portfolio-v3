@@ -1,17 +1,14 @@
 ###
  * CirclesUI.coffee
  * @author Mathieu Dutour - @MathieuDutour
- * @description Creates a CirclesUI effect between an array of layers,
- *              driving the motion from the gyroscope output of a smartdevice.
- *              If no gyroscope is available, the cursor position is used.
+ * @description Creates a Circles UI
 ###
 do (window, document) ->
 
-  # class helper functions from bonzo https://github.com/ded/bonzo
+  # class helper functions from classie https://github.com/desandro/classie
   classReg = ( className ) ->
     return new RegExp("(^|\\s+)" + className + "(\\s+|$)")
 
-  # classList support for class management
   if 'classList' in document.documentElement
     hasClass = ( elem, c ) ->
       elem.classList.contains( c )
@@ -52,10 +49,12 @@ do (window, document) ->
     @circles = element.getElementsByClassName('circle-container')
 
     if @circles.length < 24
-      console.log "Not enought circle to display a proper UI"
+      throw new Error("Not enought circle to display a proper UI")
     else
       # Data Extraction
       data =
+        relativeInput: @data(@element, 'relative-input'),
+        clipRelativeInput: @data(@element, 'clipe-relative-input'),
         invertX: @data(@element, 'invert-x'),
         invertY: @data(@element, 'invert-y'),
         limitX: @data(@element, 'limit-x'),
@@ -78,6 +77,7 @@ do (window, document) ->
       # States
       @enabled = false
       @raf = null
+      @moved = false
 
       # Element Bounds
       @bounds = null
@@ -85,6 +85,33 @@ do (window, document) ->
       @ey = 0
       @ew = 0
       @eh = 0
+
+      # Orientation of the element
+      @portrait = null
+
+      # Windows size
+      @ww = 0
+      @wh = 0
+
+      # Circles size ( actually, size of the square container )
+      @circleDiameter = 0
+
+      # Matrix of the circles
+      @numberOfCol = 0
+      @numberOfRow = 0
+
+      # Positions of the circles
+        # Bounds of the circles coordinates
+      @miny = 0
+      @maxy = 0
+      @minx = 0
+      @maxx = 0
+        # Coordinates of the center circle
+      @cy = 0
+      @cx = 0
+        # Ranges of the coordinates
+      @ry = @maxy - @miny
+      @rx = @maxx - @minx
 
       # First Input
       @fix = 0
@@ -102,39 +129,200 @@ do (window, document) ->
       @vx = 0
       @vy = 0
 
+      # Vendor Prefixe from http://davidwalsh.name/vendor-prefix
+      @vendorPrefix = (->
+        styles = window.getComputedStyle(document.documentElement, "")
+        pre = (Array::slice.call(styles).join("").match(/-(moz|webkit|ms)-/) or (styles.OLink is "" and ["", "o"]))[1]
+        dom = ("WebKit|Moz|MS|O").match(new RegExp("(" + pre + ")", "i"))[1]
+        dom: dom
+        lowercase: pre
+        css: "-" + pre + "-"
+        js: pre[0].toUpperCase() + pre.substr(1)
+      )()
+
+      # Support for 2D and 3D transform
+      @transform2DSupport = true # TODO
+      @transform3DSupport = ( (transform) ->
+        el = document.createElement("p")
+        has3d = undefined
+
+        # Add it to the body to get the computed style.
+        document.body.insertBefore el, null
+        if typeof el.style[transform] isnt 'undefined'
+          el.style[transform] = "translate3d(1px,1px,1px)"
+          has3d = window.getComputedStyle(el).getPropertyValue(transform)
+        document.body.removeChild el
+        typeof has3d isnt 'undefined' and has3d.length > 0 and has3d isnt "none"
+      )(@vendorPrefix.css + 'transform')
+
+      @setPositionAndScale = if @transform3DSupport then (element, x, y, s) ->
+        x = x.toFixed(@precision) + 'px'
+        y = y.toFixed(@precision) + 'px'
+        @css(element, @vendorPrefix.js + 'Transform', 'translate3d('+x+','+y+',0)')
+      else if @transform2DSupport then (element, x, y, s) ->
+        x = x.toFixed(@precision) + 'px'
+        y = y.toFixed(@precision) + 'px'
+        @css(element, @vendorPrefix.js + 'Transform', 'translate('+x+','+y+')')
+      else (element, x, y, s) ->
+        x = x.toFixed(@precision) + 'px'
+        y = y.toFixed(@precision) + 'px'
+        element.style.left = x
+        element.style.top = y
+
+      @onAnimationFrame = if !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then () ->
+        @mx = @ix
+        @my = @iy
+
+        @mx *= @ew * (@scalarX / 100)
+        @my *= @eh * (@scalarY / 100)
+
+        @mx = @clamp(@mx, -@limitX, @limitX)
+        @my = @clamp(@my, -@limitY, @limitY)
+
+        @vx += (@mx - @vx) * @frictionX
+        @vy += (@my - @vy) * @frictionY
+
+        if Math.abs(@vx) < 1 then @vx = 0
+        if Math.abs(@vy) < 1 then @vy = 0
+
+        @moveCircles(@vx, @vy)
+
+        @raf = requestAnimationFrame(@onAnimationFrame)
+      else if !isNaN(parseFloat(@limitX)) then () ->
+        @mx = @ix
+        @my = @iy
+
+        @mx *= @ew * (@scalarX / 100)
+        @my *= @eh * (@scalarY / 100)
+
+        @mx = @clamp(@mx, -@limitX, @limitX)
+
+        @vx += (@mx - @vx) * @frictionX
+        @vy += (@my - @vy) * @frictionY
+
+        if Math.abs(@vx) < 1 then @vx = 0
+        if Math.abs(@vy) < 1 then @vy = 0
+
+        @moveCircles(@vx, @vy)
+
+        @raf = requestAnimationFrame(@onAnimationFrame)
+      else if !isNaN(parseFloat(@limitY)) then () ->
+        @mx = @ix
+        @my = @iy
+
+        @mx *= @ew * (@scalarX / 100)
+        @my *= @eh * (@scalarY / 100)
+
+        @my = @clamp(@my, -@limitY, @limitY)
+
+        @vx += (@mx - @vx) * @frictionX
+        @vy += (@my - @vy) * @frictionY
+
+        if Math.abs(@vx) < 1 then @vx = 0
+        if Math.abs(@vy) < 1 then @vy = 0
+
+        @moveCircles(@vx, @vy)
+
+        @raf = requestAnimationFrame(@onAnimationFrame)
+      else () ->
+        @mx = @ix
+        @my = @iy
+
+        @mx *= @ew * (@scalarX / 100)
+        @my *= @eh * (@scalarY / 100)
+
+        @vx += (@mx - @vx) * @frictionX
+        @vy += (@my - @vy) * @frictionY
+
+        if Math.abs(@vx) < 1 then @vx = 0
+        if Math.abs(@vy) < 1 then @vy = 0
+
+        @moveCircles(@vx, @vy)
+
+        @raf = requestAnimationFrame(@onAnimationFrame)
+
+      @onMouseDown = if @relativeInput and @clipRelativeInput then (event) ->
+        event.preventDefault()
+
+        unless @enabled
+          if event.changedTouches? and event.changedTouches.length > 0
+            @activeTouch = event.changedTouches[0].identifier
+          # Cache event coordinates.
+          {clientX, clientY} = @getCoordinatesFromEvent(event)
+          # Calculate Mouse Input
+          clientX = @clamp(clientX, @ex, @ex + @ew)
+          clientY = @clamp(clientY, @ey, @ey + @eh)
+          @fix = clientX
+          @fiy = clientY
+          @enable()
+      else (event) ->
+        event.preventDefault()
+
+        unless @enabled
+          if event.changedTouches? and event.changedTouches.length > 0
+            @activeTouch = event.changedTouches[0].identifier
+          # Cache event coordinates.
+          {clientX, clientY} = @getCoordinatesFromEvent(event)
+          @fix = clientX
+          @fiy = clientY
+          @enable()
+
+      @onMouseMove = if @relativeInput and @clipRelativeInput then (event) ->
+        event.preventDefault()
+
+        unless @moved
+          addClass(@element, 'moved')
+          @moved = true
+
+        # Cache event coordinates.
+        {clientX, clientY} = @getCoordinatesFromEvent(event)
+        clientX = @clamp(clientX, @ex, @ex + @ew)
+        clientY = @clamp(clientY, @ey, @ey + @eh)
+
+        # Calculate input relative to the element.
+        @ix = (clientX - @ex - @fix) / @ew
+        @iy = (clientY - @ey - @fiy) / @eh
+
+        @fix = clientX
+        @fiy = clientY
+      else if @relativeInput then (event) ->
+        event.preventDefault()
+
+        unless @moved
+          addClass(@element, 'moved')
+          @moved = true
+
+        # Cache event coordinates.
+        {clientX, clientY} = @getCoordinatesFromEvent(event)
+
+        # Calculate input relative to the element.
+        @ix = (clientX - @ex - @fix) / @ew
+        @iy = (clientY - @ey - @fiy) / @eh
+
+        @fix = clientX
+        @fiy = clientY
+      else (event) ->
+        event.preventDefault()
+
+        unless @moved
+          addClass(@element, 'moved')
+          @moved = true
+
+        # Cache event coordinates.
+        {clientX, clientY} = @getCoordinatesFromEvent(event)
+
+        @ix = (clientX - @fix) / @ww
+        @iy = (clientY - @fiy) / @wh
+
+        @fix = clientX
+        @fiy = clientY
+
       # Callbacks
       @onMouseDown = @onMouseDown.bind(this)
       @onMouseMove = @onMouseMove.bind(this)
       @onMouseUp = @onMouseUp.bind(this)
       @onAnimationFrame = @onAnimationFrame.bind(this)
       @onWindowResize = @onWindowResize.bind(this)
-
-      # Vendors Prefixes
-      getVendorPrefix = (arrayOfPrefixes) ->
-        result = null
-        i = 0
-
-        while i < arrayOfPrefixes.length
-          unless typeof element.style[arrayOfPrefixes[i]] is "undefined"
-            result = arrayOfPrefixes[i]
-            break
-          ++i
-        result
-
-      getVendorCSSPrefix = (arrayOfPrefixes) ->
-        result = null
-        i = 0
-
-        while i < arrayOfPrefixes.length
-          unless typeof element.style[arrayOfPrefixes[i][0]] is "undefined"
-            result = arrayOfPrefixes[i][1]
-            break
-          ++i
-        result
-
-      @vendorPrefix =
-        css : getVendorCSSPrefix([["transform", ""], ["msTransform", "-ms-"], ["MozTransform", "-moz-"], ["WebkitTransform", "-webkit-"], ["OTransform", "-o-"]])
-        transform : getVendorPrefix(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"])
 
       # Initialise
       @initialise()
@@ -162,50 +350,6 @@ do (window, document) ->
     else
       return value
 
-  CirclesUI.prototype.transfSupport = (value) ->
-    element = document.createElement('div')
-    propertySupport = false
-    propertyValue = null
-    featureSupport = false
-    cssProperty = null
-    jsProperty = null
-    i = 0
-    propertySupport = @vendorPrefix.transform?
-    switch value
-      when '2D' then featureSupport = propertySupport
-      when '3D' then do () ->
-        if propertySupport
-          body = document.body || document.createElement('body')
-          documentElement = document.documentElement
-          documentOverflow = documentElement.style.overflow
-          isCreatedBody = false
-          if !document.body
-            isCreatedBody = true
-            documentElement.style.overflow = 'hidden'
-            documentElement.appendChild(body)
-            body.style.overflow = 'hidden'
-            body.style.background = ''
-          body.appendChild(element)
-          element.style[@vendorPrefix.transform] = 'translate3d(1px,1px,1px)'
-          propertyValue = window.getComputedStyle(element).getPropertyValue(cssProperty)
-          featureSupport = propertyValue? and
-            propertyValue.length > 0 and
-            propertyValue isnt "none"
-          documentElement.style.overflow = documentOverflow
-          body.removeChild(element)
-          if isCreatedBody
-            body.removeAttribute('style')
-            body.parentNode.removeChild(body)
-    return featureSupport
-
-  CirclesUI.prototype.ww = null
-  CirclesUI.prototype.wh = null
-  CirclesUI.prototype.wrx = null
-  CirclesUI.prototype.wry = null
-  CirclesUI.prototype.portrait = null
-  CirclesUI.prototype.transform2DSupport = true #CirclesUI.prototype.transfSupport('2D')
-  CirclesUI.prototype.transform3DSupport = true #CirclesUI.prototype.transfSupport('3D')
-
   CirclesUI.prototype.initialise = () ->
 
     # Configure Context Styles
@@ -228,11 +372,11 @@ do (window, document) ->
 
     # Cache Circle Elements
     @circles = @element.getElementsByClassName('circle-container')
-    circlesMatrix = []
-    numberOfCol = Math.ceil(Math.sqrt(2*@circles.length)/2)
-    if numberOfCol < 4
+
+    @numberOfCol = Math.ceil(Math.sqrt(2*@circles.length)/2)
+    if @numberOfCol < 4
       # TODO
-      console.log "need more for now"
+      throw new Error("Need more element")
 
     # Configure Circle Styles
     j = 0
@@ -244,14 +388,13 @@ do (window, document) ->
           self.accelerate(circle)
         circle.style.width = self.circleDiameter + "px"
         circle.style.height = self.circleDiameter + "px"
-        if j % numberOfCol == 0
+        if j % self.numberOfCol == 0
           i++
           j = 0
         circle.i = i
         circle.j = j
         j++
 
-    @numberOfCol = numberOfCol
     @numberOfRow = @circles[@circles.length-1].i + 1
 
     # Find central Element
@@ -259,6 +402,9 @@ do (window, document) ->
     cj = Math.floor(@numberOfCol/2)-2
 
     @layoutCircles(ci, cj)
+
+    @cx = parseFloat(@circles[cj + @numberOfCol*ci].x)
+    @cy = parseFloat(@circles[cj + @numberOfCol*ci].y)
 
   CirclesUI.prototype.layoutCircles = (ci, cj) ->
 
@@ -279,21 +425,19 @@ do (window, document) ->
 
     @appeared()
 
+    # Update max and min coordinates
     @miny = Math.min(parseFloat(@circles[0].y) - parseFloat(@circleDiameter)/2, -parseFloat(@circleDiameter)/2)
     @maxy = Math.max(parseFloat(@circles[@circles.length-1].y) + parseFloat(@circleDiameter)/2, @eh+parseFloat(@circleDiameter)/2)
-    @cy = parseFloat(@circles[cj + @numberOfCol*ci].y)
     @ry = @maxy - @miny
     @minx = Math.min(parseFloat(Math.min(@circles[0].x, @circles[@numberOfCol].x)) - parseFloat(@circleDiameter)/2, -parseFloat(@circleDiameter)/2)
     @maxx = Math.max(Math.max(@circles[@circles.length-1].x, @circles[@circles.length-1-@numberOfCol].x) + parseFloat(@circleDiameter), @ew+parseFloat(@circleDiameter)/2)
-    @cx = parseFloat(@circles[cj + @numberOfCol*ci].x)
     @rx = @maxx - @minx
 
   CirclesUI.prototype.appeared = () ->
     addClass(@element, "appeared")
-    self = this
-    setTimeout ( ->
-      removeClass self.element, "appeared"
-    ), 1000
+    removeClass(@element, "moved")
+    @moved = false
+
     css = "
       #circlesUI.appeared > .circle-container.circle-visible {
         #{@vendorPrefix.css}animation : appear 1s;
@@ -318,17 +462,24 @@ do (window, document) ->
       s.innerHTML = keyframes + css
       document.getElementsByTagName('head')[0].appendChild(s)
 
+    self = this
+    setTimeout ( ->
+      removeClass self.element, "appeared"
+    ), 1000
+
   CirclesUI.prototype.updateDimensions = () ->
     @ww = window.innerWidth
     @wh = window.innerHeight
+
     @updateBounds()
-    portrait = @eh > @ew
-    if portrait
+
+    @portrait = @eh > @ew
+    if @portrait
       @circleDiameter = (6/34 * @ew).toFixed(@precision)
     else
       @circleDiameter = (6/34 * @eh).toFixed(@precision)
+
     @updateCircles()
-    @portrait = portrait
 
   CirclesUI.prototype.updateBounds = () ->
     @bounds = @element.getBoundingClientRect()
@@ -356,19 +507,14 @@ do (window, document) ->
         circle.x += dx
         circle.y += dy
         if circle.x < self.minx
-          addClass(circle, "hideMovement")
           circle.x += self.rx * (1 + Math.floor((self.minx - circle.x)/self.rx))
         else if circle.x > self.maxx
-          addClass(circle, "hideMovement")
           circle.x -= self.rx * (1 + Math.floor((circle.x - self.maxx)/self.rx))
         if circle.y < self.miny
-          addClass(circle, "hideMovement")
           circle.y += self.ry * (1 + Math.floor((self.miny - circle.y)/self.ry))
         else if circle.y > self.maxy
-          addClass(circle, "hideMovement")
           circle.y -= self.ry * (1 + Math.floor((circle.y - self.maxy)/self.ry))
         self.setCirclePosition(circle)
-        removeClass(circle, "hideMovement")
 
   CirclesUI.prototype.enable = () ->
     if !@enabled
@@ -382,7 +528,6 @@ do (window, document) ->
       @enabled = false
       window.removeEventListener('mousemove', @onMouseMove)
       window.removeEventListener('touchmove', @onMouseMove)
-      cancelAnimationFrame(@raf)
 
   CirclesUI.prototype.calibrate = (x, y) ->
     @calibrateX = x ? @calibrateX
@@ -415,134 +560,51 @@ do (window, document) ->
     @css(element, @vendorPrefix.transform, 'translate3d(0,0,0)')
 
   CirclesUI.prototype.setCirclePosition = (circle) ->
-    if circle.x > @circleDiameter*1/2 and circle.x < @ww - @circleDiameter*3/2 and circle.y > @circleDiameter*1/3 and circle.y < @wh - @circleDiameter*3/2
+    if circle.x > @circleDiameter*1/2 and circle.x < @ew - @circleDiameter*3/2 and circle.y > @circleDiameter*1/3 and circle.y < @eh - @circleDiameter*3/2
       addClass(circle, @classBig)
     else if hasClass(circle, @classBig)
       removeClass(circle, @classBig)
 
-    if circle.x > -@circleDiameter and circle.x < @ww + @circleDiameter and circle.y > -@circleDiameter and circle.y < @wh + @circleDiameter
+    if circle.x > -@circleDiameter and circle.x < @ew + @circleDiameter and circle.y > -@circleDiameter and circle.y < @eh + @circleDiameter
       addClass(circle, @classVisible)
     else if hasClass(circle, @classVisible)
       removeClass(circle, @classVisible)
 
     @setPositionAndScale(circle, circle.x, circle.y, 1)
 
-  CirclesUI.prototype.setPositionAndScale = (element, x, y, s) ->
-    x = x.toFixed(@precision)
-    y = y.toFixed(@precision)
-    x += 'px'
-    y += 'px'
-    if @transform3DSupport
-      @css(element, @vendorPrefix.transform, 'translate3d('+x+','+y+',0)')
-    else if @transform2DSupport
-      @css(element, @vendorPrefix.transform, 'translate('+x+','+y+')')
-    else
-      element.style.left = x
-      element.style.top = y
-
   CirclesUI.prototype.onWindowResize = (event) ->
     @updateDimensions()
 
-  CirclesUI.prototype.onAnimationFrame = () ->
-
-    @mx = @ix
-    @my = @iy
-
-    @mx *= @ew * (@scalarX / 100)
-    @my *= @eh * (@scalarY / 100)
-
-    if !isNaN(parseFloat(@limitX))
-      @mx = @clamp(@mx, -@limitX, @limitX)
-    if !isNaN(parseFloat(@limitY))
-      @my = @clamp(@my, -@limitY, @limitY)
-
-    @vx += (@mx - @vx) * @frictionX
-    @vy += (@my - @vy) * @frictionY
-
-    if Math.abs(@vx) < 1 then @vx = 0
-    if Math.abs(@vy) < 1 then @vy = 0
-
-    @moveCircles(@vx, @vy)
-
-    @raf = requestAnimationFrame(@onAnimationFrame)
-
-  CirclesUI.prototype.getCoordinatesFromEvent= (event) ->
-    self = this
+  CirclesUI.prototype.getCoordinatesFromEvent = (event) ->
+    # The user is using a touch screen
     if event.touches? and event.touches.length? and event.touches.length > 0
-      find = (arr, f) ->
-        for e in arr when f e
-          return e
-        return
-      touch= find event.touches, (touch) -> touch.identifier is self.activeTouch
-      return {clientX: touch.clientX, clientY: touch.clientY}
+      @getCoordinatesFromEvent = (event) ->
+        find = (arr, f) ->
+          for e in arr when f e
+            return e
+          return
+        self = this
+        touch= find event.touches, (touch) -> touch.identifier is self.activeTouch
+        return {clientX: touch.clientX, clientY: touch.clientY}
+    # The user is using a mouse
     else
-      return {clientX: event.clientX, clientY: event.clientY}
-
-  CirclesUI.prototype.onMouseDown = (event) ->
-    event.preventDefault()
-
-    unless @enabled
-      if event.changedTouches? and event.changedTouches.length > 0
-        @activeTouch = event.changedTouches[0].identifier
-      # Cache event coordinates.
-      {clientX, clientY} = @getCoordinatesFromEvent(event)
-      # Calculate Mouse Input
-      if @relativeInput and @clipRelativeInput
-        clientX = @clamp(clientX, @ex, @ex + @ew)
-        clientY = @clamp(clientY, @ey, @ey + @eh)
-      @fix = clientX
-      @fiy = clientY
-      @enable()
+      @getCoordinatesFromEvent = (event) ->
+        {clientX: event.clientX, clientY: event.clientY}
+    #Now that we have rewrite this function, call it again
+    @getCoordinatesFromEvent event
 
   CirclesUI.prototype.onMouseUp = (event) ->
     @ix = 0
     @iy = 0
     @activeTouch = null
+    @disable()
+
     # Easing
     i = 0
     while Math.abs(@vx) > 0 and Math.abs(@vx) > 0 and i < 50
       @raf = requestAnimationFrame(@onAnimationFrame)
       i++
-
-    @disable()
-
-    ###addClass(@element, "animating")
-    center = @findCenterCircle()
-    dx = center.x - @cx
-    dy = center.y - @cy
-    @moveCircles(dx, dy)
-    self = this
-    setTimeout ( ->
-      removeClass self.element, "animating"
-    ), 300###
-
-  CirclesUI.prototype.onMouseMove = (event) ->
-    event.preventDefault()
-
-    addClass(@element, 'moved') unless hasClass(@element, 'moved')
-
-    # Cache event coordinates.
-    {clientX, clientY} = @getCoordinatesFromEvent(event)
-
-    # Calculate Mouse Input
-    if @relativeInput
-
-      # Clip mouse coordinates inside element bounds.
-      if @clipRelativeInput
-        clientX = @clamp(clientX, @ex, @ex + @ew)
-        clientY = @clamp(clientY, @ey, @ey + @eh)
-
-      # Calculate input relative to the element.
-      @ix = (clientX - @ex - @fix) / @ew
-      @iy = (clientY - @ey - @fiy) / @eh
-
-    else
-      # Calculate input relative to the window.
-      @ix = (clientX - @fix) / @ww
-      @iy = (clientY - @fiy) / @wh
-
-    @fix = clientX
-    @fiy = clientY
+    cancelAnimationFrame(@raf)
 
   # Expose CirclesUI
 
