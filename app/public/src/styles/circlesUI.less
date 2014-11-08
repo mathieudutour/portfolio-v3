@@ -1,12 +1,3 @@
-#circlesUI {
-  width: 100%;
-  height: 100%;
-}
-
-#circlesUI.appeared {
-  pointer-events: none;
-}
-
 .circle-container {
   position: absolute;
   top: 0;
@@ -16,58 +7,54 @@
   -webkit-transform-style : preserve-3d;
   -moz-transform-style : preserve-3d;
   transform-style : preserve-3d;
+
+  .circle {
+    text-decoration: none;
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    width: 33.3%;
+    height: 33.3%;
+    margin-top: 33.3%;
+    margin-left: 33.3%;
+    border-radius: 50%;
+    display: block;
+    .shadow(3px 3px 5px 0px rgba(0, 0, 0, 0.5));
+    .transition;
+  }
+
+  .label {
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    -o-user-select: none;
+    user-select: none;
+    opacity: 0;
+    .transition;
+    text-align: center;
+    color: #FFFFFF;
+    padding-top: 10px;
+    font-size: 15px;
+  }
+
+  &.circle-big {
+    .circle {
+      width: 100%;
+      height: 100%;
+      margin-top: 0;
+      margin-left: 0;
+    }
+
+    .label {
+      opacity: 1;
+    }
+  }
+
+  &.circle-visible {
+    display: block;
+  }
 }
 
-.circle-container.circle-visible {
-  display: block;
-}
-
-#circlesUI.animating > .circle-container {
+.animating .circle-container {
   .transition;
-}
-
-#circlesUI.animating > .circle-container.hideMovement {
-  -webkit-transition: all 0s ease-out;
-  transition: all 0s ease-out;
-}
-
-.circle-container > .circle {
-  -webkit-user-select: none;  /* Chrome all / Safari all */
-  -moz-user-select: none;     /* Firefox all */
-  -ms-user-select: none;      /* IE 10+ */
-  width: 33.3%;
-  height: 33.3%;
-  margin-top: 33.3%;
-  margin-left: 33.3%;
-  border-radius: 50%;
-  display: block;
-  .shadow(3px 3px 5px 0px rgba(0, 0, 0, 0.5));
-  .transition;
-}
-
-.circle-container.circle-big > .circle {
-  width: 100%;
-  height: 100%;
-  margin-top: 0;
-  margin-left: 0;
-}
-
-.circle-container > .label {
-  -webkit-user-select: none;  /* Chrome all / Safari all */
-  -moz-user-select: none;     /* Firefox all */
-  -ms-user-select: none;      /* IE 10+ */
-
-  /* No support for these yet, use at own risk */
-  -o-user-select: none;
-  user-select: none;
-  opacity: 0;
-  .transition;
-  text-align: center;
-  color: #FFFFFF;
-  padding-top: 10px;
-  font-size: 15px;
-}
-
-.circle-container.circle-big > .label {
-  opacity: 1;
 }

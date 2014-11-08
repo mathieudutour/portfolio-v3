@@ -37,44 +37,6 @@ module.exports = function (grunt) {
 			}
 		},
 
-		imagemin: {
-			dist: {
-				files: [{
-					expand: true,
-					cwd: '<%= config.src %>/<%= config.images %>',
-					src: '{,*/}*.{gif,jpeg,jpg,png}',
-					dest: '<%= config.dist %>/<%= config.images %>'
-				}]
-			}
-		},
-
-		svgmin: {
-			dist: {
-				files: [{
-					expand: true,
-					cwd: '<%= config.src %>/<%= config.images %>',
-					src: '{,*/}*.svg',
-					dest: '<%= config.dist %>/<%= config.images %>'
-				}]
-			}
-		},
-
-		copy: {
-			dist: {
-				files: [{
-					expand: true,
-					dot: true,
-					cwd: '<%= config.src %>',
-					dest: '<%= config.dist %>',
-					src: [
-						'*.{ico,png,txt,xml}',
-						'<%= config.images %>/{,*/}*.{webp,gif}',
-						'fonts/{,*/}*.*'
-					]
-				}]
-			}
-		},
-
 		coffee: {
           dev: {
             options: {
@@ -109,31 +71,32 @@ module.exports = function (grunt) {
 					'<%= config.dist %>/styles/styles.css': '<%= config.src %>/styles/styles.less'
 				}
 			}
-		}
+		},
+
+        uglify: {
+            dist: {
+                files: {
+                  '<%= config.dist %>/scripts/script.min.js': ['<%= config.dist %>/scripts/script.js']
+                }
+            }
+        }
 
 	});
 
 	// Tasks.
-	grunt.registerTask('default', ['build']);
+	grunt.registerTask('default', ['dist']);
 
-	grunt.registerTask('build', [
+	grunt.registerTask('dist', [
         'less:dist',
 		'coffee:dist',
-		'copy:dist',
+        'uglify:dist',
 		'watch'
 	]);
 
-	grunt.registerTask('serve', function (target) {
-
-		if (target === 'build') {
-			return grunt.task.run(['build', 'connect:dist:keepalive']);
-		}
-
-		grunt.task.run([
+	grunt.registerTask('dev', [
 			'less:dev',
 			'coffee:dev',
 			'watch'
-		]);
-	});
+    ]);
 
 };

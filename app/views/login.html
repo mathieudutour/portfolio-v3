@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href='http://fonts.googleapis.com/css?family=Lato:100,400,700' rel='stylesheet' type='text/css'>
+  <meta charset="utf-8">
+  <title>Circles UI</title>
+  <meta name="description" content="Mathieu's Portfolio">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+  <link rel="stylesheet" href="styles/styles.css">
+
+</head>
+
+<body class='admin login'>
+  <aside class='login'>
+    <div class='background'></div>
+    <ul class="tabs">
+      <li>
+        <input type="radio" name="tabs" id="tab1"<% if(!signup) { %> checked<% } %> />
+        <div id="tab-content1" class="tab-content">
+          <form action="login" method="post">
+            <input type="email" name="username" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button class='button' type="submit" name="button">Go !</button>
+          </form>
+        </div>
+        <label for="tab1">Already have an account ?</label>
+      </li>
+
+      <li>
+        <input type="radio" name="tabs" id="tab2"<% if(signup) { %> checked<% } %> />
+        <div id="tab-content2" class="tab-content">
+          <form action="signup" method="post" id='signup'>
+            <input type="text" name="first_name" placeholder="First Name" id='first_name' required>
+            <p>Your first name must be more than 1 character.</p>
+            <input type="text" name="last_name" placeholder="Last Name" id='last_name' required>
+            <p>Your last name must be more than 1 character.</p>
+            <input type="text" name="slug_name" placeholder="slug-name" id='slug_name' required>
+            <p>That is not a slug name.</p>
+            <input type="text" name="birthday" placeholder="birthday dd/mm/yyyy" id='birthday' required>
+            <p>Wrong format (dd/mm/yyyy).</p>
+            <input type="email" name="email" placeholder="Email" id='email' required>
+            <input type="password" name="password" placeholder="Password" id='password' required>
+            <p>Your password must be more than 5 character.</p>
+            <button class='button' type="submit" name="button">Go !</button>
+          </form>
+        </div>
+        <label for="tab2">Don't have an account ?</label>
+      </li>
+    </ul>
+  </aside>
+  <div class='content login'><div class='wrapper'>
+    <section class='gravatar'>
+      <img class='logo' src='/images/admin/gravatar.jpg'>
+      <h1>Gravatar</h1>
+      <p>An image that follows you from site to site.</p>
+    </section>
+    <section class='facebook'>
+      <img class='logo' src='/images/admin/facebook.png'>
+      <h1>Facebook</h1>
+      <p>Biggest online social networking service.</p>
+      <a class='button' href="#">CONNECT</a>
+    </section>
+    <section class='strava'>
+      <img class='logo' src='/images/admin/strava.png'>
+      <h1>Strava</h1>
+      <p>Tracks your runs, walks, hikes, etc.</p>
+      <a class='button' href="#">CONNECT</a>
+    </section>
+    <section class='moves'>
+      <img class='logo' src='/images/admin/moves.png'>
+      <h1>Moves</h1>
+      <p>Tracks your steps you make every day.</p>
+      <a class='button' href="#">CONNECT</a>
+    </section>
+    <section class='twitter'>
+      <img class='logo' src='/images/admin/twitter.png'>
+      <h1>Twitter</h1>
+      <p>Tracks your tweets and followers.</p>
+      <a class='button' href="#">CONNECT</a>
+    </section>
+    <section class='github'>
+      <img class='logo' src='/images/admin/github.png'>
+      <h1>Github</h1>
+      <p>Tracks all the code you have commited.</p>
+      <a class='button' href="#">CONNECT</a>
+    </section>
+    <section class='linkedin'>
+      <img class='logo' src='/images/admin/linkedin.png'>
+      <h1>LinkedIn</h1>
+      <p>Biggest professional networking service.</p>
+      <a class='button' href="#">CONNECT</a>
+    </section>
+    <section class='rescuetime'>
+      <img class='logo' src='/images/admin/rescuetime.png'>
+      <h1>Rescue Time</h1>
+      <p>Tracks the time you spend on your computer.</p>
+      <a class='button' href="#">CONNECT</a>
+    </section>
+    <section class='projects'>
+      <a href="#">Projects</a>
+    </section>
+    <section class='diplomas'>
+      <a href="#">Diplomas</a>
+    </section>
+    <section class='other-sport'>
+      <a href="#">Other Sport</a>
+    </section>
+    <section class='other-date'>
+      <a href="admin/auth/linkedin">Other Date</a>
+    </section>
+  </div></div>
+  <nav>
+    <ul>
+
+    </ul>
+  </nav>
+
+  <script src="scripts/script.js"></script>
+  <script>
+    var form = document.getElementById('signup');
+    var signup = new Signup(form);
+  </script>
+</body>
+
+</html>

@@ -20,5 +20,9 @@ exports = {
   linkedin: {
     consumerKey: '',
     consumerSecret: ''
+  },
+  moves: {
+    clientID: '',
+    clientSecret: ''
   }
 };

@@ -1,6 +1,6 @@
 /*jshint node: true*/
 exports.config = {
-  siteURL: "http://localhost:3000",
+  siteURL: "http://0.0.0.0:5000",
   facebook: {
     clientID: '346040448909652',
     clientSecret: 'bd815c44db5cff3437d71af27c8bc69f'
@@ -21,5 +21,8 @@ exports.config = {
     consumerKey: '75jl1oy2kd1jzp',
     consumerSecret: 'iybnchpVIC10SfU9'
   },
-  rescuetime: 'B63P6JWu25f2wNujn_9KGrrmzukFTii1656Aelms'
+  moves: {
+    clientID: 'WD0nl_0Fvgq9htGrQWOzvX4jHD8OiiTV',
+    clientSecret: 'WY2Eu0BM8J59PB05k2QCzK0TNl5Rb33ysiD2AJMq1U0hOMbg386KnrUdu9t8bzxY'
+  }
 };

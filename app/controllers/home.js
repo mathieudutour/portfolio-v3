@@ -2,17 +2,14 @@
 var db = require('../models/').db;
 
 var controller = function (req, res, next) {
-  db.providers.find({}, function(err, docs) {
+  var slug_name = req.params.slug || 'mathieu-dutour';
+  db.users.findOne({slug_name: slug_name}, function(err, user) {
     if(err) {return next(err);}
-    if(docs && docs.length > 0) {
-      var data = {basic:null, facebook: null, twitter: null, github: null, linkedin: null, strava: null};
-      for(var i = 0; i < docs.length; i++) {
-        data[docs[i].name] = docs[i];
-      }
-      //console.log(data);
-      res.render('index.html', data);
+    if(user) {
+      //console.log(user);
+      res.render('index.html', user.providers);
     } else {
-      res.redirect('/admin');
+      res.redirect('/login');
     }
   });
 };

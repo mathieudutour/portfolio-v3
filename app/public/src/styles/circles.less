@@ -1,5 +1,18 @@
-.circle-container > .circle {
-  text-decoration: none;
+#circlesUI {
+  width: 100%;
+  height: 100%;
+  color: #FFF;
+  &.appeared {
+    pointer-events: none;
+
+    .caption {
+      .animation(opac 1s);
+    }
+  }
+
+  &.moved .caption {
+    .animation(opac 1s reverse forwards);
+  }
 }
 
 @base-social: #00ceff;
@@ -9,44 +22,35 @@
 
 .caption {
   position: absolute;
-  color: #FFFFFF;
-}
 
-.caption.social {
-  top: 10px;
-  left: 10px;
-  border-top: 0.2em solid #00aced;
-  font-size: 2em;
-  text-align: left;
-}
-.caption.job {
-  top: 10px;
-  right: 10px;
-  border-top: 0.2em solid #43ff00;
-  font-size: 2em;
-  text-align: right;
-}
-.caption.divers {
-  bottom: 10px;
-  left: 10px;
-  border-bottom: 0.2em solid #feff4b;
-  font-size: 2em;
-  text-align: left;
-}
-.caption.sport {
-  bottom: 10px;
-  right: 10px;
-  border-bottom: 0.2em solid #ff002d;
-  font-size: 2em;
-  text-align: right;
-}
-
-#circlesUI.appeared .caption {
-  .animation(opac 1s);
-}
-
-#circlesUI.moved .caption {
-  .animation(opac 1s reverse forwards);
+  &.social {
+    top: 10px;
+    left: 10px;
+    border-top: 0.2em solid #00aced;
+    font-size: 2em;
+    text-align: left;
+  }
+  &.job {
+    top: 10px;
+    right: 10px;
+    border-top: 0.2em solid #43ff00;
+    font-size: 2em;
+    text-align: right;
+  }
+  &.divers {
+    bottom: 10px;
+    left: 10px;
+    border-bottom: 0.2em solid #feff4b;
+    font-size: 2em;
+    text-align: left;
+  }
+  &.sport {
+    bottom: 10px;
+    right: 10px;
+    border-bottom: 0.2em solid #ff002d;
+    font-size: 2em;
+    text-align: right;
+  }
 }
 
 .mixi-frames () {
@@ -96,97 +100,161 @@
   .generate-color-divers(@n, (@i + 1));
 }
 
-.circle-container > .circle > img{
-  height: 100%;
-  width: 100%;
-}
+.circle-container {
+  .circle {
+    overflow: hidden;
 
-.circle-container.presentation > .circle {
-  overflow: hidden;
-}
+    img{
+      height: 100%;
+      width: 100%;
+    }
 
-.circle-container.facebook > .circle {
-  background-color: #3b5998 !important;
-}
+    .content {
+      opacity: 0;
+      .transition;
+    }
+  }
 
-.circle-container.twitter > .circle {
-  background-color: #00aced !important;
-}
+  &.facebook .circle {
+    background-color: #3b5998 !important;
+  }
+  &.twitter .circle {
+    background-color: #00aced !important;
+  }
+  &.linkedin .circle {
+    background-color: #007bb6 !important;
+  }
+  &.disabled .circle {
+    background-color: #7e7e7e !important;
+  }
+  &.last-tweet {
+    .circle {
+      p {
+        padding-top: 0;
+        margin-top: 0;
+        display: none;
+        color: #FFF;
+        opacity: 0;
+        -webkit-shape-inside:circle();
+        shape-inside:circle();
+      }
+      img {
+        display: block;
+      }
+    }
 
-.circle-container.linkedin > .circle {
-  background-color: #007bb6 !important;
-}
+    &.circle-big > .circle {
+      p {
+        height: 100%;
+        padding-left: 8%;
+        padding-right: 19%;
+        .center;
+        opacity: 1;
+        visibility : visible;
+      }
+      img {
+        display: none;
+      }
+    }
+  }
+  &.step {
+    .circle {
+      p {
+        padding-top: 0;
+        margin-top: 0;
+        display: none;
+        opacity: 0;
+        .transition;
+        -webkit-shape-inside:circle();
+        shape-inside:circle();
 
-.circle-container.last-tweet > .circle {
-  overflow: hidden;
-}
+        span {
+          font-size: 0.8em;
+        }
+      }
+      img {
+        display: block;
+        position: relative;
+        .transition;
+      }
+    }
 
-.circle-container.disabled > .circle {
-  background-color: #7e7e7e !important;
-}
+    &.circle-big > .circle {
+      p {
+        width: 0%;
+        padding-left: 10%;
+        margin-top: -9px;
+        display: block;
+        text-align: right;
+        opacity: 1;
+        visibility : visible;
+        font-size: 1.3em;
+      }
+      img {
+        width: 50%;
+        height: 50%;
+        left: 50%;
+        top: 25%;
+      }
+    }
+  }
+  &.age {
+    .circle p{
+      span:first-child {
+        text-align: center;
+        margin-top: ~'calc(50% - 1.2em)';
+        width: 100%;
+        display: block;
+        .transition;
+        font-weight: 900;
+        font-size: 1.5em;
+      }
+      span:last-child {
+        display: none;
+        opacity: 0;
+        .transition;
+      }
+    }
+    &.circle-big .circle p {
+      span:first-child {
+        margin-top: 20%;
+        font-size: 3em;
+      }
+      span:last-child {
+        display: block;
+        opacity: 1;
+        width: 90px;
+        margin-left: ~'calc(50% - 45px)';
+      }
+    }
+  }
 
-.circle-container.last-tweet > .circle > p {
-  padding-top: 0;
-  margin-top: 0;
-  display: none;
-  opacity: 0;
-  color: #FFF;
-  -webkit-shape-inside:circle();
-  shape-inside:circle();
-}
+  &.rescuetime {
+    .circle {
+      p {
+        padding-top: 0;
+        margin-top: 0;
+        display: none;
+        opacity: 0;
+        font-size: 3em;
+        -webkit-shape-inside:circle();
+        shape-inside:circle();
+      }
+      img {
+        display: block;
+      }
+    }
 
-.circle-container.circle-big.last-tweet > .circle > p {
-  height: 100%;
-  padding-left: 8%;
-  padding-right: 19%;
-  .center;
-  opacity: 1;
-  visibility : visible;
-}
-
-.circle-container.last-tweet > .circle > img {
-  display: block;
-}
-
-.circle-container.circle-big.last-tweet > .circle > img {
-  display: none;
-}
-
-.circle-container.step > .circle > p {
-  padding-top: 0;
-  margin-top: 0;
-  display: none;
-  opacity: 0;
-  color: #FFF;
-  .transition;
-  -webkit-shape-inside:circle();
-  shape-inside:circle();
-}
-
-.circle-container.circle-big.step > .circle > p {
-  width: 0%;
-  padding-left: 10%;
-  margin-top: -9px;
-  display: block;
-  text-align: right;
-  opacity: 1;
-  visibility : visible;
-  font-size: 1.3em;
-}
-
-.circle-container.step > .circle > p > span {
-  font-size: 0.8em;
-}
-
-.circle-container.step > .circle > img {
-  display: block;
-  position: relative;
-  .transition;
-}
-
-.circle-container.circle-big.step > .circle > img {
-  width: 50%;
-  height: 50%;
-  left: 50%;
-  top: 25%;
+    &.circle-big > .circle {
+      p {
+        height: 100%;
+        .center;
+        opacity: 1;
+        visibility : visible;
+      }
+      img {
+        display: none;
+      }
+    }
+  }
 }

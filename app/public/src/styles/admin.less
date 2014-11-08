@@ -1,0 +1,212 @@
+.admin {
+  background: #2C3337;
+
+  aside {
+    width: 25%;
+    height: 100%;
+    position: absolute;
+    background: #2C3337;
+    z-index: 1000;
+    color: #FFF;
+    text-align: center;
+
+    .background {
+      background: #2C3337;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+    }
+
+    .avatar {
+      width: 40%;
+      margin-left: 30%;
+      overflow: hidden;
+      margin-top: 30%;
+      position:relative;
+
+      img {
+        width: 100%;
+        border-radius: 50%;
+      }
+    }
+
+    .info {
+      position: relative;
+      p {
+        text-align: left;
+        width: 120px;
+        margin-left: ~'calc(50% - 60px)';
+      }
+
+      .progress {
+        margin-left: 20%;
+        margin-top:30%;
+        width: 60%;
+        height: 15px;
+        border: 1px solid rgba(255,255,255,0.2);
+        .current {
+          height: 100%;
+          background: rgba(255,255,255,0.2);
+        }
+
+        p {
+          width: 100%;
+          position: relative;
+          text-align: right;
+          margin-left: 0;
+          margin-top:0;
+          padding-right: 5px;
+          top: -13.5px;
+          font-size: 12px;
+        }
+      }
+
+      .button {
+        width: 60%;
+      }
+    }
+
+    &:before
+    {
+      content:"";
+      position:absolute;
+      z-index:-1;
+      top:10%;
+      bottom:20%;
+      left:50%;
+      right:0;
+      -webkit-box-shadow:0 0 15px rgba(0,0,0,0.6);
+      -moz-box-shadow:0 0 15px rgba(0,0,0,0.6);
+      box-shadow:0 0 15px rgba(0,0,0,0.6);
+      -moz-border-radius:~'10px / 100px';
+      border-radius:~'10px / 100px';
+    }
+
+    &.login {
+      min-width: 360px;
+    }
+  }
+
+  .content {
+    width: 75%;
+    margin-left: 25%;
+    overflow-y: auto;
+    height: 85%;
+    color: #FFF;
+    text-align: center;
+    .wrapper {
+      height: 100%;
+      width: 3000px;
+      section {
+        height: 80%;
+        margin-top: 60px;
+        width : 250px;
+        float: left;
+        border-left: 1px solid rgba(255,255,255,0.2);
+
+        &:first-child {
+          border-left: 0;
+        }
+        [id$="Back"] {
+          position: absolute;
+          top: -9999px;
+          left: -9999px;
+
+          &:checked ~ .front {
+            .transform(rotateY(180deg));
+          }
+
+          &:checked ~ .back {
+            .transform(rotateY(0deg));
+          }
+
+          &:checked ~ label[for$="Back"] .arrow {
+            .transform(rotateZ(180deg));
+          }
+        }
+
+        svg.arrow {
+          width: 30px;
+          float:right;
+          margin-right: 10px;
+          cursor: pointer;
+          .transition;
+
+          path {
+            fill: rgba(255,255,255,0.2);
+            .transition
+          }
+
+          &:hover path {
+            fill: #FFF;
+          }
+        }
+
+        .face {
+          overflow-y:auto;
+          margin-top: 30px;
+          position: relative;
+          .transition;
+          -webkit-backface-visibility : hidden;
+          backface-visibility : hidden;
+
+          &.front {
+            height: 360px;
+          }
+          &.back {
+            top: -360px;
+            .transform(rotateY(-180deg));
+            input {
+              width: 80%;
+              padding: 1em;
+              margin-bottom: 2em;
+              background: transparent;
+              border: 0 solid #FFF;
+              border-bottom: 1px solid #FFF;
+              &:focus {
+                outline: 1px solid #FFF;
+              }
+            }
+          }
+        }
+        img.logo {
+          width: 30%;
+          max-width: 200px;
+          margin-left: 35%;
+          margin-right: 35%;
+          margin-top: 75px;
+          border-radius: 50%;
+          -webkit-user-select: none;  /* Chrome all / Safari all */
+          -moz-user-select: none;     /* Firefox all */
+          -ms-user-select: none;      /* IE 10+ */
+          -o-user-select: none;
+          user-select: none;
+        }
+        p {
+          padding-left: 10%;
+          padding-right: 10%;
+          margin-top: -10px;;
+        }
+        &.twitter img {
+          background-color: #00aced;
+        }
+      }
+    }
+
+    &.login {
+      -webkit-filter: blur(5px);
+      -moz-filter: blur(5px);
+      -o-filter: blur(5px);
+      -ms-filter: blur(5px);
+      filter: blur(5px);
+    }
+  }
+
+  nav {
+    height : 15%;
+    min-height: 100px;
+    width: 100%;
+    position:absolute;
+    bottom: 0;
+  }
+}
