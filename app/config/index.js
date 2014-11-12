@@ -1,6 +1,6 @@
 /*jshint node: true*/
 exports.config = {
-  siteURL: "http://0.0.0.0:5000",
+  siteURL: "http://mathieu-dutour.herokuapps.com",
   facebook: {
     clientID: '346040448909652',
     clientSecret: 'bd815c44db5cff3437d71af27c8bc69f'
