@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <link href='http://fonts.googleapis.com/css?family=Lato:100,400,700' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
   <meta charset="utf-8">
   <title>Mathieu Dutour - Administration</title>
   <meta name="description" content="Mathieu's Portfolio">
@@ -28,10 +28,10 @@
         Hello <%= providers.basic.first_name %> !
       </h1>
       <p id='age'></p>
-      <% if(((providers.basic ? 1 : 0) + (providers.gravatar ? 1 : 0) + (providers.facebook ? 1 : 0) + (providers.strava ? 1 : 0) + (providers.moves ? 1 : 0) + (providers.twitter ? 1 : 0) + (providers.github ? 1 : 0) + (providers.linkedin ? 1 : 0) + (providers.rescuetime ? 1 : 0)) / 9 != 1) {%>
+      <% if(((providers.basic ? 1 : 0) + (providers.gravatar ? 1 : 0) + (providers.facebook ? 1 : 0) + (providers.strava ? 1 : 0) + (providers.moves ? 1 : 0) + (providers.twitter ? 1 : 0) + (providers.github ? 1 : 0) + (providers.linkedin ? 1 : 0) + (providers.rescuetime ? 1 : 0) + (providers.projects ? 1 : 0) + (providers.diplomas ? 1 : 0)) / 11 != 1) {%>
       <div class='progress'>
-        <div class='current' style='width:<%= ((providers.basic ? 1 : 0) + (providers.gravatar ? 1 : 0) + (providers.facebook ? 1 : 0) + (providers.strava ? 1 : 0) + (providers.moves ? 1 : 0) + (providers.twitter ? 1 : 0) + (providers.github ? 1 : 0) + (providers.linkedin ? 1 : 0) + (providers.rescuetime ? 1 : 0)) * 100 / 9 %>%;'></div>
-        <p><%= (((providers.basic ? 1 : 0) + (providers.gravatar ? 1 : 0) + (providers.facebook ? 1 : 0) + (providers.strava ? 1 : 0) + (providers.moves ? 1 : 0) + (providers.twitter ? 1 : 0) + (providers.github ? 1 : 0) + (providers.linkedin ? 1 : 0) + (providers.rescuetime ? 1 : 0)) * 100 / 9).toFixed(0) %>% completed</p>
+        <div class='current' style='width:<%= ((providers.basic ? 1 : 0) + (providers.gravatar ? 1 : 0) + (providers.facebook ? 1 : 0) + (providers.strava ? 1 : 0) + (providers.moves ? 1 : 0) + (providers.twitter ? 1 : 0) + (providers.github ? 1 : 0) + (providers.linkedin ? 1 : 0) + (providers.rescuetime ? 1 : 0) + (providers.projects ? 1 : 0) + (providers.diplomas ? 1 : 0)) * 100 / 11 %>%;'></div>
+        <p><%= (((providers.basic ? 1 : 0) + (providers.gravatar ? 1 : 0) + (providers.facebook ? 1 : 0) + (providers.strava ? 1 : 0) + (providers.moves ? 1 : 0) + (providers.twitter ? 1 : 0) + (providers.github ? 1 : 0) + (providers.linkedin ? 1 : 0) + (providers.rescuetime ? 1 : 0) + (providers.projects ? 1 : 0) + (providers.diplomas ? 1 : 0)) * 100 / 11).toFixed(0) %>% completed</p>
       </div>
       <% } %>
       <a class='button' href="<%= slug_name %>">Go to your page</a>
@@ -48,7 +48,9 @@
         <h1>Gravatar</h1>
         <p>An image that follows you from site to site.</p>
       </div>
-      <div class='face back'>blablabla</div>
+      <% if(providers.gravatar) { %>
+      <div class='face back'><img class='logo' src='<%= providers.gravatar.image %>'></div>
+      <% } %>
     </section>
     <section class='facebook'>
       <% if(providers.facebook) { %>
@@ -65,7 +67,9 @@
         <a class='button' href="admin/auth/facebook">CONNECT</a>
         <% } %>
       </div>
-      <div class='face back'>blablabla</div>
+      <% if(providers.facebook) { %>
+      <div class='face back'><img class='logo' src='<%= providers.facebook.image %>'></div>
+      <% } %>
     </section>
     <section class='strava'>
       <% if(providers.strava) { %>
@@ -116,7 +120,9 @@
         <a class='button' href="admin/auth/twitter">CONNECT</a>
         <% } %>
       </div>
-      <div class='face back'>blablabla</div>
+      <% if(providers.twitter) { %>
+      <div class='face back'><img class='logo' src='<%= providers.twitter.image %>'></div>
+      <% } %>
     </section>
     <section class='github'>
       <% if(providers.github) { %>
@@ -172,23 +178,144 @@
           <input type="text" name="api_key" placeholder="API Key" id='api_key'<% if(providers.rescuetime) { %> value='<%= providers.rescuetime.api_key %>'<% } %> required>
           <input type="text" name="first_track" placeholder="First Item to track" id='first_track'<% if(providers.rescuetime) { %> value='<%= providers.rescuetime.first_track.name %>'<% } %> required>
           <input type="text" name="image_first_track" placeholder="URL of the first item's image " id='image_first_track'<% if(providers.rescuetime) { %> value='<%= providers.rescuetime.first_track.image %>'<% } %> required>
+          <hr />
           <input type="text" name="second_track" placeholder="Second Item to track" id='second_track'<% if(providers.rescuetime) { %> value='<%= providers.rescuetime.second_track.name %>'<% } %> required>
           <input type="text" name="image_second_track" placeholder="URL of the second item's image " id='image_second_track'<% if(providers.rescuetime) { %> value='<%= providers.rescuetime.second_track.image %>'<% } %> required>
-          <button class='button' type="submit" name="button">Go !</button>
+          <button class='button' type="submit">Go !</button>
         </form>
       </div>
     </section>
     <section class='projects'>
-      <a href="#">Projects</a>
+      <input type="checkbox" id="projectsBack" />
+      <% if(providers.projects) { %>
+      <label for="projectsBack"><svg class='arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M24.751 16c-.009 4.832-3.918 8.742-8.75 8.75-2.515 0-4.768-1.062-6.365-2.762l2.068-1.443-7.901-3.703.744 8.695 2.193-1.529c2.244 2.594 5.562 4.242 9.26 4.242 6.768 0 12.249-5.482 12.249-12.25h-3.498zm-8.75-8.749c2.517 0 4.769 1.065 6.367 2.764l-2.068 1.443 7.901 3.701-.746-8.693-2.191 1.529c-2.246-2.594-5.562-4.245-9.263-4.245-6.765.001-12.249 5.485-12.25 12.25h3.501c.008-4.831 3.918-8.741 8.749-8.749z"/></svg></label>
+      <% } %>
+      <div class='face front'>
+        <img class='logo' src='/images/admin/projects.png'>
+        <h1>Projects</h1>
+        <p>Descriptions of 4 projects that you are proud of.</p>
+        <% if(providers.projects) { %>
+        <a class='button active' href="#">ACTIVE</a>
+        <% } else { %>
+        <label for="projectsBack" class='button'>CONNECT</label>
+        <% } %>
+      </div>
+      <div class='face back'>
+        <form action="/admin/projects" method="post" id='projects'>
+          <input type="text" name="first_project" placeholder="First Project" id='first_project'<% if(providers.projects) { %> value='<%= providers.projects.first_project.name %>'<% } %> required>
+          <textarea type="text" name="first_project_description" placeholder="First Project's description" id='first_project_description' required><% if(providers.projects) { %><%= providers.projects.first_project.description %><% } %></textarea>
+          <input type="text" name="first_project_url" placeholder="First Project's URL" id='first_project_url'<% if(providers.projects) { %> value='<%= providers.projects.first_project.url %>'<% } %> required>
+          <input type="text" name="first_project_icon" placeholder="First Project's icon" id='first_project_icon'<% if(providers.projects) { %> value='<%= providers.projects.first_project.icon %>'<% } %> required>
+          <hr />
+          <input type="text" name="second_project" placeholder="Second Project" id='second_project'<% if(providers.projects) { %> value='<%= providers.projects.second_project.name %>'<% } %> required>
+          <textarea type="text" name="second_project_description" placeholder="Second Project's description" id='second_project_description' required><% if(providers.projects) { %><%= providers.projects.second_project.description %><% } %></textarea>
+          <input type="text" name="second_project_url" placeholder="Second Project's URL" id='second_project_url'<% if(providers.projects) { %> value='<%= providers.projects.second_project.url %>'<% } %> required>
+          <input type="text" name="second_project_icon" placeholder="Second Project's icon" id='second_project_icon'<% if(providers.projects) { %> value='<%= providers.projects.second_project.icon %>'<% } %> required>
+          <hr />
+          <input type="text" name="third_project" placeholder="Third Project" id='third_project'<% if(providers.projects) { %> value='<%= providers.projects.third_project.name %>'<% } %> required>
+          <textarea type="text" name="third_project_description" placeholder="Third Project's description" id='third_project_description' required><% if(providers.projects) { %><%= providers.projects.third_project.description %><% } %></textarea>
+          <input type="text" name="third_project_url" placeholder="Third Project's URL" id='third_project_url'<% if(providers.projects) { %> value='<%= providers.projects.third_project.url %>'<% } %> required>
+          <input type="text" name="third_project_icon" placeholder="Third Project's icon" id='third_project_icon'<% if(providers.projects) { %> value='<%= providers.projects.third_project.icon %>'<% } %> required>
+          <hr />
+          <input type="text" name="last_project" placeholder="Last Project" id='last_project'<% if(providers.projects) { %> value='<%= providers.projects.last_project.name %>'<% } %> required>
+          <textarea type="text" name="last_project_description" placeholder="Last Project's description" id='last_project_description' required><% if(providers.projects) { %><%= providers.projects.last_project.description %><% } %></textarea>
+          <input type="text" name="last_project_url" placeholder="Last Project's URL" id='last_project_url'<% if(providers.projects) { %> value='<%= providers.projects.last_project.url %>'<% } %> required>
+          <input type="text" name="last_project_icon" placeholder="Last Project's icon" id='last_project_icon'<% if(providers.projects) { %> value='<%= providers.projects.last_project.icon %>'<% } %> required>
+          <button class='button' type="submit">Go !</button>
+        </form>
+      </div>
     </section>
     <section class='diplomas'>
-      <a href="#">Diplomas</a>
+      <input type="checkbox" id="diplomasBack" />
+      <% if(providers.diplomas) { %>
+      <label for="diplomasBack"><svg class='arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M24.751 16c-.009 4.832-3.918 8.742-8.75 8.75-2.515 0-4.768-1.062-6.365-2.762l2.068-1.443-7.901-3.703.744 8.695 2.193-1.529c2.244 2.594 5.562 4.242 9.26 4.242 6.768 0 12.249-5.482 12.249-12.25h-3.498zm-8.75-8.749c2.517 0 4.769 1.065 6.367 2.764l-2.068 1.443 7.901 3.701-.746-8.693-2.191 1.529c-2.246-2.594-5.562-4.245-9.263-4.245-6.765.001-12.249 5.485-12.25 12.25h3.501c.008-4.831 3.918-8.741 8.749-8.749z"/></svg></label>
+      <% } %>
+      <div class='face front'>
+        <img class='logo' src='/images/admin/diplomas.png'>
+        <h1>Diplomas</h1>
+        <p>Descriptions of 2 diplomas that you are proud of.</p>
+        <% if(providers.diplomas) { %>
+        <a class='button active' href="#">ACTIVE</a>
+        <% } else { %>
+        <label for="diplomasBack" class='button'>CONNECT</label>
+        <% } %>
+      </div>
+      <div class='face back'>
+        <form action="/admin/diplomas" method="post" id='diplomas'>
+          <input type="text" name="first_diploma" placeholder="First Diploma" id='first_diploma'<% if(providers.diplomas) { %> value='<%= providers.diplomas.first_diploma.name %>'<% } %> required>
+          <textarea type="text" name="first_diploma_description" placeholder="First Diploma's description" id='first_diploma_description' required><% if(providers.diplomas) { %><%= providers.diplomas.first_diploma.description %><% } %></textarea>
+          <input type="text" name="first_diploma_url" placeholder="First Diploma's URL" id='first_diploma_url'<% if(providers.diplomas) { %> value='<%= providers.diplomas.first_diploma.url %>'<% } %> required>
+          <input type="text" name="first_diploma_icon" placeholder="First Diploma's icon" id='first_diploma_icon'<% if(providers.diplomas) { %> value='<%= providers.diplomas.first_diploma.icon %>'<% } %> required>
+          <hr />
+          <input type="text" name="second_diploma" placeholder="Second Diploma" id='second_diploma'<% if(providers.diplomas) { %> value='<%= providers.diplomas.second_diploma.name %>'<% } %> required>
+          <textarea type="text" name="second_diploma_description" placeholder="Second Diploma's description" id='second_diploma_description' required><% if(providers.diplomas) { %><%= providers.diplomas.first_diploma.description %><% } %></textarea>
+          <input type="text" name="second_diploma_url" placeholder="Second Diploma's URL" id='second_diploma_url'<% if(providers.diplomas) { %> value='<%= providers.diplomas.second_diploma.url %>'<% } %> required>
+          <input type="text" name="second_diploma_icon" placeholder="Second Diploma's icon" id='second_diploma_icon'<% if(providers.diplomas) { %> value='<%= providers.diplomas.second_diploma.icon %>'<% } %> required>
+          <button class='button' type="submit">Go !</button>
+        </form>
+      </div>
     </section>
     <section class='other-sport'>
-      <a href="#">Other Sport</a>
+      <input type="checkbox" id="otherSportBack" />
+      <% if(providers.other_sport) { %>
+      <label for="otherSportBack"><svg class='arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M24.751 16c-.009 4.832-3.918 8.742-8.75 8.75-2.515 0-4.768-1.062-6.365-2.762l2.068-1.443-7.901-3.703.744 8.695 2.193-1.529c2.244 2.594 5.562 4.242 9.26 4.242 6.768 0 12.249-5.482 12.249-12.25h-3.498zm-8.75-8.749c2.517 0 4.769 1.065 6.367 2.764l-2.068 1.443 7.901 3.701-.746-8.693-2.191 1.529c-2.246-2.594-5.562-4.245-9.263-4.245-6.765.001-12.249 5.485-12.25 12.25h3.501c.008-4.831 3.918-8.741 8.749-8.749z"/></svg></label>
+      <% } %>
+      <div class='face front'>
+        <img class='logo' src='/images/admin/sport.png'>
+        <h1>Other Sport</h1>
+        <p>Track another sport. The one you want.</p>
+        <% if(providers.other_sport) { %>
+        <a class='button active' href="#">ACTIVE</a>
+        <% } else { %>
+        <label for="otherSportBack" class='button'>TRACK</label>
+        <% } %>
+      </div>
+      <div class='face back'>
+        <% if(providers.other_sport) { %>
+        <form action="/admin/other_sport_data" method="post" id='other_sport_data'>
+          <input type="text" name="value" placeholder="Point of data" id='value' required>
+          <input type="text" name="timestamp" placeholder="Timestamp (empty for now)" id='timestamp' required>
+          <button class='button' type="submit">Go !</button>
+        </form>
+        <hr />
+        <% } %>
+        <form action="/admin/other_sport" method="post" id='other_sport'>
+          <input type="text" name="name" placeholder="Name of the sport" id='name'<% if(providers.other_sport) { %> value='<%= providers.other_sport.name %>'<% } %> required>
+          <input type="text" name="image" placeholder="URL of the sport's image" id='image'<% if(providers.other_sport) { %> value='<%= providers.other_sport.image %>'<% } %> required>
+          <input type="text" name="value_name" placeholder="Name of the value" id='value_name'<% if(providers.other_sport) { %> value='<%= providers.other_sport.value_name %>'<% } %> required>
+          <button class='button' type="submit">Go !</button>
+        </form>
+      </div>
+    </section>
     </section>
     <section class='other-date'>
-      <a href="admin/auth/linkedin">Other Date</a>
+      <input type="checkbox" id="otherLastBack" />
+      <% if(providers.other_last) { %>
+      <label for="otherLastBack"><svg class='arrow' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M24.751 16c-.009 4.832-3.918 8.742-8.75 8.75-2.515 0-4.768-1.062-6.365-2.762l2.068-1.443-7.901-3.703.744 8.695 2.193-1.529c2.244 2.594 5.562 4.242 9.26 4.242 6.768 0 12.249-5.482 12.249-12.25h-3.498zm-8.75-8.749c2.517 0 4.769 1.065 6.367 2.764l-2.068 1.443 7.901 3.701-.746-8.693-2.191 1.529c-2.246-2.594-5.562-4.245-9.263-4.245-6.765.001-12.249 5.485-12.25 12.25h3.501c.008-4.831 3.918-8.741 8.749-8.749z"/></svg></label>
+      <% } %>
+      <div class='face front'>
+        <img class='logo' src='/images/admin/last.png'>
+        <h1>Last thing</h1>
+        <p>Track the list time you have done something.</p>
+        <% if(providers.other_last) { %>
+        <a class='button active' href="#">ACTIVE</a>
+        <% } else { %>
+        <label for="otherLastBack" class='button'>TRACK</label>
+        <% } %>
+      </div>
+      <div class='face back'>
+        <% if(providers.other_last) { %>
+        <form action="/admin/other_last_data" method="post" id='other_last_data'>
+          <button class='button' type="submit">I've just done it !</button>
+        </form>
+        <hr />
+        <% } %>
+        <form action="/admin/other_last" method="post" id='other_last'>
+          <input type="text" name="name" placeholder="Name of the thing" id='name'<% if(providers.other_last) { %> value='<%= providers.other_last.name %>'<% } %> required>
+          <input type="text" name="image" placeholder="URL of the thing's image " id='image'<% if(providers.other_last) { %> value='<%= providers.other_last.image %>'<% } %> required>
+          <button class='button' type="submit">Go !</button>
+        </form>
+      </div>
     </section>
   </div></div>
   <nav>

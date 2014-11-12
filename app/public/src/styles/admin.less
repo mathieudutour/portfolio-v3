@@ -96,13 +96,18 @@
     text-align: center;
     .wrapper {
       height: 100%;
-      width: 3000px;
+      width: 3500px;
       section {
         height: 80%;
         margin-top: 60px;
         width : 250px;
         float: left;
         border-left: 1px solid rgba(255,255,255,0.2);
+
+        &.projects, &.diplomas {
+          width : 500px;
+          max-width: 100%;
+        }
 
         &:first-child {
           border-left: 0;
@@ -156,7 +161,10 @@
           &.back {
             top: -360px;
             .transform(rotateY(-180deg));
-            input {
+            height: 85%;
+            overflow-y:auto;
+
+            input, textarea {
               width: 80%;
               padding: 1em;
               margin-bottom: 2em;
@@ -170,10 +178,10 @@
           }
         }
         img.logo {
-          width: 30%;
+          width: 75px;
           max-width: 200px;
-          margin-left: 35%;
-          margin-right: 35%;
+          margin-left: ~'calc(50% - 37.5px)';
+          margin-right: ~'calc(50% - 37.5px)';
           margin-top: 75px;
           border-radius: 50%;
           -webkit-user-select: none;  /* Chrome all / Safari all */

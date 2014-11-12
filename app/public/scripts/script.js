@@ -1,7 +1,4 @@
 (function() {
-  var lastTime, vendor, vendors, _fn, _i, _len,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
   (function(window, document) {
     var Age;
     Age = (function() {
@@ -63,12 +60,17 @@
     return window.Age = Age;
   })(window, document);
 
+}).call(this);
 
-  /*
-   * CirclesUI.coffee
-   * @author Mathieu Dutour - @MathieuDutour
-   * @description Creates a Circles UI
-   */
+
+/*
+ * CirclesUI.coffee
+ * @author Mathieu Dutour - @MathieuDutour
+ * @description Creates a Circles UI
+ */
+
+(function() {
+  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   (function(window, document) {
     var CirclesUI, DEFAULTS, NAME, addClass, classReg, classie, hasClass, removeClass;
@@ -670,6 +672,9 @@
     })();
   })(window, document);
 
+}).call(this);
+
+(function() {
   (function(window, document) {
     var FullScreen;
     FullScreen = (function() {
@@ -730,13 +735,18 @@
     return window.FullScreen = FullScreen;
   })(window, document);
 
+}).call(this);
 
-  /*
-   * Request Animation Frame Polyfill.
-   * @author Tino Zijdel
-   * @author Paul Irish
-   * @see https://gist.github.com/paulirish/1579671
-   */
+
+/*
+ * Request Animation Frame Polyfill.
+ * @author Tino Zijdel
+ * @author Paul Irish
+ * @see https://gist.github.com/paulirish/1579671
+ */
+
+(function() {
+  var lastTime, vendor, vendors, _fn, _i, _len;
 
   lastTime = 0;
 
@@ -770,6 +780,9 @@
     };
   }
 
+}).call(this);
+
+(function() {
   (function(window, document) {
     var Signup;
     Signup = (function() {
@@ -918,5 +931,3 @@
   })(window, document);
 
 }).call(this);
-
-//# sourceMappingURL=script.js.map

@@ -181,7 +181,7 @@
 
     &.circle-big > .circle {
       p {
-        width: 0%;
+        width: 50%;
         padding-left: 10%;
         margin-top: -9px;
         display: block;
@@ -198,6 +198,44 @@
       }
     }
   }
+
+  &.last {
+    .circle {
+      p {
+        padding-top: 0;
+        margin-top: 0;
+        display: none;
+        opacity: 0;
+        .transition;
+        -webkit-shape-inside:circle();
+        shape-inside:circle();
+      }
+
+      img {
+        display: block;
+        position: relative;
+        .transition;
+      }
+    }
+
+    &.circle-big > .circle {
+      p {
+        width: 100%;
+        display: block;
+        text-align: center;
+        opacity: 1;
+        visibility : visible;
+        font-size: 1em;
+      }
+      img {
+        width: 50%;
+        height: 50%;
+        left: 25%;
+        top: 0%;
+      }
+    }
+  }
+
   &.age {
     .circle p{
       span:first-child {
