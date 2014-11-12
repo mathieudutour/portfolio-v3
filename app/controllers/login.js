@@ -72,8 +72,8 @@ var signup = function (req, res, next) {
     req.session.error = "Wrong format for your birthday.";
     return res.redirect('/login?signup=true');
   }
-  var gravatar = gravatar.url(req.body.email, {s:500, d: '404'});
-  request(gravatar, function (error, response) {
+  var grav = gravatar.url(req.body.email, {s:500, d: '404'});
+  request(grav, function (error, response) {
     var user;
     if (!error && response.statusCode == 200) {
       user = {
