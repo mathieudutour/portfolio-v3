@@ -1,4 +1,7 @@
 (function() {
+  var lastTime, vendor, vendors, _fn, _i, _len,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
   (function(window, document) {
     var Age;
     Age = (function() {
@@ -60,17 +63,12 @@
     return window.Age = Age;
   })(window, document);
 
-}).call(this);
 
-
-/*
- * CirclesUI.coffee
- * @author Mathieu Dutour - @MathieuDutour
- * @description Creates a Circles UI
- */
-
-(function() {
-  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  /*
+   * CirclesUI.coffee
+   * @author Mathieu Dutour - @MathieuDutour
+   * @description Creates a Circles UI
+   */
 
   (function(window, document) {
     var CirclesUI, DEFAULTS, NAME, addClass, classReg, classie, hasClass, removeClass;
@@ -108,6 +106,7 @@
     window.classie = classie;
     NAME = 'CirclesUI';
     DEFAULTS = {
+      wrap: true,
       relativeInput: false,
       clipRelativeInput: false,
       invertX: false,
@@ -124,13 +123,14 @@
     };
     return CirclesUI = (function() {
       function CirclesUI(element, options) {
-        var data, key;
+        var data, key, _ref;
         this.element = element;
         this.circles = element.getElementsByClassName('circle-container');
         if (this.circles.length < 24) {
           throw new Error("Not enought circle to display a proper UI");
         } else {
           data = {
+            wrap: this.data(this.element, 'wrap'),
             relativeInput: this.data(this.element, 'relative-input'),
             clipRelativeInput: this.data(this.element, 'clipe-relative-input'),
             invertX: this.data(this.element, 'invert-x'),
@@ -151,7 +151,8 @@
             }
           }
           this.extend(this, DEFAULTS, options, data);
-          this.enabled = false;
+          this.started = false;
+          this.dragging = false;
           this.raf = null;
           this.moved = false;
           this.bounds = null;
@@ -193,19 +194,24 @@
               js: pre[0].toUpperCase() + pre.substr(1)
             };
           })();
-          this.transform2DSupport = true;
-          this.transform3DSupport = (function(transform) {
-            var el, has3d;
-            el = document.createElement("p");
+          _ref = (function(transform) {
+            var el2d, el3d, has2d, has3d;
+            el2d = document.createElement("p");
+            el3d = document.createElement("p");
+            has2d = void 0;
             has3d = void 0;
-            document.body.insertBefore(el, null);
+            document.body.insertBefore(el2d, null);
             if (typeof el.style[transform] !== 'undefined') {
+              document.body.insertBefore(el3d, null);
+              el2.style[transform] = "translate(1px,1px)";
+              has2d = window.getComputedStyle(el).getPropertyValue(transform);
               el.style[transform] = "translate3d(1px,1px,1px)";
               has3d = window.getComputedStyle(el).getPropertyValue(transform);
+              document.body.removeChild(el3d);
             }
-            document.body.removeChild(el);
-            return typeof has3d !== 'undefined' && has3d.length > 0 && has3d !== "none";
-          })(this.vendorPrefix.css + 'transform');
+            document.body.removeChild(el2d);
+            return [typeof has2d !== 'undefined' && has2d.length > 0 && has2d !== "none", typeof has3d !== 'undefined' && has3d.length > 0 && has3d !== "none"];
+          })(this.vendorPrefix.css + 'transform'), this.transform2DSupport = _ref[0], this.transform3DSupport = _ref[1];
           this.setPositionAndScale = this.transform3DSupport ? function(element, x, y, s) {
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
@@ -219,6 +225,51 @@
             y = y.toFixed(this.precision) + 'px';
             element.style.left = x;
             return element.style.top = y;
+          };
+          this.moveCircles = this.wrap ? function(dx, dy) {
+            var circle, self, _i, _len, _ref1, _results;
+            self = this;
+            _ref1 = this.circles;
+            _results = [];
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              circle = _ref1[_i];
+              _results.push((function(circle) {
+                var _ref2, _ref3;
+                circle.x += dx;
+                circle.y += dy;
+                if (circle.x < self.minx) {
+                  circle.x += self.rx * (1 + Math.floor((self.minx - circle.x) / self.rx));
+                } else if (circle.x > self.maxx) {
+                  circle.x -= self.rx * (1 + Math.floor((circle.x - self.maxx) / self.rx));
+                }
+                if (circle.y < self.miny) {
+                  circle.y += self.ry * (1 + Math.floor((self.miny - circle.y) / self.ry));
+                } else if (circle.y > self.maxy) {
+                  circle.y -= self.ry * (1 + Math.floor((circle.y - self.maxy) / self.ry));
+                }
+                if ((self.minx < (_ref2 = circle.x) && _ref2 < self.maxx) && (self.miny < (_ref3 = circle.y) && _ref3 < self.maxy)) {
+                  return self.setCirclePosition(circle);
+                }
+              })(circle));
+            }
+            return _results;
+          } : function(dx, dy) {
+            var circle, self, _i, _len, _ref1, _results;
+            self = this;
+            _ref1 = this.circles;
+            _results = [];
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              circle = _ref1[_i];
+              _results.push((function(circle) {
+                var _ref2, _ref3;
+                circle.x += dx;
+                circle.y += dy;
+                if ((self.minx < (_ref2 = circle.x) && _ref2 < self.maxx) && (self.miny < (_ref3 = circle.y) && _ref3 < self.maxy)) {
+                  return self.setCirclePosition(circle);
+                }
+              })(circle));
+            }
+            return _results;
           };
           this.onAnimationFrame = !isNaN(parseFloat(this.limitX)) && !isNaN(parseFloat(this.limitY)) ? function(now) {
             this.mx = this.clamp(this.ix * this.ew * this.scalarX, -this.limitX, this.limitX);
@@ -250,40 +301,40 @@
             return this.raf = requestAnimationFrame(this.onAnimationFrame);
           };
           this.onMouseDown = this.relativeInput && this.clipRelativeInput ? function(event) {
-            var clientX, clientY, _ref;
+            var clientX, clientY, _ref1;
             event.preventDefault();
-            if (!this.enabled) {
+            if (!this.dragging) {
               if ((event.changedTouches != null) && event.changedTouches.length > 0) {
                 this.activeTouch = event.changedTouches[0].identifier;
               }
-              _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+              _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
               clientX = this.clamp(clientX, this.ex, this.ex + this.ew);
               clientY = this.clamp(clientY, this.ey, this.ey + this.eh);
               this.fix = clientX;
               this.fiy = clientY;
-              return this.enable();
+              return this.enableDrag();
             }
           } : function(event) {
-            var clientX, clientY, _ref;
+            var clientX, clientY, _ref1;
             event.preventDefault();
-            if (!this.enabled) {
+            if (!this.dragging) {
               if ((event.changedTouches != null) && event.changedTouches.length > 0) {
                 this.activeTouch = event.changedTouches[0].identifier;
               }
-              _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+              _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
               this.fix = clientX;
               this.fiy = clientY;
-              return this.enable();
+              return this.enableDrag();
             }
           };
           this.onMouseMove = this.relativeInput && this.clipRelativeInput ? function(event) {
-            var clientX, clientY, _ref;
+            var clientX, clientY, _ref1;
             event.preventDefault();
             if (!this.moved) {
               addClass(this.element, 'moved');
               this.moved = true;
             }
-            _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+            _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
             clientX = this.clamp(clientX, this.ex, this.ex + this.ew);
             clientY = this.clamp(clientY, this.ey, this.ey + this.eh);
             this.ix = (clientX - this.ex - this.fix) / this.ew;
@@ -291,25 +342,25 @@
             this.fix = clientX;
             return this.fiy = clientY;
           } : this.relativeInput ? function(event) {
-            var clientX, clientY, _ref;
+            var clientX, clientY, _ref1;
             event.preventDefault();
             if (!this.moved) {
               addClass(this.element, 'moved');
               this.moved = true;
             }
-            _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+            _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
             this.ix = (clientX - this.ex - this.fix) / this.ew;
             this.iy = (clientY - this.ey - this.fiy) / this.eh;
             this.fix = clientX;
             return this.fiy = clientY;
           } : function(event) {
-            var clientX, clientY, _ref;
+            var clientX, clientY, _ref1;
             event.preventDefault();
             if (!this.moved) {
               addClass(this.element, 'moved');
               this.moved = true;
             }
-            _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+            _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
             this.ix = (clientX - this.fix) / this.ww;
             this.iy = (clientY - this.fiy) / this.wh;
             this.fix = clientX;
@@ -371,13 +422,32 @@
         if (style.getPropertyValue('position') === 'static') {
           this.element.style.position = 'relative';
         }
-        window.addEventListener('mousedown', this.onMouseDown);
-        window.addEventListener('mouseup', this.onMouseUp);
-        window.addEventListener('touchstart', this.onMouseDown);
-        window.addEventListener('touchend', this.onMouseUp);
-        window.addEventListener('resize', this.onWindowResize);
+        this.start();
         this.updateDimensions();
         return this.updateCircles();
+      };
+
+      CirclesUI.prototype.start = function() {
+        if (!this.started) {
+          this.started = true;
+          window.addEventListener('mousedown', this.onMouseDown);
+          window.addEventListener('mouseup', this.onMouseUp);
+          window.addEventListener('touchstart', this.onMouseDown);
+          window.addEventListener('touchend', this.onMouseUp);
+          return window.addEventListener('resize', this.onWindowResize);
+        }
+      };
+
+      CirclesUI.prototype.stop = function() {
+        if (this.started) {
+          this.started = false;
+          cancelAnimationFrame(this.raf);
+          window.removeEventListener('mousedown', this.onMouseDown);
+          window.removeEventListener('mouseup', this.onMouseUp);
+          window.removeEventListener('touchstart', this.onMouseDown);
+          window.removeEventListener('touchend', this.onMouseUp);
+          return window.removeEventListener('resize', this.onWindowResize);
+        }
       };
 
       CirclesUI.prototype.updateCircles = function() {
@@ -498,65 +568,18 @@
         return this.eh = this.bounds.height;
       };
 
-      CirclesUI.prototype.findCenterCircle = function() {
-        var center, circle, distance, self, _fn, _i, _len, _ref;
-        self = this;
-        distance = this.rx * this.rx + this.ry * this.ry;
-        center = null;
-        _ref = this.circles;
-        _fn = function(circle) {
-          var dist;
-          dist = (circle.x - self.cx) * (circle.x - self.cx) + (circle.y - self.cy) * (circle.y - self.cy);
-          if (dist < distance) {
-            distance = dist;
-            return center = circle;
-          }
-        };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          circle = _ref[_i];
-          _fn(circle);
-        }
-        return center;
-      };
-
-      CirclesUI.prototype.moveCircles = function(dx, dy) {
-        var circle, self, _i, _len, _ref, _results;
-        self = this;
-        _ref = this.circles;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          circle = _ref[_i];
-          _results.push((function(circle) {
-            circle.x += dx;
-            circle.y += dy;
-            if (circle.x < self.minx) {
-              circle.x += self.rx * (1 + Math.floor((self.minx - circle.x) / self.rx));
-            } else if (circle.x > self.maxx) {
-              circle.x -= self.rx * (1 + Math.floor((circle.x - self.maxx) / self.rx));
-            }
-            if (circle.y < self.miny) {
-              circle.y += self.ry * (1 + Math.floor((self.miny - circle.y) / self.ry));
-            } else if (circle.y > self.maxy) {
-              circle.y -= self.ry * (1 + Math.floor((circle.y - self.maxy) / self.ry));
-            }
-            return self.setCirclePosition(circle);
-          })(circle));
-        }
-        return _results;
-      };
-
-      CirclesUI.prototype.enable = function() {
-        if (!this.enabled) {
-          this.enabled = true;
+      CirclesUI.prototype.enableDrag = function() {
+        if (!this.dragging) {
+          this.dragging = true;
           window.addEventListener('mousemove', this.onMouseMove);
           window.addEventListener('touchmove', this.onMouseMove);
           return this.raf = requestAnimationFrame(this.onAnimationFrame);
         }
       };
 
-      CirclesUI.prototype.disable = function() {
-        if (this.enabled) {
-          this.enabled = false;
+      CirclesUI.prototype.disableDrag = function() {
+        if (this.dragging) {
+          this.dragging = false;
           window.removeEventListener('mousemove', this.onMouseMove);
           return window.removeEventListener('touchmove', this.onMouseMove);
         }
@@ -656,7 +679,7 @@
         this.ix = 0;
         this.iy = 0;
         this.activeTouch = null;
-        this.disable();
+        this.disableDrag();
         i = 0;
         while (Math.abs(this.vx) > 0 && Math.abs(this.vx) > 0 && i < 50) {
           this.raf = requestAnimationFrame(this.onAnimationFrame);
@@ -672,9 +695,6 @@
     })();
   })(window, document);
 
-}).call(this);
-
-(function() {
   (function(window, document) {
     var FullScreen;
     FullScreen = (function() {
@@ -735,18 +755,13 @@
     return window.FullScreen = FullScreen;
   })(window, document);
 
-}).call(this);
 
-
-/*
- * Request Animation Frame Polyfill.
- * @author Tino Zijdel
- * @author Paul Irish
- * @see https://gist.github.com/paulirish/1579671
- */
-
-(function() {
-  var lastTime, vendor, vendors, _fn, _i, _len;
+  /*
+   * Request Animation Frame Polyfill.
+   * @author Tino Zijdel
+   * @author Paul Irish
+   * @see https://gist.github.com/paulirish/1579671
+   */
 
   lastTime = 0;
 
@@ -780,9 +795,6 @@
     };
   }
 
-}).call(this);
-
-(function() {
   (function(window, document) {
     var Signup;
     Signup = (function() {
@@ -931,3 +943,5 @@
   })(window, document);
 
 }).call(this);
+
+//# sourceMappingURL=script.js.map

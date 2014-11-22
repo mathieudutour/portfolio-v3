@@ -51,6 +51,7 @@ do (window, document) ->
         @fraction
 
   window.Age = Age
+
 ###
  * CirclesUI.coffee
  * @author Mathieu Dutour - @MathieuDutour
@@ -88,6 +89,7 @@ do (window, document) ->
   # Constants
   NAME = 'CirclesUI'
   DEFAULTS =
+    wrap: true
     relativeInput: false
     clipRelativeInput: false
     invertX: false
@@ -113,6 +115,7 @@ do (window, document) ->
       else
         # Data Extraction
         data =
+          wrap: @data(@element, 'wrap')
           relativeInput: @data(@element, 'relative-input')
           clipRelativeInput: @data(@element, 'clipe-relative-input')
           invertX: @data(@element, 'invert-x')
@@ -135,7 +138,8 @@ do (window, document) ->
         @extend(this, DEFAULTS, options, data);
 
         # States
-        @enabled = false
+        @started = false
+        @dragging = false
         @raf = null
         @moved = false
 
@@ -201,18 +205,22 @@ do (window, document) ->
         )()
 
         # Support for 2D and 3D transform
-        @transform2DSupport = true # TODO
-        @transform3DSupport = ( (transform) ->
-          el = document.createElement("p")
+        [@transform2DSupport, @transform3DSupport] = ( (transform) ->
+          el2d = document.createElement("p")
+          el3d = document.createElement("p")
+          has2d = undefined
           has3d = undefined
-
           # Add it to the body to get the computed style.
-          document.body.insertBefore el, null
+          document.body.insertBefore el2d, null
           if typeof el.style[transform] isnt 'undefined'
+            document.body.insertBefore el3d, null
+            el2.style[transform] = "translate(1px,1px)"
+            has2d = window.getComputedStyle(el).getPropertyValue(transform)
             el.style[transform] = "translate3d(1px,1px,1px)"
             has3d = window.getComputedStyle(el).getPropertyValue(transform)
-          document.body.removeChild el
-          typeof has3d isnt 'undefined' and has3d.length > 0 and has3d isnt "none"
+            document.body.removeChild el3d
+          document.body.removeChild el2d
+          [typeof has2d isnt 'undefined' and has2d.length > 0 and has2d isnt "none", typeof has3d isnt 'undefined' and has3d.length > 0 and has3d isnt "none"]
         )(@vendorPrefix.css + 'transform')
 
         @setPositionAndScale = if @transform3DSupport then (element, x, y, s) ->
@@ -228,6 +236,31 @@ do (window, document) ->
           y = y.toFixed(@precision) + 'px'
           element.style.left = x
           element.style.top = y
+
+        @moveCircles = if @wrap then (dx, dy) ->
+          self = this
+          for circle in @circles
+            do (circle) ->
+              circle.x += dx
+              circle.y += dy
+              if circle.x < self.minx
+                circle.x += self.rx * (1 + Math.floor((self.minx - circle.x)/self.rx))
+              else if circle.x > self.maxx
+                circle.x -= self.rx * (1 + Math.floor((circle.x - self.maxx)/self.rx))
+              if circle.y < self.miny
+                circle.y += self.ry * (1 + Math.floor((self.miny - circle.y)/self.ry))
+              else if circle.y > self.maxy
+                circle.y -= self.ry * (1 + Math.floor((circle.y - self.maxy)/self.ry))
+              if self.minx < circle.x < self.maxx and self.miny < circle.y < self.maxy
+                self.setCirclePosition(circle)
+        else (dx, dy) ->
+          self = this
+          for circle in @circles
+            do (circle) ->
+              circle.x += dx
+              circle.y += dy
+              if self.minx < circle.x < self.maxx and self.miny < circle.y < self.maxy
+                self.setCirclePosition(circle)
 
         @onAnimationFrame = if !isNaN(parseFloat(@limitX)) and !isNaN(parseFloat(@limitY)) then (now) ->
           @mx = @clamp(@ix * @ew * @scalarX, -@limitX, @limitX)
@@ -261,7 +294,7 @@ do (window, document) ->
         @onMouseDown = if @relativeInput and @clipRelativeInput then (event) ->
           event.preventDefault()
 
-          unless @enabled
+          unless @dragging
             if event.changedTouches? and event.changedTouches.length > 0
               @activeTouch = event.changedTouches[0].identifier
             # Cache event coordinates.
@@ -271,18 +304,18 @@ do (window, document) ->
             clientY = @clamp(clientY, @ey, @ey + @eh)
             @fix = clientX
             @fiy = clientY
-            @enable()
+            @enableDrag()
         else (event) ->
           event.preventDefault()
 
-          unless @enabled
+          unless @dragging
             if event.changedTouches? and event.changedTouches.length > 0
               @activeTouch = event.changedTouches[0].identifier
             # Cache event coordinates.
             {clientX, clientY} = @getCoordinatesFromEvent(event)
             @fix = clientX
             @fiy = clientY
-            @enable()
+            @enableDrag()
 
         @onMouseMove = if @relativeInput and @clipRelativeInput then (event) ->
           event.preventDefault()
@@ -375,15 +408,30 @@ do (window, document) ->
       if style.getPropertyValue('position') is 'static'
         @element.style.position = 'relative'
 
-      window.addEventListener('mousedown', @onMouseDown)
-      window.addEventListener('mouseup', @onMouseUp)
-      window.addEventListener('touchstart', @onMouseDown)
-      window.addEventListener('touchend', @onMouseUp)
-      window.addEventListener('resize', @onWindowResize)
+      @start()
 
       # Setup
       @updateDimensions()
       @updateCircles()
+
+    start: () ->
+      if !@started
+        @started = yes
+        window.addEventListener('mousedown', @onMouseDown)
+        window.addEventListener('mouseup', @onMouseUp)
+        window.addEventListener('touchstart', @onMouseDown)
+        window.addEventListener('touchend', @onMouseUp)
+        window.addEventListener('resize', @onWindowResize)
+
+    stop: () ->
+      if @started
+        @started = no
+        cancelAnimationFrame(@raf)
+        window.removeEventListener('mousedown', @onMouseDown)
+        window.removeEventListener('mouseup', @onMouseUp)
+        window.removeEventListener('touchstart', @onMouseDown)
+        window.removeEventListener('touchend', @onMouseUp)
+        window.removeEventListener('resize', @onWindowResize)
 
     updateCircles: () ->
 
@@ -519,44 +567,16 @@ do (window, document) ->
       @ew = @bounds.width
       @eh = @bounds.height
 
-    findCenterCircle: () ->
-      self = this
-      distance = @rx*@rx + @ry*@ry
-      center = null
-      for circle in @circles
-        do (circle) ->
-          dist = (circle.x-self.cx)*(circle.x-self.cx) + (circle.y-self.cy)*(circle.y-self.cy)
-          if dist < distance
-            distance = dist
-            center = circle
-      center
-
-    moveCircles: (dx, dy) ->
-      self = this
-      for circle in @circles
-        do (circle) ->
-          circle.x += dx
-          circle.y += dy
-          if circle.x < self.minx
-            circle.x += self.rx * (1 + Math.floor((self.minx - circle.x)/self.rx))
-          else if circle.x > self.maxx
-            circle.x -= self.rx * (1 + Math.floor((circle.x - self.maxx)/self.rx))
-          if circle.y < self.miny
-            circle.y += self.ry * (1 + Math.floor((self.miny - circle.y)/self.ry))
-          else if circle.y > self.maxy
-            circle.y -= self.ry * (1 + Math.floor((circle.y - self.maxy)/self.ry))
-          self.setCirclePosition(circle)
-
-    enable: () ->
-      if !@enabled
-        @enabled = true
+    enableDrag: () ->
+      if !@dragging
+        @dragging = yes
         window.addEventListener('mousemove', @onMouseMove)
         window.addEventListener('touchmove', @onMouseMove)
         @raf = requestAnimationFrame(@onAnimationFrame)
 
-    disable: () ->
-      if @enabled
-        @enabled = false
+    disableDrag: () ->
+      if @dragging
+        @dragging = no
         window.removeEventListener('mousemove', @onMouseMove)
         window.removeEventListener('touchmove', @onMouseMove)
 
@@ -628,7 +648,7 @@ do (window, document) ->
       @ix = 0
       @iy = 0
       @activeTouch = null
-      @disable()
+      @disableDrag()
 
       # Easing
       i = 0
@@ -693,6 +713,7 @@ do (window, document) ->
         ), 300
 
   window.FullScreen = FullScreen
+
 ###
 # Request Animation Frame Polyfill.
 # @author Tino Zijdel
