@@ -158,7 +158,7 @@ do (window, document) ->
           has3d = undefined
           # Add it to the body to get the computed style.
           document.body.insertBefore el2d, null
-          if typeof el.style[transform] isnt 'undefined'
+          if typeof el2d.style[transform] isnt 'undefined'
             document.body.insertBefore el3d, null
             el2.style[transform] = "translate(1px,1px)"
             has2d = window.getComputedStyle(el).getPropertyValue(transform)
