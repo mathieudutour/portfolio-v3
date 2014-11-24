@@ -1,6 +1,7 @@
 /*jshint node: true*/
 exports.config = {
   siteURL: "http://mathieu-dutour.herokuapp.com",
+  dbURI: "mongodb://heroku_app31127933:bf33b3ubdp559mcml56bsnqp67@ds051750.mongolab.com:51750/heroku_app31127933",
   facebook: {
     clientID: '346040448909652',
     clientSecret: 'bd815c44db5cff3437d71af27c8bc69f'

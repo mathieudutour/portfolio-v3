@@ -26,7 +26,7 @@ do (window, document) ->
       @birthday += @age * @number_of_millisecond_in_a_year
 
     calculateFraction: () ->
-      @fraction = (((new Date().getTime() - @birthday) / @number_of_millisecond_in_a_year).toFixed(@precision) * 1000000000).toString()
+      @fraction = (((new Date().getTime() - @birthday) / @number_of_millisecond_in_a_year).toFixed(@precision) * 1000000000).toString().substring(0,@precision)
 
     initDisplay: () ->
       @ageDisplay = document.createElement("span")

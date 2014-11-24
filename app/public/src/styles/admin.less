@@ -90,7 +90,8 @@
   .content {
     width: 75%;
     margin-left: 25%;
-    overflow-y: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     height: 85%;
     color: #FFF;
     text-align: center;
@@ -98,12 +99,25 @@
       height: 100%;
       width: 3500px;
       section {
-        height: 80%;
+        height: 85%;
         margin-top: 60px;
+        margin-bottom:5%;
         width : 250px;
         float: left;
         border-left: 1px solid rgba(255,255,255,0.2);
 
+        &.social {
+          border-bottom: 3px solid @social-color;
+        }
+        &.job {
+          border-bottom: 3px solid @job-color;
+        }
+        &.sport {
+          border-bottom: 3px solid @sport-color;
+        }
+        &.other {
+          border-bottom: 3px solid @other-color;
+        }
         &.projects, &.diplomas {
           width : 500px;
           max-width: 100%;
@@ -216,5 +230,26 @@
     width: 100%;
     position:absolute;
     bottom: 0;
+    overflow-y: auto;
+    z-index: 2000;
+    ul {
+      height: 100%;
+      li {
+        float:left;
+        height: 100%;
+        list-style: none;
+        img.logo {
+          width: 50px;
+          margin-left: 25px;
+          margin-bottom: ~'calc(50% - 25px)';
+          border-radius: 50%;
+          -webkit-user-select: none;  /* Chrome all / Safari all */
+          -moz-user-select: none;     /* Firefox all */
+          -ms-user-select: none;      /* IE 10+ */
+          -o-user-select: none;
+          user-select: none;
+        }
+      }
+    }
   }
 }

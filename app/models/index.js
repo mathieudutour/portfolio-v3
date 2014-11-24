@@ -1,9 +1,10 @@
 /*jshint node: true*/
-var Datastore = require('nedb');
+var config = require('../config/').config;
+var Datastore = require('monk')(config.dbURI);
 var db = {};
 
-db.users = new Datastore({filename : './app/models/users.db', autoload : true});
-db.users.ensureIndex({ fieldName: 'slug_name', unique: true });
-db.users.ensureIndex({ fieldName: 'email', unique: true });
+db.users = Datastore.get('users');
+db.users.index('slug_name', {unique: true });
+db.users.index('email', {unique: true });
 
 exports.db = db;

@@ -88,9 +88,9 @@
     <div class='circle-container job disabled'><div class='circle'><img src='images/diploma.svg'></div><div class='label'>Diploma Two</div></div>
     <% } %>
       <!-- 4, 2 -->
-    <div class='circle-container divers'><div class='circle'></div><div class='label'>essai</div></div>
+    <div class='circle-container divers'><div class='circle'></div><div class='label'>Find something</div></div>
       <!-- 4, 3 -->
-    <div class='circle-container divers'><div class='circle'></div><div class='label'>essai</div></div>
+    <div class='circle-container divers'><div class='circle'></div><div class='label'>Find something</div></div>
       <!-- 4, 4 -->
     <% if(strava) { %>
     <div class='circle-container sport run'><div class='circle'><img src='images/run.svg'></div><div class='label'>Last Month</div></div>
@@ -104,9 +104,9 @@
     <div class='circle-container sport disabled'><div class='circle'><img src='images/bouldering.svg'></div><div class='label'>Bouldering</div></div>
     <% } %>
     <!-- 5, 3 -->
-    <div class='circle-container divers'><div class='circle'></div><div class='label'>essai</div></div>
+    <div class='circle-container divers'><div class='circle'></div><div class='label'>Find something</div></div>
       <!-- 5, 4 -->
-    <div class='circle-container divers'><div class='circle'></div><div class='label'>essai</div></div>
+    <div class='circle-container divers'><div class='circle'></div><div class='label'>Find something</div></div>
       <!-- 5, 5 -->
     <% if(heartrate) { %>
     <div class='circle-container sport'><div class='circle'><img src='images/heart.svg'></div><div class='label'>Heart Rate</div></div>
@@ -122,7 +122,7 @@
       <!-- 6, 2 -->
     <div class='circle-container divers'><div class='circle'><img src='images/about.svg'></div><div class='label'>About</div></div>
       <!-- 6, 3 -->
-    <div class='circle-container divers'><div class='circle'></div><div class='label'>essai</div></div>
+    <div class='circle-container divers'><div class='circle'></div><div class='label'>Find something</div></div>
     <!-- 6, 4 -->
     <% if(moves) { %>
     <div class='circle-container sport step'><div class='circle'><img src='images/step.svg'><p><%= moves.steps %><br /><span>&nbsp;&nbsp;&nbsp;steps</span></p></div><div class='label'>Yesterday</div></div>
@@ -134,10 +134,10 @@
     <!-- 7, 3 -->
       <div class='circle-container divers full-screen'><div class='circle'><img src='images/help.svg'><div class='content'><span class='close'>x</span><div>Blaafzpaojfmoqzehg qpozueryfqizueflqz azIUGDQPZIEUGF PQEUIFQIUEGF POUQEGFIUSEF POSUHREGSUERHG</div></div></div><div class='label'>Help</div></div>
     <!-- 7, 4 -->
-    <div class='circle-container divers'><div class='circle'></div><div class='label'>essai</div></div>
+    <div class='circle-container divers'><div class='circle'></div><div class='label'>Find something</div></div>
     <!-- 7, 5 -->
     <% if(other_last) { %>
-    <div class='circle-container sport last'><div class='circle'><img src='<%= other_last.image %>'><p><%= niceTimestamp(other_sport.last) %></p></div><div class='label'>Last <%= other_last.name %></div></div>
+    <div class='circle-container sport last'><div class='circle'><img src='<%= other_last.image %>'><p><%= niceTimestamp(other_last.last) %></p></div><div class='label'>Last <%= other_last.name %></div></div>
     <% } else { %>
     <div class='circle-container sport disabled'><div class='circle'><img src='images/haircut.svg'></div><div class='label'>Last Haircut</div></div>
     <% } %>
@@ -150,7 +150,7 @@
     <!-- 8, 2 -->
     <div class='circle-container divers'><a href="/admin" class='circle'><img src='images/cog.svg'></a><div class='label'>Administration</div></div>
     <!-- 8, 3 -->
-    <div class='circle-container divers'><div class='circle'></div><div class='label'>Essai</div></div>
+    <div class='circle-container divers'><div class='circle'></div><div class='label'>Find something</div></div>
     <% if(rescuetime) { %>
     <!-- 8, 4 -->
     <div class='circle-container sport rescuetime'><div class='circle'><img src='<%= rescuetime.first_track.image %>'><p><%= rescuetime.first_track.count %></p></div><div class='label'>Hours on <%= rescuetime.first_track.name %></div></div>
@@ -175,7 +175,7 @@
     var age = new Age(p, "<%= basic.birthday %>");
     var full_screens = document.getElementsByClassName('full-screen');
     for(var i = 0; i < full_screens.length; i++) {
-      new FullScreen(full_screens[i]);
+      new FullScreen(full_screens[i], circlesUI);
     }
   </script>
 </body>

@@ -26,7 +26,7 @@ do (window, document) ->
       @birthday += @age * @number_of_millisecond_in_a_year
 
     calculateFraction: () ->
-      @fraction = (((new Date().getTime() - @birthday) / @number_of_millisecond_in_a_year).toFixed(@precision) * 1000000000).toString()
+      @fraction = (((new Date().getTime() - @birthday) / @number_of_millisecond_in_a_year).toFixed(@precision) * 1000000000).toString().substring(0,@precision)
 
     initDisplay: () ->
       @ageDisplay = document.createElement("span")
@@ -212,12 +212,12 @@ do (window, document) ->
           has3d = undefined
           # Add it to the body to get the computed style.
           document.body.insertBefore el2d, null
-          if typeof el.style[transform] isnt 'undefined'
+          if typeof el2d.style[transform] isnt 'undefined'
             document.body.insertBefore el3d, null
-            el2.style[transform] = "translate(1px,1px)"
-            has2d = window.getComputedStyle(el).getPropertyValue(transform)
-            el.style[transform] = "translate3d(1px,1px,1px)"
-            has3d = window.getComputedStyle(el).getPropertyValue(transform)
+            el2d.style[transform] = "translate(1px,1px)"
+            has2d = window.getComputedStyle(el2d).getPropertyValue(transform)
+            el3d.style[transform] = "translate3d(1px,1px,1px)"
+            has3d = window.getComputedStyle(el3d).getPropertyValue(transform)
             document.body.removeChild el3d
           document.body.removeChild el2d
           [typeof has2d isnt 'undefined' and has2d.length > 0 and has2d isnt "none", typeof has3d isnt 'undefined' and has3d.length > 0 and has3d isnt "none"]
@@ -500,7 +500,6 @@ do (window, document) ->
 
     appeared: () ->
       addClass(@element, "appeared")
-      removeClass(@element, "moved")
       @moved = false
 
       css = "#{@vendorPrefix.css}animation : appear 1s;
@@ -663,7 +662,7 @@ do (window, document) ->
 
 do (window, document) ->
   class FullScreen
-    constructor: (@element) ->
+    constructor: (@element, @background) ->
       @classNameExpanded = 'expanded'
       @classNameAnimating = 'animating'
 
@@ -689,6 +688,7 @@ do (window, document) ->
     onExpand: (event) ->
       event.preventDefault()
       if !@expanded and !@animating
+        @background.stop()
         @expanded = true
         @animating = true
         classie.addClass(@element, @classNameExpanded)
@@ -708,6 +708,7 @@ do (window, document) ->
         @expanded = false
         self = this
         setTimeout ( ->
+          self.background.start()
           self.animating = false
           classie.removeClass(self.element, self.classNameAnimating)
         ), 300

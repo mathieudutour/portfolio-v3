@@ -160,10 +160,10 @@ do (window, document) ->
           document.body.insertBefore el2d, null
           if typeof el2d.style[transform] isnt 'undefined'
             document.body.insertBefore el3d, null
-            el2.style[transform] = "translate(1px,1px)"
-            has2d = window.getComputedStyle(el).getPropertyValue(transform)
-            el.style[transform] = "translate3d(1px,1px,1px)"
-            has3d = window.getComputedStyle(el).getPropertyValue(transform)
+            el2d.style[transform] = "translate(1px,1px)"
+            has2d = window.getComputedStyle(el2d).getPropertyValue(transform)
+            el3d.style[transform] = "translate3d(1px,1px,1px)"
+            has3d = window.getComputedStyle(el3d).getPropertyValue(transform)
             document.body.removeChild el3d
           document.body.removeChild el2d
           [typeof has2d isnt 'undefined' and has2d.length > 0 and has2d isnt "none", typeof has3d isnt 'undefined' and has3d.length > 0 and has3d isnt "none"]
@@ -446,7 +446,6 @@ do (window, document) ->
 
     appeared: () ->
       addClass(@element, "appeared")
-      removeClass(@element, "moved")
       @moved = false
 
       css = "#{@vendorPrefix.css}animation : appear 1s;

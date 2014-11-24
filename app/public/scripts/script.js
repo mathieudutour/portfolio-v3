@@ -30,7 +30,7 @@
       };
 
       Age.prototype.calculateFraction = function() {
-        return this.fraction = (((new Date().getTime() - this.birthday) / this.number_of_millisecond_in_a_year).toFixed(this.precision) * 1000000000).toString();
+        return this.fraction = (((new Date().getTime() - this.birthday) / this.number_of_millisecond_in_a_year).toFixed(this.precision) * 1000000000).toString().substring(0, this.precision);
       };
 
       Age.prototype.initDisplay = function() {
@@ -201,12 +201,12 @@
             has2d = void 0;
             has3d = void 0;
             document.body.insertBefore(el2d, null);
-            if (typeof el.style[transform] !== 'undefined') {
+            if (typeof el2d.style[transform] !== 'undefined') {
               document.body.insertBefore(el3d, null);
-              el2.style[transform] = "translate(1px,1px)";
-              has2d = window.getComputedStyle(el).getPropertyValue(transform);
-              el.style[transform] = "translate3d(1px,1px,1px)";
-              has3d = window.getComputedStyle(el).getPropertyValue(transform);
+              el2d.style[transform] = "translate(1px,1px)";
+              has2d = window.getComputedStyle(el2d).getPropertyValue(transform);
+              el3d.style[transform] = "translate3d(1px,1px,1px)";
+              has3d = window.getComputedStyle(el3d).getPropertyValue(transform);
               document.body.removeChild(el3d);
             }
             document.body.removeChild(el2d);
@@ -520,7 +520,6 @@
       CirclesUI.prototype.appeared = function() {
         var addCSSRule, css, keyframes, s, self;
         addClass(this.element, "appeared");
-        removeClass(this.element, "moved");
         this.moved = false;
         css = "" + this.vendorPrefix.css + "animation : appear 1s; " + this.vendorPrefix.css + "animation-delay: -400ms;";
         keyframes = "0% { " + this.vendorPrefix.css + "transform:translate3d(" + ((this.ew - this.circleDiameter) / 2) + "px, " + ((this.eh - this.circleDiameter) / 2) + "px, 0); opacity: 0; } 40% { opacity: 0; }";
@@ -698,8 +697,9 @@
   (function(window, document) {
     var FullScreen;
     FullScreen = (function() {
-      function FullScreen(element) {
+      function FullScreen(element, background) {
         this.element = element;
+        this.background = background;
         this.classNameExpanded = 'expanded';
         this.classNameAnimating = 'animating';
         this.circle = this.element.querySelector('.circle');
@@ -721,6 +721,7 @@
         var self;
         event.preventDefault();
         if (!this.expanded && !this.animating) {
+          this.background.stop();
           this.expanded = true;
           this.animating = true;
           classie.addClass(this.element, this.classNameExpanded);
@@ -743,6 +744,7 @@
           this.expanded = false;
           self = this;
           return setTimeout((function() {
+            self.background.start();
             self.animating = false;
             return classie.removeClass(self.element, self.classNameAnimating);
           }), 300);

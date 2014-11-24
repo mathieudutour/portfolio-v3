@@ -1,6 +1,6 @@
 do (window, document) ->
   class FullScreen
-    constructor: (@element) ->
+    constructor: (@element, @background) ->
       @classNameExpanded = 'expanded'
       @classNameAnimating = 'animating'
 
@@ -26,6 +26,7 @@ do (window, document) ->
     onExpand: (event) ->
       event.preventDefault()
       if !@expanded and !@animating
+        @background.stop()
         @expanded = true
         @animating = true
         classie.addClass(@element, @classNameExpanded)
@@ -45,6 +46,7 @@ do (window, document) ->
         @expanded = false
         self = this
         setTimeout ( ->
+          self.background.start()
           self.animating = false
           classie.removeClass(self.element, self.classNameAnimating)
         ), 300
