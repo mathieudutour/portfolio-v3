@@ -441,7 +441,6 @@
         if (style.getPropertyValue('position') === 'static') {
           this.element.style.position = 'relative';
         }
-        this.start();
         this.updateDimensions();
         return this.updateCircles();
       };
