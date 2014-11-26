@@ -517,7 +517,7 @@
           circle.x = offset + (circle.j - cj) * 14;
           circle.y = circle.y / 34 * (self.portrait ? self.ew : self.eh);
           circle.x = circle.x / 44 * (self.portrait ? self.eh : self.ew);
-          return self.setCirclePosition(circle);
+          return self.setCirclePosition(circle, true);
         };
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           circle = _ref[_i];
@@ -637,7 +637,7 @@
         return this.css(element, this.vendorPrefix.transform, 'translate3d(0,0,0)');
       };
 
-      CirclesUI.prototype.setCirclePosition = function(circle) {
+      CirclesUI.prototype.setCirclePosition = function(circle, forceUpdate) {
         if (circle.x > -this.circleDiameter && circle.x < this.ew + this.circleDiameter && circle.y > -this.circleDiameter && circle.y < this.eh + this.circleDiameter) {
           addClass(circle, this.classVisible);
           if (circle.x > this.circleDiameter * 1 / 2 && circle.x < this.ew - this.circleDiameter * 3 / 2 && circle.y > this.circleDiameter * 1 / 3 && circle.y < this.eh - this.circleDiameter * 3 / 2) {
@@ -645,13 +645,13 @@
               addClass(circle, this.classBig);
               return this.setPositionAndScale(circle, circle.x, circle.y, 1, true);
             } else {
-              return this.setPositionAndScale(circle, circle.x, circle.y, 1, false);
+              return this.setPositionAndScale(circle, circle.x, circle.y, 1, forceUpdate);
             }
           } else if (hasClass(circle, this.classBig)) {
             removeClass(circle, this.classBig);
             return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333, true);
           } else {
-            return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333, false);
+            return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333, forceUpdate);
           }
         } else if (hasClass(circle, this.classVisible)) {
           return removeClass(circle, this.classVisible);

@@ -439,7 +439,7 @@ do (window, document) ->
           circle.x = offset + (circle.j - cj) * 14
           circle.y = circle.y/34 * if self.portrait then self.ew else self.eh
           circle.x = circle.x/44 * if self.portrait then self.eh else self.ew
-          self.setCirclePosition(circle)
+          self.setCirclePosition(circle, yes)
 
       @appeared()
 
@@ -562,7 +562,7 @@ do (window, document) ->
     accelerate: (element) ->
       @css(element, @vendorPrefix.transform, 'translate3d(0,0,0)')
 
-    setCirclePosition: (circle) ->
+    setCirclePosition: (circle, forceUpdate) ->
       if circle.x > -@circleDiameter and circle.x < @ew + @circleDiameter and circle.y > -@circleDiameter and circle.y < @eh + @circleDiameter
         addClass(circle, @classVisible)
         if circle.x > @circleDiameter*1/2 and circle.x < @ew - @circleDiameter*3/2 and circle.y > @circleDiameter*1/3 and circle.y < @eh - @circleDiameter*3/2
@@ -570,12 +570,12 @@ do (window, document) ->
             addClass(circle, @classBig)
             @setPositionAndScale(circle, circle.x, circle.y, 1, yes)
           else
-            @setPositionAndScale(circle, circle.x, circle.y, 1, no)
+            @setPositionAndScale(circle, circle.x, circle.y, 1, forceUpdate)
         else if hasClass(circle, @classBig)
           removeClass(circle, @classBig)
           @setPositionAndScale(circle, circle.x, circle.y, 0.33333, yes)
         else
-          @setPositionAndScale(circle, circle.x, circle.y, 0.33333, no)
+          @setPositionAndScale(circle, circle.x, circle.y, 0.33333, forceUpdate)
       else if hasClass(circle, @classVisible)
         removeClass(circle, @classVisible)
 
