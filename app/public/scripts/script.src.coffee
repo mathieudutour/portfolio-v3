@@ -292,8 +292,6 @@ do (window, document) ->
           @raf = requestAnimationFrame(@onAnimationFrame)
 
         @onMouseDown = if @relativeInput and @clipRelativeInput then (event) ->
-          event.preventDefault()
-
           unless @dragging
             if event.changedTouches? and event.changedTouches.length > 0
               @activeTouch = event.changedTouches[0].identifier
@@ -306,8 +304,6 @@ do (window, document) ->
             @fiy = clientY
             @enableDrag()
         else (event) ->
-          event.preventDefault()
-
           unless @dragging
             if event.changedTouches? and event.changedTouches.length > 0
               @activeTouch = event.changedTouches[0].identifier
@@ -610,17 +606,16 @@ do (window, document) ->
       @css(element, @vendorPrefix.transform, 'translate3d(0,0,0)')
 
     setCirclePosition: (circle) ->
-      if circle.x > @circleDiameter*1/2 and circle.x < @ew - @circleDiameter*3/2 and circle.y > @circleDiameter*1/3 and circle.y < @eh - @circleDiameter*3/2
-        addClass(circle, @classBig)
-      else if hasClass(circle, @classBig)
-        removeClass(circle, @classBig)
-
       if circle.x > -@circleDiameter and circle.x < @ew + @circleDiameter and circle.y > -@circleDiameter and circle.y < @eh + @circleDiameter
         addClass(circle, @classVisible)
+        if circle.x > @circleDiameter*1/2 and circle.x < @ew - @circleDiameter*3/2 and circle.y > @circleDiameter*1/3 and circle.y < @eh - @circleDiameter*3/2
+          addClass(circle, @classBig)
+          @setPositionAndScale(circle, circle.x, circle.y, 1)
+        else if hasClass(circle, @classBig)
+          removeClass(circle, @classBig)
+          @setPositionAndScale(circle, circle.x, circle.y, 0.33333)
       else if hasClass(circle, @classVisible)
         removeClass(circle, @classVisible)
-
-      @setPositionAndScale(circle, circle.x, circle.y, 1)
 
     onWindowResize: (event) ->
       @updateDimensions()

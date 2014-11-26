@@ -302,7 +302,6 @@
           };
           this.onMouseDown = this.relativeInput && this.clipRelativeInput ? function(event) {
             var clientX, clientY, _ref1;
-            event.preventDefault();
             if (!this.dragging) {
               if ((event.changedTouches != null) && event.changedTouches.length > 0) {
                 this.activeTouch = event.changedTouches[0].identifier;
@@ -316,7 +315,6 @@
             }
           } : function(event) {
             var clientX, clientY, _ref1;
-            event.preventDefault();
             if (!this.dragging) {
               if ((event.changedTouches != null) && event.changedTouches.length > 0) {
                 this.activeTouch = event.changedTouches[0].identifier;
@@ -623,17 +621,18 @@
       };
 
       CirclesUI.prototype.setCirclePosition = function(circle) {
-        if (circle.x > this.circleDiameter * 1 / 2 && circle.x < this.ew - this.circleDiameter * 3 / 2 && circle.y > this.circleDiameter * 1 / 3 && circle.y < this.eh - this.circleDiameter * 3 / 2) {
-          addClass(circle, this.classBig);
-        } else if (hasClass(circle, this.classBig)) {
-          removeClass(circle, this.classBig);
-        }
         if (circle.x > -this.circleDiameter && circle.x < this.ew + this.circleDiameter && circle.y > -this.circleDiameter && circle.y < this.eh + this.circleDiameter) {
           addClass(circle, this.classVisible);
+          if (circle.x > this.circleDiameter * 1 / 2 && circle.x < this.ew - this.circleDiameter * 3 / 2 && circle.y > this.circleDiameter * 1 / 3 && circle.y < this.eh - this.circleDiameter * 3 / 2) {
+            addClass(circle, this.classBig);
+            return this.setPositionAndScale(circle, circle.x, circle.y, 1);
+          } else if (hasClass(circle, this.classBig)) {
+            removeClass(circle, this.classBig);
+            return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333);
+          }
         } else if (hasClass(circle, this.classVisible)) {
-          removeClass(circle, this.classVisible);
+          return removeClass(circle, this.classVisible);
         }
-        return this.setPositionAndScale(circle, circle.x, circle.y, 1);
       };
 
       CirclesUI.prototype.onWindowResize = function(event) {
