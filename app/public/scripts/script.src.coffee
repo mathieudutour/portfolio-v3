@@ -304,6 +304,7 @@ do (window, document) ->
 
         @onMouseDown = if @relativeInput and @clipRelativeInput then (event) ->
           unless @dragging
+            event.preventDefault()
             if event.changedTouches? and event.changedTouches.length > 0
               @activeTouch = event.changedTouches[0].identifier
             # Cache event coordinates.
@@ -316,6 +317,7 @@ do (window, document) ->
             @enableDrag()
         else (event) ->
           unless @dragging
+            event.preventDefault()
             if event.changedTouches? and event.changedTouches.length > 0
               @activeTouch = event.changedTouches[0].identifier
             # Cache event coordinates.

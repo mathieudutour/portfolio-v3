@@ -320,6 +320,7 @@
           this.onMouseDown = this.relativeInput && this.clipRelativeInput ? function(event) {
             var clientX, clientY, _ref1;
             if (!this.dragging) {
+              event.preventDefault();
               if ((event.changedTouches != null) && event.changedTouches.length > 0) {
                 this.activeTouch = event.changedTouches[0].identifier;
               }
@@ -333,6 +334,7 @@
           } : function(event) {
             var clientX, clientY, _ref1;
             if (!this.dragging) {
+              event.preventDefault();
               if ((event.changedTouches != null) && event.changedTouches.length > 0) {
                 this.activeTouch = event.changedTouches[0].identifier;
               }
