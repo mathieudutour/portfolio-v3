@@ -250,9 +250,10 @@ do (window, document) ->
 
         @onMouseDown = if @relativeInput and @clipRelativeInput then (event) ->
           unless @dragging
-            event.preventDefault()
             if event.changedTouches? and event.changedTouches.length > 0
               @activeTouch = event.changedTouches[0].identifier
+            else
+              event.preventDefault()
             # Cache event coordinates.
             {clientX, clientY} = @getCoordinatesFromEvent(event)
             # Calculate Mouse Input
@@ -263,9 +264,10 @@ do (window, document) ->
             @enableDrag()
         else (event) ->
           unless @dragging
-            event.preventDefault()
             if event.changedTouches? and event.changedTouches.length > 0
               @activeTouch = event.changedTouches[0].identifier
+            else
+              event.preventDefault()
             # Cache event coordinates.
             {clientX, clientY} = @getCoordinatesFromEvent(event)
             @fix = clientX
