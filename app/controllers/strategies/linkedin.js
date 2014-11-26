@@ -1,6 +1,6 @@
 /*jshint node: true*/
-var db = require('.../models/').db;
-var config = require('.../config/').config;
+var db = require('../../models/').db;
+var config = require('../../config/').config;
 var passport = require('passport');
 
 exports.strategy = new (require('passport-linkedin').Strategy)({

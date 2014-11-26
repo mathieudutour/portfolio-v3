@@ -1,5 +1,5 @@
 /*jshint node: true*/
-var db = require('.../models/').db;
+var db = require('../../models/').db;
 var request = require('request');
 var Cron = require('cron').CronJob;
 

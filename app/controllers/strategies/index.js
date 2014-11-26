@@ -1,5 +1,5 @@
 /*jshint node: true*/
-var db = require('.../models/').db;
+var db = require('../../models/').db;
 var passport = require('passport');
 
 passport.serializeUser(function (user, done) {
