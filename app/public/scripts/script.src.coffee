@@ -223,22 +223,30 @@ do (window, document) ->
           [typeof has2d isnt 'undefined' and has2d.length > 0 and has2d isnt "none", typeof has3d isnt 'undefined' and has3d.length > 0 and has3d isnt "none"]
         )(@vendorPrefix.css + 'transform')
 
-        @setPositionAndScale = if @transform3DSupport then (element, x, y, s) ->
+        @setPositionAndScale = if @transform3DSupport then (element, x, y, s, updateS) ->
           x = x.toFixed(@precision) + 'px'
           y = y.toFixed(@precision) + 'px'
-          @css(element, @vendorPrefix.js + 'Transform', 'translate3d('+x+','+y+',0) scale3d('+s+','+s+',1)')
+          @css(element, @vendorPrefix.js + 'Transform', 'translate3d('+x+','+y+',0)')
+          if updateS
+            circle = element.getElementsByClassName('circle')
+            @css(circle[0], @vendorPrefix.js + 'Transform', 'scale3d('+s+','+s+',1)')
         else if @transform2DSupport then (element, x, y, s) ->
           x = x.toFixed(@precision) + 'px'
           y = y.toFixed(@precision) + 'px'
-          @css(element, @vendorPrefix.js + 'Transform', 'translate('+x+','+y+') scale('+s+','+s+',1)')
+          @css(element, @vendorPrefix.js + 'Transform', 'translate('+x+','+y+')')
+          if updateS
+            circle = element.getElementsByClassName('circle')
+            @css(circle[0], @vendorPrefix.js + 'Transform', 'scale('+s+','+s+')')
         else (element, x, y, s) ->
           x = x.toFixed(@precision) + 'px'
           y = y.toFixed(@precision) + 'px'
-          s = s * 100 + '%'
           element.style.left = x
           element.style.top = y
-          element.style.width = s
-          element.style.height = s
+          if updateS
+            circle = element.getElementsByClassName('circle')
+            s = s * 100 + '%'
+            circle.style.width = s
+            circle.style.height = s
 
         @moveCircles = if @wrap then (dx, dy) ->
           self = this
@@ -612,11 +620,16 @@ do (window, document) ->
       if circle.x > -@circleDiameter and circle.x < @ew + @circleDiameter and circle.y > -@circleDiameter and circle.y < @eh + @circleDiameter
         addClass(circle, @classVisible)
         if circle.x > @circleDiameter*1/2 and circle.x < @ew - @circleDiameter*3/2 and circle.y > @circleDiameter*1/3 and circle.y < @eh - @circleDiameter*3/2
-          addClass(circle, @classBig)
-          @setPositionAndScale(circle, circle.x, circle.y, 1)
+          if !hasClass(circle, @classBig)
+            addClass(circle, @classBig)
+            @setPositionAndScale(circle, circle.x, circle.y, 1, yes)
+          else
+            @setPositionAndScale(circle, circle.x, circle.y, 1, no)
         else if hasClass(circle, @classBig)
           removeClass(circle, @classBig)
-          @setPositionAndScale(circle, circle.x, circle.y, 0.33333)
+          @setPositionAndScale(circle, circle.x, circle.y, 0.33333, yes)
+        else
+          @setPositionAndScale(circle, circle.x, circle.y, 0.33333, no)
       else if hasClass(circle, @classVisible)
         removeClass(circle, @classVisible)
 

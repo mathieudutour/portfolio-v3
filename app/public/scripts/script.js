@@ -212,22 +212,36 @@
             document.body.removeChild(el2d);
             return [typeof has2d !== 'undefined' && has2d.length > 0 && has2d !== "none", typeof has3d !== 'undefined' && has3d.length > 0 && has3d !== "none"];
           })(this.vendorPrefix.css + 'transform'), this.transform2DSupport = _ref[0], this.transform3DSupport = _ref[1];
-          this.setPositionAndScale = this.transform3DSupport ? function(element, x, y, s) {
+          this.setPositionAndScale = this.transform3DSupport ? function(element, x, y, s, updateS) {
+            var circle;
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
-            return this.css(element, this.vendorPrefix.js + 'Transform', 'translate3d(' + x + ',' + y + ',0) scale3d(' + s + ',' + s + ',1)');
+            this.css(element, this.vendorPrefix.js + 'Transform', 'translate3d(' + x + ',' + y + ',0)');
+            if (updateS) {
+              circle = element.getElementsByClassName('circle');
+              return this.css(circle[0], this.vendorPrefix.js + 'Transform', 'scale3d(' + s + ',' + s + ',1)');
+            }
           } : this.transform2DSupport ? function(element, x, y, s) {
+            var circle;
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
-            return this.css(element, this.vendorPrefix.js + 'Transform', 'translate(' + x + ',' + y + ') scale(' + s + ',' + s + ',1)');
+            this.css(element, this.vendorPrefix.js + 'Transform', 'translate(' + x + ',' + y + ')');
+            if (updateS) {
+              circle = element.getElementsByClassName('circle');
+              return this.css(circle[0], this.vendorPrefix.js + 'Transform', 'scale(' + s + ',' + s + ')');
+            }
           } : function(element, x, y, s) {
+            var circle;
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
-            s = s * 100 + '%';
             element.style.left = x;
             element.style.top = y;
-            element.style.width = s;
-            return element.style.height = s;
+            if (updateS) {
+              circle = element.getElementsByClassName('circle');
+              s = s * 100 + '%';
+              circle.style.width = s;
+              return circle.style.height = s;
+            }
           };
           this.moveCircles = this.wrap ? function(dx, dy) {
             var circle, self, _i, _len, _ref1, _results;
@@ -627,11 +641,17 @@
         if (circle.x > -this.circleDiameter && circle.x < this.ew + this.circleDiameter && circle.y > -this.circleDiameter && circle.y < this.eh + this.circleDiameter) {
           addClass(circle, this.classVisible);
           if (circle.x > this.circleDiameter * 1 / 2 && circle.x < this.ew - this.circleDiameter * 3 / 2 && circle.y > this.circleDiameter * 1 / 3 && circle.y < this.eh - this.circleDiameter * 3 / 2) {
-            addClass(circle, this.classBig);
-            return this.setPositionAndScale(circle, circle.x, circle.y, 1);
+            if (!hasClass(circle, this.classBig)) {
+              addClass(circle, this.classBig);
+              return this.setPositionAndScale(circle, circle.x, circle.y, 1, true);
+            } else {
+              return this.setPositionAndScale(circle, circle.x, circle.y, 1, false);
+            }
           } else if (hasClass(circle, this.classBig)) {
             removeClass(circle, this.classBig);
-            return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333);
+            return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333, true);
+          } else {
+            return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333, false);
           }
         } else if (hasClass(circle, this.classVisible)) {
           return removeClass(circle, this.classVisible);
