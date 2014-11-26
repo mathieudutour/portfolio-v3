@@ -172,16 +172,19 @@ do (window, document) ->
         @setPositionAndScale = if @transform3DSupport then (element, x, y, s) ->
           x = x.toFixed(@precision) + 'px'
           y = y.toFixed(@precision) + 'px'
-          @css(element, @vendorPrefix.js + 'Transform', 'translate3d('+x+','+y+',0)')
+          @css(element, @vendorPrefix.js + 'Transform', 'translate3d('+x+','+y+',0) scale3d('+s+','+s+',1)')
         else if @transform2DSupport then (element, x, y, s) ->
           x = x.toFixed(@precision) + 'px'
           y = y.toFixed(@precision) + 'px'
-          @css(element, @vendorPrefix.js + 'Transform', 'translate('+x+','+y+')')
+          @css(element, @vendorPrefix.js + 'Transform', 'translate('+x+','+y+') scale('+s+','+s+',1)')
         else (element, x, y, s) ->
           x = x.toFixed(@precision) + 'px'
           y = y.toFixed(@precision) + 'px'
+          s = s * 100 + '%'
           element.style.left = x
           element.style.top = y
+          element.style.width = s
+          element.style.height = s
 
         @moveCircles = if @wrap then (dx, dy) ->
           self = this

@@ -215,16 +215,19 @@
           this.setPositionAndScale = this.transform3DSupport ? function(element, x, y, s) {
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
-            return this.css(element, this.vendorPrefix.js + 'Transform', 'translate3d(' + x + ',' + y + ',0)');
+            return this.css(element, this.vendorPrefix.js + 'Transform', 'translate3d(' + x + ',' + y + ',0) scale3d(' + s + ',' + s + ',1)');
           } : this.transform2DSupport ? function(element, x, y, s) {
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
-            return this.css(element, this.vendorPrefix.js + 'Transform', 'translate(' + x + ',' + y + ')');
+            return this.css(element, this.vendorPrefix.js + 'Transform', 'translate(' + x + ',' + y + ') scale(' + s + ',' + s + ',1)');
           } : function(element, x, y, s) {
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
+            s = s * 100 + '%';
             element.style.left = x;
-            return element.style.top = y;
+            element.style.top = y;
+            element.style.width = s;
+            return element.style.height = s;
           };
           this.moveCircles = this.wrap ? function(dx, dy) {
             var circle, self, _i, _len, _ref1, _results;
