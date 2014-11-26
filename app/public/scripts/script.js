@@ -695,13 +695,19 @@
   })(window, document);
 
   (function(window, document) {
-    var FullScreen;
+    var FullScreen, THRESHOLD_DISTANCE, THRESHOLD_TIME;
+    THRESHOLD_DISTANCE = 75;
+    THRESHOLD_TIME = 400;
     FullScreen = (function() {
       function FullScreen(element, background) {
         this.element = element;
         this.background = background;
         this.classNameExpanded = 'expanded';
         this.classNameAnimating = 'animating';
+        this.activeTouch = null;
+        this.activeTouchX = null;
+        this.activeTouchY = null;
+        this.activeTouchStart = null;
         this.circle = this.element.querySelector('.circle');
         this.close = this.element.querySelector('.close');
         this.content = this.element.querySelector('.content');
@@ -714,7 +720,51 @@
 
       FullScreen.prototype.initialise = function() {
         this.circle.addEventListener('click', this.onExpand);
-        return this.close.addEventListener('click', this.onClose);
+        this.circle.addEventListener('touchstart', this.onTouch);
+        this.circle.addEventListener('touchend', this.onTouch);
+        this.close.addEventListener('click', this.onClose);
+        return this.close.addEventListener("touchend", this.onClose);
+      };
+
+      FullScreen.prototype.getCoordinatesFromEvent = function(event) {
+        var find, self, touch;
+        find = function(arr, f) {
+          var e, _i, _len;
+          for (_i = 0, _len = arr.length; _i < _len; _i++) {
+            e = arr[_i];
+            if (f(e)) {
+              return e;
+            }
+          }
+        };
+        self = this;
+        touch = find(event.touches, function(touch) {
+          return touch.identifier === self.activeTouch;
+        });
+        return {
+          clientX: touch.clientX,
+          clientY: touch.clientY
+        };
+      };
+
+      FullScreen.prototype.onTouch = function(event) {
+        var clientX, clientY, _ref, _ref1;
+        if (!this.activeTouch) {
+          this.activeTouch = event.changedTouches[0].identifier;
+          _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+          this.activeTouchX = clientX;
+          this.activeTouchY = clientX;
+          return this.activeTouchStart = event.timeStamp;
+        } else {
+          _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
+          if (Math.abs(this.activeTouchX - clientX) < THRESHOLD_DISTANCE && Math.abs(this.activeTouchY - clientY) < THRESHOLD_DISTANCE && event.timeStamp - this.activeTouchStart < THRESHOLD_TIME) {
+            onExpand(event);
+          }
+          this.activeTouch = null;
+          this.activeTouchX = null;
+          this.activeTouchY = null;
+          return this.activeTouchStart = null;
+        }
       };
 
       FullScreen.prototype.onExpand = function(event) {
