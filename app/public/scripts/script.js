@@ -528,11 +528,11 @@
           _fn(circle);
         }
         this.appeared();
-        this.miny = Math.min(parseFloat(this.circles[0].y) - parseFloat(this.circleDiameter) / 2, -parseFloat(this.circleDiameter) / 2);
-        this.maxy = Math.max(parseFloat(this.circles[this.circles.length - 1].y) + parseFloat(this.circleDiameter) / 2, this.eh + parseFloat(this.circleDiameter) / 2);
+        this.miny = Math.min(parseFloat(this.circles[0].y) - parseFloat(this.circleDiameter) * 2 / 3, -parseFloat(this.circleDiameter) * 2 / 3);
+        this.maxy = Math.max(parseFloat(this.circles[this.circles.length - 1].y) + parseFloat(this.circleDiameter) / 2, this.eh - parseFloat(this.circleDiameter) * 2 / 3);
         this.ry = this.maxy - this.miny;
-        this.minx = Math.min(parseFloat(Math.min(this.circles[0].x, this.circles[this.numberOfCol].x)) - parseFloat(this.circleDiameter) / 2, -parseFloat(this.circleDiameter) / 2);
-        this.maxx = Math.max(Math.max(this.circles[this.circles.length - 1].x, this.circles[this.circles.length - 1 - this.numberOfCol].x) + parseFloat(this.circleDiameter), this.ew + parseFloat(this.circleDiameter) / 2);
+        this.minx = Math.min(parseFloat(Math.min(this.circles[0].x, this.circles[this.numberOfCol].x)) - parseFloat(this.circleDiameter) * 2 / 3, -parseFloat(this.circleDiameter) * 2 / 3);
+        this.maxx = Math.max(Math.max(this.circles[this.circles.length - 1].x, this.circles[this.circles.length - 1 - this.numberOfCol].x) + parseFloat(this.circleDiameter) * 2 / 3, this.ew - parseFloat(this.circleDiameter) * 2 / 3);
         this.rx = this.maxx - this.minx;
         console.log(this.minx);
         console.log(this.maxx);

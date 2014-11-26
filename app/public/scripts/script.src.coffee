@@ -502,11 +502,11 @@ do (window, document) ->
       @appeared()
 
       # Update max and min coordinates
-      @miny = Math.min(parseFloat(@circles[0].y) - parseFloat(@circleDiameter)/2, -parseFloat(@circleDiameter)/2)
-      @maxy = Math.max(parseFloat(@circles[@circles.length-1].y) + parseFloat(@circleDiameter)/2, @eh+parseFloat(@circleDiameter)/2)
+      @miny = Math.min(parseFloat(@circles[0].y) - parseFloat(@circleDiameter)*2/3, -parseFloat(@circleDiameter)*2/3)
+      @maxy = Math.max(parseFloat(@circles[@circles.length-1].y) + parseFloat(@circleDiameter)/2, @eh-parseFloat(@circleDiameter)*2/3)
       @ry = @maxy - @miny
-      @minx = Math.min(parseFloat(Math.min(@circles[0].x, @circles[@numberOfCol].x)) - parseFloat(@circleDiameter)/2, -parseFloat(@circleDiameter)/2)
-      @maxx = Math.max(Math.max(@circles[@circles.length-1].x, @circles[@circles.length-1-@numberOfCol].x) + parseFloat(@circleDiameter), @ew+parseFloat(@circleDiameter)/2)
+      @minx = Math.min(parseFloat(Math.min(@circles[0].x, @circles[@numberOfCol].x)) - parseFloat(@circleDiameter)*2/3, -parseFloat(@circleDiameter)*2/3)
+      @maxx = Math.max(Math.max(@circles[@circles.length-1].x, @circles[@circles.length-1-@numberOfCol].x) + parseFloat(@circleDiameter)*2/3, @ew-parseFloat(@circleDiameter)*2/3)
       @rx = @maxx - @minx
       console.log @minx
       console.log @maxx
