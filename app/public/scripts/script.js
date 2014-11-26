@@ -533,7 +533,13 @@
         this.ry = this.maxy - this.miny;
         this.minx = Math.min(parseFloat(Math.min(this.circles[0].x, this.circles[this.numberOfCol].x)) - parseFloat(this.circleDiameter) / 2, -parseFloat(this.circleDiameter) / 2);
         this.maxx = Math.max(Math.max(this.circles[this.circles.length - 1].x, this.circles[this.circles.length - 1 - this.numberOfCol].x) + parseFloat(this.circleDiameter), this.ew + parseFloat(this.circleDiameter) / 2);
-        return this.rx = this.maxx - this.minx;
+        this.rx = this.maxx - this.minx;
+        console.log(this.minx);
+        console.log(this.maxx);
+        console.log(this.rx);
+        console.log(this.miny);
+        console.log(this.maxy);
+        return console.log(this.ry);
       };
 
       CirclesUI.prototype.appeared = function() {
