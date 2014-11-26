@@ -365,7 +365,7 @@ do (window, document) ->
       if style.getPropertyValue('position') is 'static'
         @element.style.position = 'relative'
 
-      #@start()
+      @start()
 
       # Setup
       @updateDimensions()
