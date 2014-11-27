@@ -1728,13 +1728,7 @@
         window.clearTimeout(id);
       };
     }
-    if (typeof define === "function" && define.amd) {
-      define([], draggabillyDefinition);
-    } else if (typeof exports === "object") {
-      module.exports = draggabillyDefinition(require("desandro-classie"), require("wolfy87-eventemitter"), require("eventie"), require("desandro-get-style-property"), require("get-size"));
-    } else {
-      window.Draggabilly = draggabillyDefinition(window.classie, window.EventEmitter, window.eventie, window.getStyleProperty, window.getSize);
-    }
+    return window.Draggabilly = draggabillyDefinition(window.classie, window.EventEmitter, window.eventie, window.getStyleProperty, window.getSize);
   })(window);
 
 

@@ -1552,22 +1552,8 @@ measure size of elements
       return
   # end definition
 
-  # -------------------------- transport -------------------------- //
-  if typeof define is "function" and define.amd
-
-    # AMD
-    define [
-
-    ], draggabillyDefinition
-  else if typeof exports is "object"
-
-    # CommonJS
-    module.exports = draggabillyDefinition(require("desandro-classie"), require("wolfy87-eventemitter"), require("eventie"), require("desandro-get-style-property"), require("get-size"))
-  else
-
     # browser global
-    window.Draggabilly = draggabillyDefinition(window.classie, window.EventEmitter, window.eventie, window.getStyleProperty, window.getSize)
-  return
+  window.Draggabilly = draggabillyDefinition(window.classie, window.EventEmitter, window.eventie, window.getStyleProperty, window.getSize)
 ) window
 
 ###
