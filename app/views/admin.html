@@ -220,10 +220,10 @@
         <% for(var i=0; i<providers.projects.length; i++) {%>
           <form action="/admin/projects" method="post">
             <input type="text" name="name" placeholder="Project's name" value="<%= providers.projects[i].name %>" required>
-            <textarea type="text" name="description" placeholder="Project's description" required><%= providers.Project[i].description %></textarea>
+            <textarea type="text" name="description" placeholder="Project's description" required><%= providers.projects[i].description %></textarea>
             <input type="hidden" name="index" value="<%= i %>" required>
-            <input type="text" name="url" placeholder="Project's URL" value="<%= providers.Project[i].url %>" required>
-            <input type="text" name="icon" placeholder="Project's icon" value="<%= providers.Project[i].icon %>" required>
+            <input type="text" name="url" placeholder="Project's URL" value="<%= providers.projects[i].url %>" required>
+            <input type="text" name="icon" placeholder="Project's icon" value="<%= providers.projects[i].icon %>" required>
             <button class="button" type="submit">Modify</button>
           </form>
           <hr />
@@ -231,7 +231,7 @@
         <form action="/admin/projects" method="post">
           <input type="text" name="name" placeholder="Project's name" required>
           <textarea type="text" name="description" placeholder="Project's description" required></textarea>
-          <input type="hidden" name="index" value="<%= providers.Project.length %>" required>
+          <input type="hidden" name="index" value="<%= providers.projects.length || 0 %>" required>
           <input type="text" name="url" placeholder="Project's URL" required>
           <input type="text" name="icon" placeholder="Project's icon" required>
           <button class="button" type="submit">Add</button>
@@ -268,7 +268,7 @@
         <form action="/admin/diplomas" method="post">
           <input type="text" name="name" placeholder="Diploma's name" required>
           <textarea type="text" name="description" placeholder="Diploma's description" required></textarea>
-          <input type="hidden" name="index" value="<%= providers.diplomas.length %>" required>
+          <input type="hidden" name="index" value="<%= providers.diplomas.length || 0 %>" required>
           <input type="text" name="url" placeholder="Diploma's URL" required>
           <input type="text" name="icon" placeholder="Diploma's icon" required>
           <button class="button" type="submit">Add</button>
