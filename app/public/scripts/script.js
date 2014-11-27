@@ -874,12 +874,31 @@
       };
 
       Draggable.prototype.onAnimationFrame = function(now) {
-        this.setPosition(this.ix - this.fix, this.iy - this.fiy);
+        this.setPosition(this.ix - this.fix - this.offsetx, this.iy - this.fiy - this.offsety);
         return this.raf = requestAnimationFrame(this.onAnimationFrame);
       };
 
+      Draggable.prototype.getComputedTranslate = function(obj) {
+        var mat, style, transform;
+        if (!window.getComputedStyle) {
+          return;
+        }
+        style = getComputedStyle(obj);
+        transform = style.transform || style.webkitTransform || style.mozTransform;
+        mat = transform.match(/^matrix3d\((.+)\)$/);
+        if (mat) {
+          return [parseFloat(mat[1].split(', ')[12]), parseFloat(mat[1].split(', ')[13])];
+        }
+        mat = transform.match(/^matrix\((.+)\)$/);
+        if (mat) {
+          return [parseFloat(mat[1].split(', ')[4]), parseFloat(mat[1].split(', ')[5])];
+        } else {
+          return [0, 0];
+        }
+      };
+
       Draggable.prototype.onMouseDown = function(event) {
-        var clientX, clientY, _ref;
+        var clientX, clientY, _ref, _ref1;
         if (!this.dragging) {
           if ((event.changedTouches != null) && event.changedTouches.length > 0) {
             this.activeTouch = event.changedTouches[0].identifier;
@@ -889,6 +908,7 @@
           _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
           this.fix = this.ix = clientX;
           this.fiy = this.iy = clientY;
+          _ref1 = this.getComputedTranslate(this.element), this.offsetx = _ref1[0], this.offsety = _ref1[1];
           this.enableDrag();
           return this.callbackDragStart(event);
         }

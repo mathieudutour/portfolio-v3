@@ -822,8 +822,22 @@ do (window, document) ->
         return value
 
     onAnimationFrame: (now) ->
-      @setPosition(@ix-@fix, @iy-@fiy)
+      @setPosition(@ix-@fix-@offsetx, @iy-@fiy-@offsety)
       @raf = requestAnimationFrame(@onAnimationFrame)
+
+    getComputedTranslate: (obj) ->
+      if !window.getComputedStyle
+        return
+      style = getComputedStyle(obj)
+      transform = style.transform || style.webkitTransform || style.mozTransform
+      mat = transform.match(/^matrix3d\((.+)\)$/)
+      if mat
+        return [parseFloat(mat[1].split(', ')[12]),parseFloat(mat[1].split(', ')[13])]
+      mat = transform.match(/^matrix\((.+)\)$/)
+      if mat
+        return [parseFloat(mat[1].split(', ')[4]), parseFloat(mat[1].split(', ')[5])]
+      else
+        return [0, 0]
 
     onMouseDown: (event) ->
       unless @dragging
@@ -835,6 +849,7 @@ do (window, document) ->
         {clientX, clientY} = @getCoordinatesFromEvent(event)
         @fix = @ix = clientX
         @fiy = @iy = clientY
+        [@offsetx, @offsety] = @getComputedTranslate(@element)
         @enableDrag()
         @callbackDragStart(event)
 
