@@ -140,7 +140,7 @@ do (window, document) ->
         return value
 
     onAnimationFrame: (now) ->
-      @setPosition(@ix, @iy)
+      @setPosition(@ix-@offsetx, @iy-@offsety)
       @raf = requestAnimationFrame(@onAnimationFrame)
 
     onMouseDown: (event) ->
@@ -163,9 +163,12 @@ do (window, document) ->
       @callbackDragging(event)
 
     initialise: () ->
-
+      @updateDimensions()
       # Configure Context Styles
       if @transform3DSupport then @accelerate(@element)
+      style = window.getComputedStyle(@element)
+      if style.getPropertyValue('position') is 'static'
+        @element.style.position = 'relative'
       @start()
 
     start: () ->
@@ -188,6 +191,8 @@ do (window, document) ->
     updateDimensions: () ->
       @ww = window.innerWidth
       @wh = window.innerHeight
+      @offsetx = @element.offsetLeft
+      @offsety = @element.offsetTop
       @updateBounds()
 
     updateBounds: () ->
@@ -200,7 +205,6 @@ do (window, document) ->
     enableDrag: () ->
       if !@dragging
         @dragging = yes
-        @element.style.position = 'absolute'
         classie.add @element, @classDragging
         window.addEventListener('mousemove', @onMouseMove)
         window.addEventListener('touchmove', @onMouseMove)

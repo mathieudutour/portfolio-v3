@@ -874,7 +874,7 @@
       };
 
       Draggable.prototype.onAnimationFrame = function(now) {
-        this.setPosition(this.ix, this.iy);
+        this.setPosition(this.ix - this.offsetx, this.iy - this.offsety);
         return this.raf = requestAnimationFrame(this.onAnimationFrame);
       };
 
@@ -903,8 +903,14 @@
       };
 
       Draggable.prototype.initialise = function() {
+        var style;
+        this.updateDimensions();
         if (this.transform3DSupport) {
           this.accelerate(this.element);
+        }
+        style = window.getComputedStyle(this.element);
+        if (style.getPropertyValue('position') === 'static') {
+          this.element.style.position = 'relative';
         }
         return this.start();
       };
@@ -933,6 +939,8 @@
       Draggable.prototype.updateDimensions = function() {
         this.ww = window.innerWidth;
         this.wh = window.innerHeight;
+        this.offsetx = this.element.offsetLeft;
+        this.offsety = this.element.offsetTop;
         return this.updateBounds();
       };
 
@@ -947,7 +955,6 @@
       Draggable.prototype.enableDrag = function() {
         if (!this.dragging) {
           this.dragging = true;
-          this.element.style.position = 'absolute';
           classie.add(this.element, this.classDragging);
           window.addEventListener('mousemove', this.onMouseMove);
           window.addEventListener('touchmove', this.onMouseMove);
