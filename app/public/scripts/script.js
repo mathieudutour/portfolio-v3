@@ -1486,7 +1486,7 @@
             events: postStartEvents[event.type],
             node: (event.preventDefault ? window : document)
           });
-          classie.add(this.element, "is-dragging");
+          classie.addClass(this.element, "is-dragging");
           this.isDragging = true;
           this.emitEvent("dragStart", []);
           this.animate();
@@ -1627,7 +1627,7 @@
             this.setLeftTop();
           }
           this._unbindEvents();
-          classie.remove(this.element, "is-dragging");
+          classie.removeClass(this.element, "is-dragging");
           return this.emitEvent("dragEnd", []);
         };
 

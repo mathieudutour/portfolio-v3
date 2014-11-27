@@ -1372,7 +1372,7 @@ measure size of elements
           events: postStartEvents[event.type]
           node: (if event.preventDefault then window else document)
 
-        classie.add @element, "is-dragging"
+        classie.addClass @element, "is-dragging"
         @isDragging = true
         @emitEvent "dragStart", []
         @animate()
@@ -1484,7 +1484,7 @@ measure size of elements
 
         # remove events
         @_unbindEvents()
-        classie.remove @element, "is-dragging"
+        classie.removeClass @element, "is-dragging"
         @emitEvent "dragEnd", []
 
       onMSPointerCancel: (event) ->
