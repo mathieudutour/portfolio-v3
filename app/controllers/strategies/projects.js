@@ -9,7 +9,22 @@ exports.strategy = function (req, res) {
     description: req.body.description,
     url: req.body.url
   };
-  db.users.update({_id: req.user._id, 'providers.projects.index': req.body.index}, {$set: {"providers.projects.$": project}}, function() {
-    return res.redirect('/admin');
+  db.users.findOne({ _id: req.user._id }, function(err, user) {
+    if(user.providers.diplomas.length>0) {
+      if(project.index == user.providers.diplomas.length) {
+        db.users.update({_id: req.user._id}, {$push: {"providers.projects": project}}, function() {
+          return res.redirect('/admin');
+        });
+      } else {
+        db.users.update({_id: req.user._id, 'providers.projects.index': project.index}, {$set: {"providers.projects.$": project}}, function() {
+          return res.redirect('/admin');
+        });
+      }
+    } else {
+      project.index = 0;
+      db.users.update({_id: req.user._id}, {$push: {"providers.projects": project}}, function() {
+        return res.redirect('/admin');
+      });
+    }
   });
 };
