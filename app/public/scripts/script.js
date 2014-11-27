@@ -1684,7 +1684,7 @@
         return Draggabilly;
 
       })(EventEmitter);
-      return Draggabilaty;
+      return Draggabilly;
     };
     document = window.document;
     defView = document.defaultView;

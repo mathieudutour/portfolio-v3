@@ -748,7 +748,7 @@ measure size of elements
         if @isDragging
           @dragEnd()
 
-    Draggabilaty
+    Draggabilly
   document = window.document
   defView = document.defaultView
   getStyle = if defView and defView.getComputedStyle then (elem) -> defView.getComputedStyle elem, null else (elem) -> elem.currentStyle

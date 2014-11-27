@@ -1517,7 +1517,7 @@ measure size of elements
         if @isDragging
           @dragEnd()
 
-    Draggabilaty
+    Draggabilly
   document = window.document
   defView = document.defaultView
   getStyle = if defView and defView.getComputedStyle then (elem) -> defView.getComputedStyle elem, null else (elem) -> elem.currentStyle
@@ -1569,6 +1569,7 @@ measure size of elements
     window.Draggabilly = draggabillyDefinition(window.classie, window.EventEmitter, window.eventie, window.getStyleProperty, window.getSize)
   return
 ) window
+
 ###
 # Request Animation Frame Polyfill.
 # @author Tino Zijdel
