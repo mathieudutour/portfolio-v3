@@ -874,7 +874,7 @@
       };
 
       Draggable.prototype.onAnimationFrame = function(now) {
-        this.setPosition(this.ix - this.fix - this.offsetx, this.iy - this.fiy - this.offsety);
+        this.setPosition(this.ix - this.fix + this.offsetx, this.iy - this.fiy + this.offsety);
         return this.raf = requestAnimationFrame(this.onAnimationFrame);
       };
 

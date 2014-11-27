@@ -822,7 +822,7 @@ do (window, document) ->
         return value
 
     onAnimationFrame: (now) ->
-      @setPosition(@ix-@fix-@offsetx, @iy-@fiy-@offsety)
+      @setPosition(@ix-@fix+@offsetx, @iy-@fiy+@offsety)
       @raf = requestAnimationFrame(@onAnimationFrame)
 
     getComputedTranslate: (obj) ->
