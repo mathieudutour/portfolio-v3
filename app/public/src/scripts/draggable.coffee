@@ -166,10 +166,6 @@ do (window, document) ->
 
       # Configure Context Styles
       if @transform3DSupport then @accelerate(@element)
-      style = window.getComputedStyle(@element)
-      if style.getPropertyValue('position') is 'static'
-        @element.style.position = 'relative'
-
       @start()
 
     start: () ->
@@ -204,6 +200,7 @@ do (window, document) ->
     enableDrag: () ->
       if !@dragging
         @dragging = yes
+        @element.style.position = 'absolute'
         classie.add @element, @classDragging
         window.addEventListener('mousemove', @onMouseMove)
         window.addEventListener('touchmove', @onMouseMove)

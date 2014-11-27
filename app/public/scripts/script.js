@@ -903,13 +903,8 @@
       };
 
       Draggable.prototype.initialise = function() {
-        var style;
         if (this.transform3DSupport) {
           this.accelerate(this.element);
-        }
-        style = window.getComputedStyle(this.element);
-        if (style.getPropertyValue('position') === 'static') {
-          this.element.style.position = 'relative';
         }
         return this.start();
       };
@@ -952,6 +947,7 @@
       Draggable.prototype.enableDrag = function() {
         if (!this.dragging) {
           this.dragging = true;
+          this.element.style.position = 'absolute';
           classie.add(this.element, this.classDragging);
           window.addEventListener('mousemove', this.onMouseMove);
           window.addEventListener('touchmove', this.onMouseMove);
