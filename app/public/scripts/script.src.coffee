@@ -822,7 +822,7 @@ do (window, document) ->
         return value
 
     onAnimationFrame: (now) ->
-      @setPosition(@ix-@offsetx, @iy-@offsety)
+      @setPosition(@ix-@fix, @iy-@fiy)
       @raf = requestAnimationFrame(@onAnimationFrame)
 
     onMouseDown: (event) ->
@@ -833,8 +833,8 @@ do (window, document) ->
           event.preventDefault()
         # Cache event coordinates.
         {clientX, clientY} = @getCoordinatesFromEvent(event)
-        @fix = clientX
-        @fiy = clientY
+        @fix = @ix = clientX
+        @fiy = @iy = clientY
         @enableDrag()
         @callbackDragStart(event)
 
@@ -873,8 +873,6 @@ do (window, document) ->
     updateDimensions: () ->
       @ww = window.innerWidth
       @wh = window.innerHeight
-      @offsetx = @element.offsetLeft
-      @offsety = @element.offsetTop
       @updateBounds()
 
     updateBounds: () ->

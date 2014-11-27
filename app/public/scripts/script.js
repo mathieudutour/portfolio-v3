@@ -874,7 +874,7 @@
       };
 
       Draggable.prototype.onAnimationFrame = function(now) {
-        this.setPosition(this.ix - this.offsetx, this.iy - this.offsety);
+        this.setPosition(this.ix - this.fix, this.iy - this.fiy);
         return this.raf = requestAnimationFrame(this.onAnimationFrame);
       };
 
@@ -887,8 +887,8 @@
             event.preventDefault();
           }
           _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
-          this.fix = clientX;
-          this.fiy = clientY;
+          this.fix = this.ix = clientX;
+          this.fiy = this.iy = clientY;
           this.enableDrag();
           return this.callbackDragStart(event);
         }
@@ -939,8 +939,6 @@
       Draggable.prototype.updateDimensions = function() {
         this.ww = window.innerWidth;
         this.wh = window.innerHeight;
-        this.offsetx = this.element.offsetLeft;
-        this.offsety = this.element.offsetTop;
         return this.updateBounds();
       };
 
