@@ -5,8 +5,9 @@ var Cron = require('cron').CronJob;
 
 var apiKey = function (req, res) {
   var api_key = req.body.api_key;
+  console.log(api_key);
   var today = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate();
-  request("https://www.rescuetime.com/anapi/data?format=json&key="+api_key+"&restrict_begin=2000-01-01&restrict_end="+today, function (error, response, body) {
+  request("https://www.rescuetime.com/anapi/data?format=json&key="+api_key+"&restrict_begin=2000-01-01&restrict_end="+today, function (error, response) {
     if (!error && response.statusCode == 200) {
       db.users.update({_id: req.user._id}, {$set: {'providers.rescuetime.api_key': api_key}}, function() {
         return res.redirect('/admin');

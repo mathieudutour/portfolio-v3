@@ -178,6 +178,7 @@
           <input type="text" name="api_key" placeholder="API Key" id="api_key"<% if(providers.rescuetime && providers.rescuetime.api_key) { %> value="<%= providers.rescuetime.api_key %>"<% } %> required>
           <button class="button" type="submit">Go !</button>
         </form>
+        <hr />
         <% if(providers.rescuetime && providers.rescuetime.api_key) { %>
           <% if(providers.rescuetime.tracks && providers.rescuetime.tracks.length && providers.rescuetime.tracks.length>0) { %>
           <% for(var i=0; i<providers.rescuetime.tracks.length; i++) {%>

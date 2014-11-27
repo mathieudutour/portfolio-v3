@@ -1,0 +1,135 @@
+{
+  "email": "mathieu@dutour.me",
+  "password": "e93fd1f20feb1903a3a6d99aa1d0fb1cc9189994",
+  "slug_name": "mathieu-dutour",
+  "providers": {
+    "basic": {
+      "first_name": "Mathieu",
+      "last_name": "Dutour",
+      "birthday": {
+        "$$date": 686962800000
+      },
+      "email": "mathieu@dutour.me",
+      "avatar": "http://www.gravatar.com/avatar/744041d29ef59c1c31f3d354fae980fc?s=500",
+      "avatar_provider": "gravatar"
+    },
+    "gravatar": {
+      "image": "http://www.gravatar.com/avatar/744041d29ef59c1c31f3d354fae980fc?s=500"
+    },
+    "linkedin": {
+      "name": "linkedin",
+      "token": "284902b9-98c6-44ad-bb9f-6d39de42e177",
+      "tokenSecret": "55fdf400-d5a8-48ae-8072-8c7297f2abe4",
+      "link": "http://www.linkedin.com/profile/view?id=y8PIjaAIqE"
+    },
+    "facebook": null,
+    "twitter": {
+      "name": "twitter",
+      "token": "362104578-vFbA1wT6difp3XHHPKBDLdWxr5qmPhzuMDaEsEEx",
+      "tokenSecret": "VIP2UEjwS0c9hX2XB8KSD72yhvotIEDqLWNOUlzabmki9",
+      "link": "https://twitter.com/MathieuDutour",
+      "image": "http://pbs.twimg.com/profile_images/528386428070526976/7nkQJuoE_normal.jpeg",
+      "last_tweet": "Congrats guys ! #swnotts @eduhopapp http://t.co/mfarr6pGYU"
+    },
+    "github": null,
+    "strava": null,
+    "moves": {
+      "name": "moves",
+      "accessToken": "UgHs7sgP3WoM3kxlsP_T4KTju3rTg8SYaPc1zYw85Mfi1w5R3687js5xkMPqpA8I",
+      "refreshToken": "ttawQn80btvsRyXi0k0E84IKZtB3SKfnTF1PScOzU0yNxAcC1fhWK376Xaz525m6",
+      "steps": 1201
+    },
+    "other_sport": {
+      "name": "Bouldering",
+      "image": "/images/bouldering.svg",
+      "data": [{
+        "value": 5,
+        "timestamp": {
+          "$$date": 1415482210957
+        }
+      }],
+      "value": 5,
+      "value_name": "routes"
+    },
+    "other_last": {
+      "name": "haircut",
+      "image": "/images/haircut.svg",
+      "data": [{
+        "timestamp": {
+          "$$date": 1415917991761
+        }
+      }],
+      "last": {
+        "$$date": 1415917991761
+      }
+    },
+    "projects": {
+      "first_project": {
+        "name": "#MyTignes",
+        "icon": "/images/mytignes.svg",
+        "description": "Developement of an iOS application allowing the customer to follow his path on the ski area \r\nFront and back end of the website (https://mytignes.fr)\r\nManagement of a new version of the online sales website",
+        "url": "https://mytignes.fr"
+      },
+      "second_project": {
+        "name": "Optelec",
+        "icon": "/images/optelec.svg",
+        "description": "Realised in JAVA, Optelec is a software to automate the sizing of electrical cables of Bouygues Construction work sites as well as the cost estimate for such an electrical installation.\r\n\r\nThis project lasted eight months during which I was the only developer. It is now used by all agencies of Bouygues Constuction and received the Engineer 's award of the CNJE which awards the best engineer project realised by a Junior Entreprise in 2013.",
+        "url": "https://www.junior-entreprises.com/laureats-des-labels-2013/"
+      },
+      "third_project": {
+        "name": "AR Drinect",
+        "icon": "/images/ardrinect.svg",
+        "description": "One Kinect. One ARDrone. Plenty of fun.\r\n\r\nControlling an AR.Drone with a Kinect.\r\n\r\nProject conducted at the École Centrale de Lille during the Intelligence ambiante 2012-2013 course. ",
+        "url": "https://github.com/mathieudutour/AR-Drinect"
+      },
+      "last_project": {
+        "name": "AuRore",
+        "icon": "/images/aurore.svg",
+        "description": "Developement of an android application scanning QR code and leading the user in a warehouse. Served as a proof of concept before porting this app on augmented reality glasses ",
+        "url": "http://www.generixgroup.com/fr/actualites/communiques/11956,realite-augmentee-entrepot-oscaro.htm"
+      }
+    },
+    "diplomas": {
+      "first_diploma": {
+        "name": "Centrale Lille",
+        "icon": "/images/diploma.svg",
+        "description": "Engineer's Degree",
+        "url": "http://www.ec-lille.fr/fr/index.html"
+      },
+      "second_diploma": {
+        "name": "Cranfield University",
+        "icon": "/images/diploma.svg",
+        "description": "Master's Degree, Software Engineering and Technical computing",
+        "url": "http://www.cranfield.ac.uk/courses/masters/software-engineering-for-technical-computing.html"
+      }
+    },
+    "sleep": null,
+    "heartrate": null,
+    "rescuetime": {
+      "api_key": "B63P6JWu25f2wNujn_9KGrrmzukFTii1656Aelms",
+      "first_track": {
+        "name": "brackets",
+        "image": "/images/brackets.png",
+        "count": "32"
+      },
+      "second_track": {
+        "name": "Xcode",
+        "image": "/images/xcode.png",
+        "count": "7"
+      }
+    }
+  },
+  "_id": "qojA81IrL3T4p4oZ"
+} {
+  "$$indexCreated": {
+    "fieldName": "slug_name",
+    "unique": true,
+    "sparse": false
+  }
+} {
+  "$$indexCreated": {
+    "fieldName": "email",
+    "unique": true,
+    "sparse": false
+  }
+}
