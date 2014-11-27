@@ -38,7 +38,7 @@
     <div class="circle-container job disabled"><div class="circle"><img src="images/project.svg"></div><div class="label">Project One</div></div>
     <% } %>
     <!-- 1, 6 -->
-    <% if(projects && projects.second_project>1) { %>
+    <% if(projects && projects.length>1) { %>
     <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects[1].icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects[1].description) %></div></div></div><div class="label"><%= projects[1].name %></div></div>
     <% } else { %>
     <div class="circle-container job disabled"><div class="circle"><img src="images/project.svg"></div><div class="label">Project Two</div></div>
