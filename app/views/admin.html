@@ -179,6 +179,7 @@
           <button class="button" type="submit">Go !</button>
         </form>
         <% if(providers.rescuetime && providers.rescuetime.api_key) { %>
+          <% if(providers.rescuetime.tracks && providers.rescuetime.tracks.length && providers.rescuetime.tracks.length>0) { %>
           <% for(var i=0; i<providers.rescuetime.tracks.length; i++) {%>
             <form action="/admin/rescuetime/track" method="post">
               <input type="text" name="name" placeholder="Item to track" value="<%= providers.rescuetime.tracks[i].name %>" required>
@@ -189,20 +190,15 @@
             </form>
             <hr />
           <% } %>
+          <% } %>
           <form action="/admin/rescuetime/track" method="post">
             <input type="text" name="name" placeholder="Item to track" required>
             <input type="text" name="image" placeholder="URL of the item's image " id="image" required>
-            <input type="hidden" name="index" value="<%= providers.rescuetime.tracks.length %>" required>
+            <input type="hidden" name="index" value="<%= (providers.rescuetime.tracks && providers.rescuetime.tracks.length) || 0 %>" required>
             <input type="hidden" name="api_key" value="<%= providers.rescuetime.api_key %>" required>
             <button class="button" type="submit">Add</button>
           </form>
         <% } %>
-          <input type="text" name="first_track" placeholder="First Item to track" id="first_track"<% if(providers.rescuetime) { %> value="<%= providers.rescuetime.first_track.name %>"<% } %> required>
-          <input type="text" name="image_first_track" placeholder="URL of the first item's image " id="image_first_track"<% if(providers.rescuetime) { %> value="<%= providers.rescuetime.first_track.image %>"<% } %> required>
-          <hr />
-          <input type="text" name="second_track" placeholder="Second Item to track" id="second_track"<% if(providers.rescuetime) { %> value="<%= providers.rescuetime.second_track.name %>"<% } %> required>
-          <input type="text" name="image_second_track" placeholder="URL of the second item's image " id="image_second_track"<% if(providers.rescuetime) { %> value="<%= providers.rescuetime.second_track.image %>"<% } %> required>
-
       </div>
     </section>
     <section class="projects job">
