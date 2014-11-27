@@ -9,8 +9,23 @@ exports.strategy = function (req, res) {
     description: req.body.description,
     url: req.body.url
   };
-  console.log(diploma);
-  db.users.update({_id: req.user._id, 'providers.diplomas.index': req.body.index}, {$set: {"providers.diplomas.$": diploma}}, function() {
-    return res.redirect('/admin');
+  db.users.findOne({ _id: req.user._id }, function(err, user) {
+    if(user.providers.diplomas.length>0) {
+      if(diploma.index == user.providers.diplomas.length) {
+        db.users.update({_id: req.user._id}, {$push: {"providers.diplomas": diploma}}, function() {
+          return res.redirect('/admin');
+        });
+      } else {
+        db.users.update({_id: req.user._id, 'providers.diplomas.index': diploma.index}, {$set: {"providers.diplomas.$": diploma}}, function() {
+          return res.redirect('/admin');
+        });
+      }
+    } else {
+      diploma.index = 0;
+      db.users.update({_id: req.user._id}, {$push: {"providers.diplomas": diploma}}, function() {
+        return res.redirect('/admin');
+      });
+    }
   });
+
 };
