@@ -366,18 +366,7 @@
     var age = new Age(p, "<%= providers.basic.birthday %>");
 
     var elem = document.querySelector('.draggable');
-    var draggie = new Draggabilly( elem, {
-      // options...
-    });
-    function onDragMove( instance, event, pointer ) {
-      console.log( 'dragMove on ' + event.type +
-        pointer.pageX + ', ' + pointer.pageY +
-        ' position at ' + instance.position.x + ', ' + instance.position.y );
-    }
-    // bind event listener
-    draggie.on( 'dragMove', onDragMove );
-    // un-bind event listener
-    draggie.off( 'dragMove', onDragMove );
+    var draggie = new Draggable( elem);
   </script>
 </body>
 

@@ -5,33 +5,6 @@
 ###
 do (window, document) ->
 
-  # class helper functions from classie https://github.com/desandro/classie
-  classReg = ( className ) ->
-    return new RegExp("(^|\\s+)" + className + "(\\s+|$)")
-
-  if 'classList' in document.documentElement
-    hasClass = ( elem, c ) ->
-      elem.classList.contains( c )
-    addClass = ( elem, c ) ->
-      elem.classList.add( c )
-    removeClass = ( elem, c ) ->
-      elem.classList.remove( c )
-  else
-    hasClass = ( elem, c ) ->
-      classReg( c ).test( elem.className )
-    addClass = ( elem, c ) ->
-      if !hasClass( elem, c )
-        elem.className = elem.className + ' ' + c
-    removeClass = ( elem, c ) ->
-      elem.className = elem.className.replace( classReg( c ), ' ' )
-
-  classie =
-    hasClass: hasClass
-    addClass: addClass
-    removeClass: removeClass
-  #Expose Classie
-  window.classie = classie
-
   # Constants
   NAME = 'CirclesUI'
   DEFAULTS =
@@ -176,14 +149,14 @@ do (window, document) ->
           if updateS
             circle = element.getElementsByClassName('circle')
             @css(circle[0], @vendorPrefix.js + 'Transform', 'scale3d('+s+','+s+',1)')
-        else if @transform2DSupport then (element, x, y, s) ->
+        else if @transform2DSupport then (element, x, y, s, updateS) ->
           x = x.toFixed(@precision) + 'px'
           y = y.toFixed(@precision) + 'px'
           @css(element, @vendorPrefix.js + 'Transform', 'translate('+x+','+y+')')
           if updateS
             circle = element.getElementsByClassName('circle')
             @css(circle[0], @vendorPrefix.js + 'Transform', 'scale('+s+','+s+')')
-        else (element, x, y, s) ->
+        else (element, x, y, s, updateS) ->
           x = x.toFixed(@precision) + 'px'
           y = y.toFixed(@precision) + 'px'
           element.style.left = x

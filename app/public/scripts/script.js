@@ -1,8 +1,6 @@
 (function() {
   var lastTime, vendor, vendors, _fn, _i, _len,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   (function(window, document) {
     var Age;
@@ -73,39 +71,7 @@
    */
 
   (function(window, document) {
-    var CirclesUI, DEFAULTS, NAME, addClass, classReg, classie, hasClass, removeClass;
-    classReg = function(className) {
-      return new RegExp("(^|\\s+)" + className + "(\\s+|$)");
-    };
-    if (__indexOf.call(document.documentElement, 'classList') >= 0) {
-      hasClass = function(elem, c) {
-        return elem.classList.contains(c);
-      };
-      addClass = function(elem, c) {
-        return elem.classList.add(c);
-      };
-      removeClass = function(elem, c) {
-        return elem.classList.remove(c);
-      };
-    } else {
-      hasClass = function(elem, c) {
-        return classReg(c).test(elem.className);
-      };
-      addClass = function(elem, c) {
-        if (!hasClass(elem, c)) {
-          return elem.className = elem.className + ' ' + c;
-        }
-      };
-      removeClass = function(elem, c) {
-        return elem.className = elem.className.replace(classReg(c), ' ');
-      };
-    }
-    classie = {
-      hasClass: hasClass,
-      addClass: addClass,
-      removeClass: removeClass
-    };
-    window.classie = classie;
+    var CirclesUI, DEFAULTS, NAME;
     NAME = 'CirclesUI';
     DEFAULTS = {
       wrap: true,
@@ -223,7 +189,7 @@
               circle = element.getElementsByClassName('circle');
               return this.css(circle[0], this.vendorPrefix.js + 'Transform', 'scale3d(' + s + ',' + s + ',1)');
             }
-          } : this.transform2DSupport ? function(element, x, y, s) {
+          } : this.transform2DSupport ? function(element, x, y, s, updateS) {
             var circle;
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
@@ -232,7 +198,7 @@
               circle = element.getElementsByClassName('circle');
               return this.css(circle[0], this.vendorPrefix.js + 'Transform', 'scale(' + s + ',' + s + ')');
             }
-          } : function(element, x, y, s) {
+          } : function(element, x, y, s, updateS) {
             var circle;
             x = x.toFixed(this.precision) + 'px';
             y = y.toFixed(this.precision) + 'px';
@@ -723,6 +689,350 @@
   })(window, document);
 
   (function(window, document) {
+    var addClass, classReg, classie, hasClass, removeClass;
+    classReg = function(className) {
+      return new RegExp("(^|\\s+)" + className + "(\\s+|$)");
+    };
+    if (__indexOf.call(document.documentElement, 'classList') >= 0) {
+      hasClass = function(elem, c) {
+        return elem.classList.contains(c);
+      };
+      addClass = function(elem, c) {
+        return elem.classList.add(c);
+      };
+      removeClass = function(elem, c) {
+        return elem.classList.remove(c);
+      };
+    } else {
+      hasClass = function(elem, c) {
+        return classReg(c).test(elem.className);
+      };
+      addClass = function(elem, c) {
+        if (!hasClass(elem, c)) {
+          return elem.className = elem.className + ' ' + c;
+        }
+      };
+      removeClass = function(elem, c) {
+        return elem.className = elem.className.replace(classReg(c), ' ');
+      };
+    }
+    classie = {
+      hasClass: hasClass,
+      has: hasClass,
+      addClass: addClass,
+      add: addClass,
+      removeClass: removeClass,
+      remove: removeClass
+    };
+    return window.classie = classie;
+  })(window, document);
+
+
+  /*
+   * Draggable.coffee
+   * @author Mathieu Dutour - @MathieuDutour
+   * @description Drag an object
+   */
+
+  (function(window, document) {
+    var DEFAULTS, Draggable, NAME;
+    NAME = 'Draggable';
+    DEFAULTS = {
+      axis: null,
+      containment: false,
+      grid: [1, 1],
+      handle: false,
+      precision: 1,
+      classDragging: "is-dragging",
+      callbackDragStart: function() {},
+      callbackDragging: function() {},
+      callbackDrop: function() {},
+      acceptDrop: function() {
+        return true;
+      }
+    };
+    return Draggable = (function() {
+      function Draggable(element, options) {
+        var data, key, _ref;
+        this.element = element;
+        data = {
+          axis: this.data(this.element, 'wrap'),
+          containment: this.data(this.element, 'relative-input'),
+          handle: this.data(this.element, 'clipe-relative-input'),
+          precision: this.data(this.element, 'invert-x'),
+          classDragging: this.data(this.element, 'invert-y')
+        };
+        for (key in data) {
+          if (data[key] === null) {
+            delete data[key];
+          }
+        }
+        this.extend(this, DEFAULTS, options, data);
+        this.handle = this.element;
+        this.started = false;
+        this.dragging = false;
+        this.raf = null;
+        this.bounds = null;
+        this.ex = 0;
+        this.ey = 0;
+        this.ew = 0;
+        this.eh = 0;
+        this.ww = 0;
+        this.wh = 0;
+        this.fix = 0;
+        this.fiy = 0;
+        this.ix = 0;
+        this.iy = 0;
+        this.vendorPrefix = (function() {
+          var dom, pre, styles;
+          styles = window.getComputedStyle(document.documentElement, "");
+          pre = (Array.prototype.slice.call(styles).join("").match(/-(moz|webkit|ms)-/) || (styles.OLink === "" && ["", "o"]))[1];
+          dom = "WebKit|Moz|MS|O".match(new RegExp("(" + pre + ")", "i"))[1];
+          return {
+            dom: dom,
+            lowercase: pre,
+            css: "-" + pre + "-",
+            js: pre[0].toUpperCase() + pre.substr(1)
+          };
+        })();
+        _ref = (function(transform) {
+          var el2d, el3d, has2d, has3d;
+          el2d = document.createElement("p");
+          el3d = document.createElement("p");
+          has2d = void 0;
+          has3d = void 0;
+          document.body.insertBefore(el2d, null);
+          if (typeof el2d.style[transform] !== 'undefined') {
+            document.body.insertBefore(el3d, null);
+            el2d.style[transform] = "translate(1px,1px)";
+            has2d = window.getComputedStyle(el2d).getPropertyValue(transform);
+            el3d.style[transform] = "translate3d(1px,1px,1px)";
+            has3d = window.getComputedStyle(el3d).getPropertyValue(transform);
+            document.body.removeChild(el3d);
+          }
+          document.body.removeChild(el2d);
+          return [typeof has2d !== 'undefined' && has2d.length > 0 && has2d !== "none", typeof has3d !== 'undefined' && has3d.length > 0 && has3d !== "none"];
+        })(this.vendorPrefix.css + 'transform'), this.transform2DSupport = _ref[0], this.transform3DSupport = _ref[1];
+        this.setPosition = this.transform3DSupport ? function(x, y) {
+          x = x.toFixed(this.precision) + 'px';
+          y = y.toFixed(this.precision) + 'px';
+          return this.css(this.element, this.vendorPrefix.js + 'Transform', 'translate3d(' + x + ',' + y + ',0)');
+        } : this.transform2DSupport ? function(element, x, y, s) {
+          x = x.toFixed(this.precision) + 'px';
+          y = y.toFixed(this.precision) + 'px';
+          return this.css(this.element, this.vendorPrefix.js + 'Transform', 'translate(' + x + ',' + y + ')');
+        } : function(element, x, y, s) {
+          x = x.toFixed(this.precision) + 'px';
+          y = y.toFixed(this.precision) + 'px';
+          this.element.style.left = x;
+          return this.element.style.top = y;
+        };
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
+        this.onAnimationFrame = this.onAnimationFrame.bind(this);
+        this.onWindowResize = this.onWindowResize.bind(this);
+        this.initialise();
+      }
+
+      Draggable.prototype.extend = function() {
+        var master, object, _i, _len, _results;
+        if (arguments.length > 1) {
+          master = arguments[0];
+          _results = [];
+          for (_i = 0, _len = arguments.length; _i < _len; _i++) {
+            object = arguments[_i];
+            _results.push((function(object) {
+              var key, _results1;
+              _results1 = [];
+              for (key in object) {
+                _results1.push(master[key] = object[key]);
+              }
+              return _results1;
+            })(object));
+          }
+          return _results;
+        }
+      };
+
+      Draggable.prototype.data = function(element, name) {
+        return this.deserialize(element.getAttribute('data-' + name));
+      };
+
+      Draggable.prototype.deserialize = function(value) {
+        if (value === "true") {
+          return true;
+        } else if (value === "false") {
+          return false;
+        } else if (value === "null") {
+          return null;
+        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
+          return parseFloat(value);
+        } else {
+          return value;
+        }
+      };
+
+      Draggable.prototype.onAnimationFrame = function(now) {
+        this.setPosition(this.ix, this.iy);
+        return this.raf = requestAnimationFrame(this.onAnimationFrame);
+      };
+
+      Draggable.prototype.onMouseDown = function(event) {
+        var clientX, clientY, _ref;
+        if (!this.dragging) {
+          if ((event.changedTouches != null) && event.changedTouches.length > 0) {
+            this.activeTouch = event.changedTouches[0].identifier;
+          } else {
+            event.preventDefault();
+          }
+          _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+          this.fix = clientX;
+          this.fiy = clientY;
+          this.enableDrag();
+          return this.callbackDragStart(event);
+        }
+      };
+
+      Draggable.prototype.onMouseMove = function(event) {
+        var clientX, clientY, _ref;
+        event.preventDefault();
+        if (!this.moved) {
+          addClass(this.element, 'moved');
+          this.moved = true;
+        }
+        _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+        this.ix = clientX;
+        this.iy = clientY;
+        return this.callbackDragging(event);
+      };
+
+      Draggable.prototype.initialise = function() {
+        var style;
+        if (this.transform3DSupport) {
+          this.accelerate(this.element);
+        }
+        style = window.getComputedStyle(this.element);
+        if (style.getPropertyValue('position') === 'static') {
+          this.element.style.position = 'relative';
+        }
+        return this.start();
+      };
+
+      Draggable.prototype.start = function() {
+        if (!this.started) {
+          this.started = true;
+          this.handle.addEventListener('mousedown', this.onMouseDown);
+          this.handle.addEventListener('mouseup', this.onMouseUp);
+          this.handle.addEventListener('touchstart', this.onMouseDown);
+          return this.handle.addEventListener('touchend', this.onMouseUp);
+        }
+      };
+
+      Draggable.prototype.stop = function() {
+        if (this.started) {
+          this.started = false;
+          cancelAnimationFrame(this.raf);
+          this.handle.removeEventListener('mousedown', this.onMouseDown);
+          this.handle.removeEventListener('mouseup', this.onMouseUp);
+          this.handle.removeEventListener('touchstart', this.onMouseDown);
+          return this.handle.removeEventListener('touchend', this.onMouseUp);
+        }
+      };
+
+      Draggable.prototype.updateDimensions = function() {
+        this.ww = window.innerWidth;
+        this.wh = window.innerHeight;
+        return this.updateBounds();
+      };
+
+      Draggable.prototype.updateBounds = function() {
+        this.bounds = this.element.parentNode.getBoundingClientRect();
+        this.ex = this.bounds.left;
+        this.ey = this.bounds.top;
+        this.ew = this.bounds.width;
+        return this.eh = this.bounds.height;
+      };
+
+      Draggable.prototype.enableDrag = function() {
+        if (!this.dragging) {
+          this.dragging = true;
+          classie.add(this.element, this.classDragging);
+          window.addEventListener('mousemove', this.onMouseMove);
+          window.addEventListener('touchmove', this.onMouseMove);
+          return this.raf = requestAnimationFrame(this.onAnimationFrame);
+        }
+      };
+
+      Draggable.prototype.disableDrag = function() {
+        if (this.dragging) {
+          this.dragging = false;
+          classie.remove(this.element, this.classDragging);
+          window.removeEventListener('mousemove', this.onMouseMove);
+          return window.removeEventListener('touchmove', this.onMouseMove);
+        }
+      };
+
+      Draggable.prototype.css = function(element, property, value) {
+        return element.style[property] = value;
+      };
+
+      Draggable.prototype.accelerate = function(element) {
+        return this.css(element, this.vendorPrefix.transform, 'translate3d(0,0,0)');
+      };
+
+      Draggable.prototype.onWindowResize = function(event) {
+        return this.updateDimensions();
+      };
+
+      Draggable.prototype.getCoordinatesFromEvent = function(event) {
+        if ((event.touches != null) && (event.touches.length != null) && event.touches.length > 0) {
+          this.getCoordinatesFromEvent = function(event) {
+            var find, self, touch;
+            find = function(arr, f) {
+              var e, _i, _len;
+              for (_i = 0, _len = arr.length; _i < _len; _i++) {
+                e = arr[_i];
+                if (f(e)) {
+                  return e;
+                }
+              }
+            };
+            self = this;
+            touch = find(event.touches, function(touch) {
+              return touch.identifier === self.activeTouch;
+            });
+            return {
+              clientX: touch.clientX,
+              clientY: touch.clientY
+            };
+          };
+        } else {
+          this.getCoordinatesFromEvent = function(event) {
+            return {
+              clientX: event.clientX,
+              clientY: event.clientY
+            };
+          };
+        }
+        return this.getCoordinatesFromEvent(event);
+      };
+
+      Draggable.prototype.onMouseUp = function(event) {
+        this.activeTouch = null;
+        this.disableDrag();
+        cancelAnimationFrame(this.raf);
+        return this.callbackDrop(event);
+      };
+
+      window[NAME] = Draggable;
+
+      return Draggable;
+
+    })();
+  })(window, document);
+
+  (function(window, document) {
     var FullScreen, THRESHOLD_DISTANCE, THRESHOLD_TIME;
     THRESHOLD_DISTANCE = 75;
     THRESHOLD_TIME = 400;
@@ -834,902 +1144,6 @@
     })();
     return window.FullScreen = FullScreen;
   })(window, document);
-
-  (function() {
-    var EventEmitter, alias, indexOfListener;
-    indexOfListener = function(listeners, listener) {
-      var i;
-      i = listeners.length;
-      if ((function() {
-        var _results;
-        _results = [];
-        while (i--) {
-          _results.push(listeners[i].listener === listener);
-        }
-        return _results;
-      })()) {
-        return i;
-      }
-      return -1;
-    };
-    alias = function(name) {
-      var aliasClosure;
-      return aliasClosure = function() {
-        return this[name].apply(this, arguments);
-      };
-    };
-    EventEmitter = (function() {
-      function EventEmitter() {}
-
-      EventEmitter.prototype.getListeners = function(evt) {
-        var events, key, response;
-        events = this._getEvents();
-        response = void 0;
-        key = void 0;
-        if (typeof evt === "object") {
-          response = {};
-          for (key in events) {
-            if (events.hasOwnProperty(key) && evt.test(key)) {
-              response[key] = events[key];
-            }
-          }
-        } else {
-          response = events[evt] || (events[evt] = []);
-        }
-        return response;
-      };
-
-      EventEmitter.prototype.flattenListeners = function(listeners) {
-        var flatListeners, i;
-        flatListeners = [];
-        i = 0;
-        while (i < listeners.length) {
-          flatListeners.push(listeners[i].listener);
-          i += 1;
-        }
-        return flatListeners;
-      };
-
-      EventEmitter.prototype.getListenersAsObject = function(evt) {
-        var listeners, response;
-        listeners = this.getListeners(evt);
-        response = void 0;
-        if (listeners instanceof Array) {
-          response = {};
-          response[evt] = listeners;
-        }
-        return response || listeners;
-      };
-
-      EventEmitter.prototype.addListener = function(evt, listener) {
-        var key, listenerIsWrapped, listeners;
-        listeners = this.getListenersAsObject(evt);
-        listenerIsWrapped = typeof listener === "object";
-        key = void 0;
-        for (key in listeners) {
-          if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
-            listeners[key].push((listenerIsWrapped ? listener : {
-              listener: listener,
-              once: false
-            }));
-          }
-        }
-        return this;
-      };
-
-      EventEmitter.prototype.on = alias("addListener");
-
-      EventEmitter.prototype.addOnceListener = function(evt, listener) {
-        return this.addListener(evt, {
-          listener: listener,
-          once: true
-        });
-      };
-
-      EventEmitter.prototype.once = alias("addOnceListener");
-
-      EventEmitter.prototype.defineEvent = function(evt) {
-        this.getListeners(evt);
-        return this;
-      };
-
-      EventEmitter.prototype.defineEvents = function(evts) {
-        var i;
-        i = 0;
-        while (i < evts.length) {
-          this.defineEvent(evts[i]);
-          i += 1;
-        }
-        return this;
-      };
-
-      EventEmitter.prototype.removeListener = function(evt, listener) {
-        var index, key, listeners;
-        listeners = this.getListenersAsObject(evt);
-        index = void 0;
-        key = void 0;
-        for (key in listeners) {
-          if (listeners.hasOwnProperty(key)) {
-            index = indexOfListener(listeners[key], listener);
-            if (index !== -1) {
-              listeners[key].splice(index, 1);
-            }
-          }
-        }
-        return this;
-      };
-
-      EventEmitter.prototype.off = alias("removeListener");
-
-      EventEmitter.prototype.addListeners = function(evt, listeners) {
-        return this.manipulateListeners(false, evt, listeners);
-      };
-
-      EventEmitter.prototype.removeListeners = function(evt, listeners) {
-        return this.manipulateListeners(true, evt, listeners);
-      };
-
-      EventEmitter.prototype.manipulateListeners = function(remove, evt, listeners) {
-        var i, multiple, single, value;
-        single = remove ? this.removeListener : this.addListener;
-        multiple = remove ? this.removeListeners : this.addListeners;
-        if (typeof evt === "object" && (!(evt instanceof RegExp))) {
-          for (i in evt) {
-            if (evt.hasOwnProperty(i) && (value = evt[i])) {
-              if (typeof value === "function") {
-                single.call(this, i, value);
-              } else {
-                multiple.call(this, i, value);
-              }
-            }
-          }
-        } else {
-          i = listeners.length;
-          while (i--) {
-            single.call(this, evt, listeners[i]);
-          }
-        }
-        return this;
-      };
-
-      EventEmitter.prototype.removeEvent = function(evt) {
-        var events, key, type;
-        type = typeof evt;
-        events = this._getEvents();
-        if (type === "string") {
-          delete events[evt];
-        } else if (type === "object") {
-          for (key in events) {
-            if (events.hasOwnProperty(key) && evt.test(key)) {
-              delete events[key];
-            }
-          }
-        } else {
-          delete this._events;
-        }
-        return this;
-      };
-
-      EventEmitter.prototype.emitEvent = function(evt, args) {
-        var i, key, listener, listeners, response;
-        listeners = this.getListenersAsObject(evt);
-        for (key in listeners) {
-          if (listeners.hasOwnProperty(key)) {
-            i = listeners[key].length;
-            while (i--) {
-              listener = listeners[key][i];
-              response = listener.listener.apply(this, args || []);
-              if (response === this._getOnceReturnValue() || listener.once === true) {
-                this.removeListener(evt, listener.listener);
-              }
-            }
-          }
-        }
-        return this;
-      };
-
-      EventEmitter.prototype.trigger = alias("emitEvent");
-
-      EventEmitter.prototype.emit = function(evt) {
-        var args;
-        args = Array.prototype.slice.call(arguments, 1);
-        return this.emitEvent(evt, args);
-      };
-
-      EventEmitter.prototype.setOnceReturnValue = function(value) {
-        this._onceReturnValue = value;
-        return this;
-      };
-
-      EventEmitter.prototype._getOnceReturnValue = function() {
-        if (this.hasOwnProperty("_onceReturnValue")) {
-          return this._onceReturnValue;
-        } else {
-          return true;
-        }
-      };
-
-      EventEmitter.prototype._getEvents = function() {
-        return this._events || (this._events = {});
-      };
-
-      return EventEmitter;
-
-    })();
-    if (typeof define === "function" && define.amd) {
-      define("eventEmitter/EventEmitter", [], function() {
-        return EventEmitter;
-      });
-    } else if (typeof module === "object" && module.exports) {
-      module.exports = EventEmitter;
-    } else {
-      this.EventEmitter = EventEmitter;
-    }
-  }).call(this);
-
-  (function(window) {
-    var bind, docElem, eventie, unbind;
-    docElem = document.documentElement;
-    bind = function() {};
-    if (docElem.addEventListener) {
-      bind = function(obj, type, fn) {
-        obj.addEventListener(type, fn, false);
-      };
-    } else if (docElem.attachEvent) {
-      bind = function(obj, type, fn) {
-        obj[type + fn] = (fn.handleEvent ? function() {
-          var event;
-          event = window.event;
-          event.target = event.target || event.srcElement;
-          fn.handleEvent.call(fn, event);
-        } : function() {
-          var event;
-          event = window.event;
-          event.target = event.target || event.srcElement;
-          fn.call(obj, event);
-        });
-        obj.attachEvent("on" + type, obj[type + fn]);
-      };
-    }
-    unbind = function() {};
-    if (docElem.removeEventListener) {
-      unbind = function(obj, type, fn) {
-        obj.removeEventListener(type, fn, false);
-      };
-    } else if (docElem.detachEvent) {
-      unbind = function(obj, type, fn) {
-        var err;
-        obj.detachEvent("on" + type, obj[type + fn]);
-        try {
-          delete obj[type + fn];
-        } catch (_error) {
-          err = _error;
-          obj[type + fn] = 'undefined';
-        }
-      };
-    }
-    eventie = {
-      bind: bind,
-      unbind: unbind
-    };
-    if (typeof define === "function" && define.amd) {
-      define("eventie/eventie", eventie);
-    } else {
-      window.eventie = eventie;
-    }
-  })(this);
-
-  (function(window) {
-    var docElemStyle, getStyleProperty, prefixes;
-    getStyleProperty = function(propName) {
-      var i, len, prefixed;
-      if (!propName) {
-        return;
-      }
-      if (typeof docElemStyle[propName] === "string") {
-        return propName;
-      }
-      propName = propName.charAt(0).toUpperCase() + propName.slice(1);
-      prefixed = void 0;
-      i = 0;
-      len = prefixes.length;
-      while (i < len) {
-        prefixed = prefixes[i] + propName;
-        if (typeof docElemStyle[prefixed] === "string") {
-          return prefixed;
-        }
-        i++;
-      }
-    };
-    prefixes = "Webkit Moz ms Ms O".split(" ");
-    docElemStyle = document.documentElement.style;
-    if (typeof define === "function" && define.amd) {
-      define("get-style-property/get-style-property", [], function() {
-        return getStyleProperty;
-      });
-    } else {
-      window.getStyleProperty = getStyleProperty;
-    }
-  })(window);
-
-
-  /**
-  getSize v1.1.4
-  measure size of elements
-   */
-
-  (function(window, undefined_) {
-    var defView, defineGetSize, getStyle, getStyleSize, getZeroSize, measurements;
-    getStyleSize = function(value) {
-      var isValid, num;
-      num = parseFloat(value);
-      isValid = value.indexOf("%") === -1 && !isNaN(num);
-      return isValid && num;
-    };
-    getZeroSize = function() {
-      var i, len, measurement, size;
-      size = {
-        width: 0,
-        height: 0,
-        innerWidth: 0,
-        innerHeight: 0,
-        outerWidth: 0,
-        outerHeight: 0
-      };
-      i = 0;
-      len = measurements.length;
-      while (i < len) {
-        measurement = measurements[i];
-        size[measurement] = 0;
-        i++;
-      }
-      return size;
-    };
-    defineGetSize = function(getStyleProperty) {
-
-      /**
-      WebKit measures the outer-width on style.width on border-box elems
-      IE & Firefox measures the inner-width
-       */
-      var boxSizingProp, getSize, isBoxSizeOuter;
-      getSize = function(elem) {
-        var borderHeight, borderWidth, i, isBorderBox, isBorderBoxSizeOuter, len, marginHeight, marginWidth, measurement, num, paddingHeight, paddingWidth, size, style, styleHeight, styleWidth, value;
-        if (typeof elem === "string") {
-          elem = document.querySelector(elem);
-        }
-        if (!elem || typeof elem !== "object" || !elem.nodeType) {
-          return;
-        }
-        style = getStyle(elem);
-        if (style.display === "none") {
-          return getZeroSize();
-        }
-        size = {};
-        size.width = elem.offsetWidth;
-        size.height = elem.offsetHeight;
-        isBorderBox = size.isBorderBox = !!(boxSizingProp && style[boxSizingProp] && style[boxSizingProp] === "border-box");
-        i = 0;
-        len = measurements.length;
-        while (i < len) {
-          measurement = measurements[i];
-          value = style[measurement];
-          num = parseFloat(value);
-          size[measurement] = (!isNaN(num) ? num : 0);
-          i++;
-        }
-        paddingWidth = size.paddingLeft + size.paddingRight;
-        paddingHeight = size.paddingTop + size.paddingBottom;
-        marginWidth = size.marginLeft + size.marginRight;
-        marginHeight = size.marginTop + size.marginBottom;
-        borderWidth = size.borderLeftWidth + size.borderRightWidth;
-        borderHeight = size.borderTopWidth + size.borderBottomWidth;
-        isBorderBoxSizeOuter = isBorderBox && isBoxSizeOuter;
-        styleWidth = getStyleSize(style.width);
-        if (styleWidth !== false) {
-          size.width = styleWidth + (isBorderBoxSizeOuter ? 0 : paddingWidth + borderWidth);
-        }
-        styleHeight = getStyleSize(style.height);
-        if (styleHeight !== false) {
-          size.height = styleHeight + (isBorderBoxSizeOuter ? 0 : paddingHeight + borderHeight);
-        }
-        size.innerWidth = size.width - (paddingWidth + borderWidth);
-        size.innerHeight = size.height - (paddingHeight + borderHeight);
-        size.outerWidth = size.width + marginWidth;
-        size.outerHeight = size.height + marginHeight;
-        return size;
-      };
-      boxSizingProp = getStyleProperty("boxSizing");
-      isBoxSizeOuter = void 0;
-      (function() {
-        var body, div, style;
-        if (!boxSizingProp) {
-          return;
-        }
-        div = document.createElement("div");
-        div.style.width = "200px";
-        div.style.padding = "1px 2px 3px 4px";
-        div.style.borderStyle = "solid";
-        div.style.borderWidth = "1px 2px 3px 4px";
-        div.style[boxSizingProp] = "border-box";
-        body = document.body || document.documentElement;
-        body.appendChild(div);
-        style = getStyle(div);
-        isBoxSizeOuter = getStyleSize(style.width) === 200;
-        body.removeChild(div);
-      })();
-      return getSize;
-    };
-    defView = document.defaultView;
-    getStyle = (defView && defView.getComputedStyle ? function(elem) {
-      return defView.getComputedStyle(elem, null);
-    } : function(elem) {
-      return elem.currentStyle;
-    });
-    measurements = ["paddingLeft", "paddingRight", "paddingTop", "paddingBottom", "marginLeft", "marginRight", "marginTop", "marginBottom", "borderLeftWidth", "borderRightWidth", "borderTopWidth", "borderBottomWidth"];
-    if (typeof define === "function" && define.amd) {
-      define("get-size/get-size", ["get-style-property/get-style-property"], defineGetSize);
-    } else {
-      window.getSize = defineGetSize(window.getStyleProperty);
-    }
-  })(window);
-
-  (function(window) {
-    var cancelAnimationFrame, defView, document, draggabillyDefinition, extend, getStyle, i, isElement, isElementDOM2, isElementQuirky, lastTime, noop, prefix, prefixes, requestAnimationFrame;
-    extend = function(a, b) {
-      var prop;
-      for (prop in b) {
-        a[prop] = b[prop];
-      }
-      return a;
-    };
-    noop = function() {};
-    draggabillyDefinition = function(classie, EventEmitter, eventie, getStyleProperty, getSize) {
-      var Draggabilly, applyGrid, disableImgOndragstart, is3d, isIE8, noDragStart, postStartEvents, setPointerPoint, transformProperty, translate;
-      noDragStart = function() {
-        return false;
-      };
-      setPointerPoint = function(point, pointer) {
-        point.x = pointer.pageX !== 'undefined' ? pointer.pageX : pointer.clientX;
-        point.y = pointer.pageY !== 'undefined' ? pointer.pageY : pointer.clientY;
-      };
-      applyGrid = function(value, grid, method) {
-        method = method || "round";
-        if (grid) {
-          return Math[method](value / grid) * grid;
-        } else {
-          return value;
-        }
-      };
-      transformProperty = getStyleProperty("transform");
-      is3d = !!getStyleProperty("perspective");
-      isIE8 = "attachEvent" in document.documentElement;
-      disableImgOndragstart = (!isIE8 ? noop : function(handle) {
-        var i, images, img, len, _results;
-        if (handle.nodeName === "IMG") {
-          handle.ondragstart = noDragStart;
-        }
-        images = handle.querySelectorAll("img");
-        i = 0;
-        len = images.length;
-        _results = [];
-        while (i < len) {
-          img = images[i];
-          img.ondragstart = noDragStart;
-          _results.push(i++);
-        }
-        return _results;
-      });
-      translate = (is3d ? function(x, y) {
-        return "translate3d( " + x + "px, " + y + "px, 0)";
-      } : function(x, y) {
-        return "translate( " + x + "px, " + y + "px)";
-      });
-      postStartEvents = {
-        mousedown: [],
-        touchstart: [],
-        pointerdown: [],
-        MSPointerDown: []
-      };
-      Draggabilly = (function(_super) {
-        __extends(Draggabilly, _super);
-
-        function Draggabilly(element, options) {
-          this.options = options;
-          this.element = typeof element === "string" ? document.querySelector(element) : element;
-          this.options = extend({}, this.options);
-          extend(this.options, options);
-          this._create();
-        }
-
-        Draggabilly.prototype._create = function() {
-          var style;
-          this.position = {};
-          this._getPosition();
-          this.startPoint = {
-            x: 0,
-            y: 0
-          };
-          this.dragPoint = {
-            x: 0,
-            y: 0
-          };
-          this.startPosition = extend({}, this.position);
-          style = getStyle(this.element);
-          if (style.position !== "relative" && style.position !== "absolute") {
-            this.element.style.position = "relative";
-          }
-          this.enable();
-          return this.setHandles();
-        };
-
-        Draggabilly.prototype.setHandles = function() {
-          var handle, i, len, _results;
-          this.handles = this.options.handle ? this.element.querySelectorAll(this.options.handle) : [this.element];
-          i = 0;
-          len = this.handles.length;
-          _results = [];
-          while (i < len) {
-            handle = this.handles[i];
-            if (window.navigator.pointerEnabled) {
-              eventie.bind(handle, "pointerdown", this);
-              handle.style.touchAction = "none";
-            } else if (window.navigator.msPointerEnabled) {
-              eventie.bind(handle, "MSPointerDown", this);
-              handle.style.msTouchAction = "none";
-            } else {
-              eventie.bind(handle, "mousedown", this);
-              eventie.bind(handle, "touchstart", this);
-              disableImgOndragstart(handle);
-            }
-            _results.push(i++);
-          }
-          return _results;
-        };
-
-        Draggabilly.prototype._getPosition = function() {
-          var style, x, y;
-          style = getStyle(this.element);
-          x = parseInt(style.left, 10);
-          y = parseInt(style.top, 10);
-          this.position.x = (isNaN(x) ? 0 : x);
-          this.position.y = (isNaN(y) ? 0 : y);
-          return this._addTransformPosition(style);
-        };
-
-        Draggabilly.prototype._addTransformPosition = function(style) {
-          var matrixValues, transform, translateX, translateY, xIndex;
-          if (!transformProperty) {
-            return;
-          }
-          transform = style[transformProperty];
-          if (transform.indexOf("matrix") !== 0) {
-            return;
-          }
-          matrixValues = transform.split(",");
-          xIndex = (transform.indexOf("matrix3d") === 0 ? 12 : 4);
-          translateX = parseInt(matrixValues[xIndex], 10);
-          translateY = parseInt(matrixValues[xIndex + 1], 10);
-          this.position.x += translateX;
-          return this.position.y += translateY;
-        };
-
-        Draggabilly.prototype.handleEvent = function(event) {
-          var method;
-          method = "on" + event.type;
-          if (this[method]) {
-            this[method](event);
-          }
-        };
-
-        Draggabilly.prototype.getTouch = function(touches) {
-          var i, len, touch;
-          i = 0;
-          len = touches.length;
-          while (i < len) {
-            touch = touches[i];
-            if (touch.identifier === this.pointerIdentifier) {
-              return touch;
-            }
-            i++;
-          }
-        };
-
-        Draggabilly.prototype.onmousedown = function(event) {
-          var button;
-          button = event.button;
-          if (button && (button !== 0 && button !== 1)) {
-            return;
-          }
-          this.dragStart(event, event);
-        };
-
-        Draggabilly.prototype.ontouchstart = function(event) {
-          if (this.isDragging) {
-            return;
-          }
-          this.dragStart(event, event.changedTouches[0]);
-        };
-
-        Draggabilly.prototype.onMSPointerDown = function(event) {
-          if (this.isDragging) {
-            return;
-          }
-          this.dragStart(event, event);
-        };
-
-        Draggabilly.prototype.onpointerdown = function(event) {
-          if (this.isDragging) {
-            return;
-          }
-          this.dragStart(event, event);
-        };
-
-        Draggabilly.prototype.dragStart = function(event, pointer) {
-          if (!this.isEnabled) {
-            return;
-          }
-          if (event.preventDefault) {
-            event.preventDefault();
-          } else {
-            event.returnValue = false;
-          }
-          this.pointerIdentifier = pointer.pointerId !== 'undefined' ? pointer.pointerId : pointer.identifier;
-          this._getPosition();
-          this.measureContainment();
-          setPointerPoint(this.startPoint, pointer);
-          this.startPosition.x = this.position.x;
-          this.startPosition.y = this.position.y;
-          this.setLeftTop();
-          this.dragPoint.x = 0;
-          this.dragPoint.y = 0;
-          this._bindEvents({
-            events: postStartEvents[event.type],
-            node: (event.preventDefault ? window : document)
-          });
-          classie.addClass(this.element, "is-dragging");
-          this.isDragging = true;
-          this.emitEvent("dragStart", []);
-          this.animate();
-        };
-
-        Draggabilly.prototype._bindEvents = function(args) {
-          var event, i, len;
-          i = 0;
-          len = args.events.length;
-          while (i < len) {
-            event = args.events[i];
-            eventie.bind(args.node, event, this);
-            i++;
-          }
-          this._boundEvents = args;
-        };
-
-        Draggabilly.prototype._unbindEvents = function() {
-          var args, event, i, len;
-          args = this._boundEvents;
-          if (!args || !args.events) {
-            return;
-          }
-          i = 0;
-          len = args.events.length;
-          while (i < len) {
-            event = args.events[i];
-            eventie.unbind(args.node, event, this);
-            i++;
-          }
-          return delete this._boundEvents;
-        };
-
-        Draggabilly.prototype.measureContainment = function() {
-          var container, containerRect, containment, elemRect;
-          containment = this.options.containment;
-          if (!containment) {
-            return;
-          }
-          this.size = getSize(this.element);
-          elemRect = this.element.getBoundingClientRect();
-          container = (isElement(containment) ? containment : (typeof containment === "string" ? document.querySelector(containment) : this.element.parentNode));
-          this.containerSize = getSize(container);
-          containerRect = container.getBoundingClientRect();
-          return this.relativeStartPosition = {
-            x: elemRect.left - containerRect.left,
-            y: elemRect.top - containerRect.top
-          };
-        };
-
-        Draggabilly.prototype.onmousemove = function(event) {
-          this.dragMove(event, event);
-        };
-
-        Draggabilly.prototype.onMSPointerMove = function(event) {
-          if (event.pointerId === this.pointerIdentifier) {
-            this.dragMove(event, event);
-          }
-        };
-
-        Draggabilly.prototype.onpointermove = function(event) {
-          if (event.pointerId === this.pointerIdentifier) {
-            this.dragMove(event, event);
-          }
-        };
-
-        Draggabilly.prototype.ontouchmove = function(event) {
-          var touch;
-          touch = this.getTouch(event.changedTouches);
-          if (touch) {
-            this.dragMove(event, touch);
-          }
-        };
-
-        Draggabilly.prototype.dragMove = function(event, pointer) {
-          var dragX, dragY, grid, gridX, gridY;
-          setPointerPoint(this.dragPoint, pointer);
-          dragX = this.dragPoint.x - this.startPoint.x;
-          dragY = this.dragPoint.y - this.startPoint.y;
-          grid = this.options.grid;
-          gridX = grid && grid[0];
-          gridY = grid && grid[1];
-          dragX = applyGrid(dragX, gridX);
-          dragY = applyGrid(dragY, gridY);
-          dragX = this.containDrag("x", dragX, gridX);
-          dragY = this.containDrag("y", dragY, gridY);
-          dragX = (this.options.axis === "y" ? 0 : dragX);
-          dragY = (this.options.axis === "x" ? 0 : dragY);
-          this.position.x = this.startPosition.x + dragX;
-          this.position.y = this.startPosition.y + dragY;
-          this.dragPoint.x = dragX;
-          this.dragPoint.y = dragY;
-          this.emitEvent("dragMove", []);
-        };
-
-        Draggabilly.prototype.containDrag = function(axis, drag, grid) {
-          var max, measure, min, rel;
-          if (!this.options.containment) {
-            return drag;
-          }
-          measure = (axis === "x" ? "width" : "height");
-          rel = this.relativeStartPosition[axis];
-          min = applyGrid(-rel, grid, "ceil");
-          max = this.containerSize[measure] - rel - this.size[measure];
-          max = applyGrid(max, grid, "floor");
-          return Math.min(max, Math.max(min, drag));
-        };
-
-        Draggabilly.prototype.onmouseup = function(event) {
-          return this.dragEnd(event, event);
-        };
-
-        Draggabilly.prototype.onMSPointerUp = function(event) {
-          if (event.pointerId === this.pointerIdentifier) {
-            return this.dragEnd(event, event);
-          }
-        };
-
-        Draggabilly.prototype.onpointerup = function(event) {
-          if (event.pointerId === this.pointerIdentifier) {
-            return this.dragEnd(event, event);
-          }
-        };
-
-        Draggabilly.prototype.ontouchend = function(event) {
-          var touch;
-          touch = this.getTouch(event.changedTouches);
-          if (touch) {
-            return this.dragEnd(event, touch);
-          }
-        };
-
-        Draggabilly.prototype.dragEnd = function(event, pointer) {
-          this.isDragging = false;
-          delete this.pointerIdentifier;
-          if (transformProperty) {
-            this.element.style[transformProperty] = "";
-            this.setLeftTop();
-          }
-          this._unbindEvents();
-          classie.removeClass(this.element, "is-dragging");
-          return this.emitEvent("dragEnd", []);
-        };
-
-        Draggabilly.prototype.onMSPointerCancel = function(event) {
-          if (event.pointerId === this.pointerIdentifier) {
-            return this.dragEnd(event, event);
-          }
-        };
-
-        Draggabilly.prototype.onpointercancel = function(event) {
-          if (event.pointerId === this.pointerIdentifier) {
-            return this.dragEnd(event, event);
-          }
-        };
-
-        Draggabilly.prototype.ontouchcancel = function(event) {
-          var touch;
-          touch = this.getTouch(event.changedTouches);
-          return this.dragEnd(event, touch);
-        };
-
-        Draggabilly.prototype.animate = function() {
-          var animateFrame, _this;
-          if (!this.isDragging) {
-            return;
-          }
-          this.positionDrag();
-          _this = this;
-          return requestAnimationFrame(animateFrame = function() {
-            return _this.animate();
-          });
-        };
-
-        Draggabilly.prototype.setLeftTop = function() {
-          this.element.style.left = this.position.x + "px";
-          return this.element.style.top = this.position.y + "px";
-        };
-
-        Draggabilly.prototype.positionDrag = transformProperty ? function() {
-          return this.element.style[transformProperty] = translate(this.dragPoint.x, this.dragPoint.y);
-        } : Draggabilly.setLeftTop;
-
-        Draggabilly.prototype.enable = function() {
-          return this.isEnabled = true;
-        };
-
-        Draggabilly.prototype.disable = function() {
-          this.isEnabled = false;
-          if (this.isDragging) {
-            return this.dragEnd();
-          }
-        };
-
-        return Draggabilly;
-
-      })(EventEmitter);
-      return Draggabilly;
-    };
-    document = window.document;
-    defView = document.defaultView;
-    getStyle = defView && defView.getComputedStyle ? function(elem) {
-      return defView.getComputedStyle(elem, null);
-    } : function(elem) {
-      return elem.currentStyle;
-    };
-    isElement = typeof HTMLElement === "object" ? isElementDOM2 = function(obj) {
-      return obj instanceof HTMLElement;
-    } : isElementQuirky = function(obj) {
-      return obj && typeof obj === "object" && obj.nodeType === 1 && typeof obj.nodeName === "string";
-    };
-    lastTime = 0;
-    prefixes = "webkit moz ms o".split(" ");
-    requestAnimationFrame = window.requestAnimationFrame;
-    cancelAnimationFrame = window.cancelAnimationFrame;
-    prefix = void 0;
-    i = 0;
-    while (i < prefixes.length) {
-      if (requestAnimationFrame && cancelAnimationFrame) {
-        break;
-      }
-      prefix = prefixes[i];
-      requestAnimationFrame = requestAnimationFrame || window[prefix + "RequestAnimationFrame"];
-      cancelAnimationFrame = cancelAnimationFrame || window[prefix + "CancelAnimationFrame"] || window[prefix + "CancelRequestAnimationFrame"];
-      i++;
-    }
-    if (!requestAnimationFrame || !cancelAnimationFrame) {
-      requestAnimationFrame = function(callback) {
-        var currTime, id, timeToCall;
-        currTime = new Date().getTime();
-        timeToCall = Math.max(0, 16 - (currTime - lastTime));
-        id = window.setTimeout(function() {
-          callback(currTime + timeToCall);
-        }, timeToCall);
-        lastTime = currTime + timeToCall;
-        return id;
-      };
-      cancelAnimationFrame = function(id) {
-        window.clearTimeout(id);
-      };
-    }
-    return window.Draggabilly = draggabillyDefinition(window.classie, window.EventEmitter, window.eventie, window.getStyleProperty, window.getSize);
-  })(window);
 
 
   /*
