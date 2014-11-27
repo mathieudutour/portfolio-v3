@@ -100,8 +100,8 @@ var signup = function (req, res, next) {
           moves : null,
           other_sport : null,
           other_last : null,
-          projects : null,
-          diplomas : null,
+          projects : [],
+          diplomas : [],
           sleep : null,
           heartrate : null,
           rescuetime : null

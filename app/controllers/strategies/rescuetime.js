@@ -3,46 +3,52 @@ var db = require('../../models/').db;
 var request = require('request');
 var Cron = require('cron').CronJob;
 
-exports.strategy = function (req, res) {
-  var rescuetime = {
-    api_key: req.body.api_key,
-    first_track: {
-      name: req.body.first_track,
-      image: req.body.image_first_track,
-      count: 0
-    },
-    second_track: {
-      name: req.body.second_track,
-      image: req.body.image_second_track,
-      count: 0
-    }
-  };
+var apiKey = function (req, res) {
+  var api_key = req.body.api_key;
   var today = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate();
-  request("https://www.rescuetime.com/anapi/data?format=json&key="+rescuetime.api_key+"&restrict_begin=2000-01-01&restrict_end="+today, function (error, response, body) {
+  request("https://www.rescuetime.com/anapi/data?format=json&key="+api_key+"&restrict_begin=2000-01-01&restrict_end="+today, function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      body = JSON.parse(body).rows;
-      if (body && body.length && body.length > 0) {
-        var count = 0;
-        for(var i = 0; i < body.length; i++) {
-          if(body[i][3] == rescuetime.first_track.name) {
-            rescuetime.first_track.count = (body[i][1] / 3600).toFixed(0);
-            count++;
-          } else if (body[i][3] == rescuetime.second_track.name) {
-            rescuetime.second_track.count = (body[i][1] / 3600).toFixed(0);
-            count++;
-          }
-          if(count >= 2) {
-            break;
-          }
-        }
-      }
-      db.users.update({_id: req.user._id}, {$set: {'providers.rescuetime': rescuetime}}, function() {
+      db.users.update({_id: req.user._id}, {$set: {'providers.rescuetime.api_key': api_key}}, function() {
         return res.redirect('/admin');
       });
     } else {
       return res.redirect('/admin');
     }
   });
+};
+
+var track = function (req, res) {
+  var api_key = req.body.api_key;
+  var track = {
+    index: req.body.index,
+    name: req.body.name,
+    image: req.body.image,
+    count: 0
+  };
+  var today = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate();
+  request("https://www.rescuetime.com/anapi/data?format=json&key="+api_key+"&restrict_begin=2000-01-01&restrict_end="+today, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      body = JSON.parse(body).rows;
+      if (body && body.length && body.length > 0) {
+        for(var i = 0; i < body.length; i++) {
+          if(body[i][3] == track.name) {
+            track.count = (body[i][1] / 3600).toFixed(0);
+            break;
+          }
+        }
+      }
+      db.users.update({_id: req.user._id, 'providers.rescuetime.tracks.index': track.index}, {$set: {'providers.rescuetime.tracks.$': track}}, function() {
+        return res.redirect('/admin');
+      });
+    } else {
+      return res.redirect('/admin');
+    }
+  });
+};
+
+exports.strategy = {
+  apiKey: apiKey,
+  track: track
 };
 
 // Rescue Time Cron
@@ -57,27 +63,22 @@ new Cron({
           request("https://www.rescuetime.com/anapi/data?format=json&key="+user.providers.rescuetime.api_key+"&restrict_begin=2000-01-01&restrict_end="+today, function (error, response, body) {
             if (!error && response.statusCode == 200) {
               body = JSON.parse(body).rows;
-              if (body && body.length && body.length > 0) {
-                var count = 0;
-                for(var i = 0; i < body.length; i++) {
-                  if(body[i][3] == user.providers.rescuetime.first_track.name) {
-                    user.providers.rescuetime.first_track.count = (body[i][1] / 3600).toFixed(0);
-                    count++;
-                  } else if (body[i][3] == user.providers.rescuetime.second_track.name) {
-                    user.providers.rescuetime.second_track.count = (body[i][1] / 3600).toFixed(0);
-                    count++;
-                  }
-                  if(count >= 2) {
-                    break;
+              if (body && body.length && body.length > 0 && user.providers.rescuetime.tracks.length > 0) {
+                for(var j = 0; j < user.providers.rescuetime.tracks.length; j++) {
+                  for(var i = 0; i < body.length; i++) {
+                    if(body[i][3] == user.providers.rescuetime.tracks[j].name) {
+                      user.providers.rescuetime.tracks[i].count = (body[i][1] / 3600).toFixed(0);
+                      break;
+                    }
                   }
                 }
               }
-              db.users.update({_id: user._id}, {$set: {'providers.rescuetime.first_track.count': user.providers.rescuetime.first_track.count, 'providers.rescuetime.second_track.count': user.providers.rescuetime.second_track.count}}, function() {});
+              db.users.update({_id: user._id}, {$set: {'providers.rescuetime.tracks': user.providers.rescuetime.tracks}}, function() {});
             }
           });
         });
       } else {
-        return console.log("Twitter not configured yet");
+        return console.log("Rescuetime not configured yet");
       }
     });
   },

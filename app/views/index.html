@@ -32,14 +32,14 @@
       <div class="circle-container social github disabled"><div class="circle"><img src="images/github.svg"></div><div class="label">Github</div></div>
     <% } %>
     <!-- 1, 5 -->
-    <% if(projects && projects.first_project) { %>
-      <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects.first_project.icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects.first_project.description) %></div></div></div><div class="label"><%= projects.first_project.name %></div></div>
+    <% if(projects && projects.length>0 ) { %>
+      <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects[0].icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects[0].description) %></div></div></div><div class="label"><%= projects[0].name %></div></div>
     <% } else { %>
     <div class="circle-container job disabled"><div class="circle"><img src="images/project.svg"></div><div class="label">Project One</div></div>
     <% } %>
     <!-- 1, 6 -->
-    <% if(projects && projects.second_project) { %>
-    <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects.second_project.icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects.second_project.description) %></div></div></div><div class="label"><%= projects.second_project.name %></div></div>
+    <% if(projects && projects.second_project>1) { %>
+    <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects[1].icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects[1].description) %></div></div></div><div class="label"><%= projects[1].name %></div></div>
     <% } else { %>
     <div class="circle-container job disabled"><div class="circle"><img src="images/project.svg"></div><div class="label">Project Two</div></div>
     <% } %>
@@ -56,14 +56,14 @@
       <div class="circle-container social twitter disabled"><div class="circle"><img src="images/twitter.svg"></div><div class="label">Twitter</div></div>
     <% } %>
     <!-- 2, 4 -->
-    <% if(projects && projects.third_project) { %>
-    <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects.third_project.icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects.third_project.description) %></div></div></div><div class="label"><%= projects.third_project.name %></div></div>
+    <% if(projects && projects.length>2) { %>
+    <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects[2].icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects[2].description) %></div></div></div><div class="label"><%= projects[2].name %></div></div>
     <% } else { %>
     <div class="circle-container job disabled"><div class="circle"><img src="images/project.svg"></div><div class="label">Project Three</div></div>
     <% } %>
     <!-- 2, 5 -->
-    <% if(projects && projects.last_project) { %>
-    <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects.last_project.icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects.last_project.description) %></div></div></div><div class="label"><%= projects.last_project.name %></div></div>
+    <% if(projects && projects.length>3) { %>
+    <div class="circle-container job full-screen"><div class="circle"><img src="<%= projects[3].icon %>"><div class="content"><span class="close">x</span><div><%- marked(projects[3].description) %></div></div></div><div class="label"><%= projects[3].name %></div></div>
     <% } else { %>
     <div class="circle-container job disabled"><div class="circle"><img src="images/project.svg"></div><div class="label">Project Four</div></div>
     <% } %>
@@ -76,14 +76,14 @@
     <!-- 3, 4 -->
     <div class="circle-container social presentation"><div class="circle"><img src="<%= basic.avatar %>"></div><div class="label"><%= basic.first_name %> <%= basic.last_name %></div></div>
       <!-- 3, 5 -->
-    <% if(diplomas && diplomas.first_diploma) { %>
-    <div class="circle-container job full-screen"><div class="circle"><img src="<%= diplomas.first_diploma.icon %>"><div class="content"><span class="close">x</span><div><%- marked(diplomas.first_diploma.description) %></div></div></div><div class="label"><%= diplomas.first_diploma.name %></div></div>
+    <% if(diplomas && diplomas.length>0) { %>
+    <div class="circle-container job full-screen"><div class="circle"><img src="<%= diplomas[0].icon %>"><div class="content"><span class="close">x</span><div><%- marked(diplomas[0].description) %></div></div></div><div class="label"><%= diplomas[0].name %></div></div>
     <% } else { %>
     <div class="circle-container job disabled"><div class="circle"><img src="images/diploma.svg"></div><div class="label">Diploma One</div></div>
     <% } %>
       <!-- 3, 6 -->
-    <% if(diplomas && diplomas.second_diploma) { %>
-    <div class="circle-container job full-screen"><div class="circle"><img src="<%= diplomas.second_diploma.icon %>"><div class="content"><span class="close">x</span><div><%- marked(diplomas.second_diploma.description) %></div></div></div><div class="label"><%= diplomas.second_diploma.name %></div></div>
+    <% if(diplomas && diplomas.length>1) { %>
+    <div class="circle-container job full-screen"><div class="circle"><img src="<%= diplomas[1].icon %>"><div class="content"><span class="close">x</span><div><%- marked(diplomas[1].description) %></div></div></div><div class="label"><%= diplomas[1].name %></div></div>
     <% } else { %>
     <div class="circle-container job disabled"><div class="circle"><img src="images/diploma.svg"></div><div class="label">Diploma Two</div></div>
     <% } %>
@@ -151,17 +151,19 @@
     <div class="circle-container divers"><a href="/admin" class="circle"><img src="images/cog.svg"></a><div class="label">Administration</div></div>
     <!-- 8, 3 -->
     <div class="circle-container divers"><div class="circle"></div><div class="label">Find something</div></div>
-    <% if(rescuetime) { %>
     <!-- 8, 4 -->
-    <div class="circle-container sport rescuetime"><div class="circle"><img src="<%= rescuetime.first_track.image %>"><p><%= rescuetime.first_track.count %></p></div><div class="label">Hours on <%= rescuetime.first_track.name %></div></div>
-    <!-- 8, 5 -->
-    <div class="circle-container sport rescuetime"><div class="circle"><img src="<%= rescuetime.second_track.image %>"><p><%= rescuetime.second_track.count %></p></div><div class="label">Hours on <%= rescuetime.second_track.name %></div></div>
+    <% if(rescuetime && rescuetime.tracks && rescuetime.tracks.length>0) { %>
+    <div class="circle-container sport rescuetime"><div class="circle"><img src="<%= rescuetime.tracks[0].image %>"><p><%= rescuetime.tracks[0].count %></p></div><div class="label">Hours on <%= rescuetime.tracks[0].name %></div></div>
     <% } else { %>
-    <!-- 8, 4 -->
-    <div class="circle-container sport disabled"><div class="circle"></div><div class="label">Time on Bracket</div></div>
-    <!-- 8, 5 -->
-    <div class="circle-container sport disabled"><div class="circle"></div><div class="label">Time on Sketch</div></div>
+      <div class="circle-container sport disabled"><div class="circle"></div><div class="label">Time on Bracket</div></div>
     <% } %>
+    <!-- 8, 5 -->
+    <% if(rescuetime && rescuetime.tracks && rescuetime.tracks.length>1) { %>
+    <div class="circle-container sport rescuetime"><div class="circle"><img src="<%= rescuetime.tracks[1].image %>"><p><%= rescuetime.tracks[1].count %></p></div><div class="label">Hours on <%= rescuetime.tracks[1].name %></div></div>
+    <% } else { %>
+      <div class="circle-container sport disabled"><div class="circle"></div><div class="label">Time on Bracket</div></div>
+    <% } %>
+
     <div class="caption social">Social</div>
     <div class="caption job">Projects</div>
     <div class="caption divers">Divers</div>

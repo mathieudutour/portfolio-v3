@@ -19,11 +19,13 @@ exports.ensureAuthenticated = function ensureAuthenticated(req, res, next) {
   res.redirect('/login');
 };
 
+exports.diplomaStrategy = require('./diploma').strategy;
 exports.facebookStrategy = require('./facebook').strategy;
 exports.githubStrategy = require('./github').strategy;
 exports.linkedinStrategy = require('./linkedin').strategy;
 exports.localStrategy = require('./local').strategy;
 exports.movesStrategy = require('./moves').strategy;
+exports.projectsStrategy = require('./projects').strategy;
 exports.rescuetimeStrategy = require('./rescuetime').strategy;
 exports.stravaStrategy = require('./strava').strategy;
 exports.twitterStrategy = require('./twitter').strategy;

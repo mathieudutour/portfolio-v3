@@ -454,12 +454,6 @@ do (window, document) ->
       @minx = Math.min(parseFloat(Math.min(@circles[0].x, @circles[@numberOfCol].x)) - parseFloat(@circleDiameter)*2/3, -parseFloat(@circleDiameter)*2/3)
       @maxx = Math.max(Math.max(@circles[@circles.length-1].x, @circles[@circles.length-1-@numberOfCol].x) + parseFloat(@circleDiameter)*2/3, @ew-parseFloat(@circleDiameter)*2/3)
       @rx = @maxx - @minx
-      console.log @minx
-      console.log @maxx
-      console.log @rx
-      console.log @miny
-      console.log @maxy
-      console.log @ry
 
     appeared: () ->
       addClass(@element, "appeared")
