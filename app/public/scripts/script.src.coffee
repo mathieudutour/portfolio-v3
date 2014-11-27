@@ -679,6 +679,7 @@ do (window, document) ->
     remove: removeClass
   #Expose Classie
   window.classie = classie
+
 ###
  * Draggable.coffee
  * @author Mathieu Dutour - @MathieuDutour
@@ -838,10 +839,6 @@ do (window, document) ->
         @callbackDragStart(event)
 
     onMouseMove: (event) ->
-      event.preventDefault()
-      unless @moved
-        addClass(@element, 'moved')
-        @moved = true
       {clientX, clientY} = @getCoordinatesFromEvent(event)
       @ix = clientX
       @iy = clientY

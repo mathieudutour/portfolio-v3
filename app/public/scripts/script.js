@@ -896,11 +896,6 @@
 
       Draggable.prototype.onMouseMove = function(event) {
         var clientX, clientY, _ref;
-        event.preventDefault();
-        if (!this.moved) {
-          addClass(this.element, 'moved');
-          this.moved = true;
-        }
         _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
         this.ix = clientX;
         this.iy = clientY;
