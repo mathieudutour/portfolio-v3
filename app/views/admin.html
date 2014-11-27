@@ -175,7 +175,7 @@
       </div>
       <div class="face back">
         <form action="/admin/rescuetime/apiKey" method="post">
-          <input type="text" name="api_key" placeholder="API Key" id="api_key"<% if(providers.rescuetime && providers.rescuetime.api_key) { %> value="<%= providers.rescuetime.api_key %>"<% } %> required>
+          <input type="text" name="api_key" placeholder="API Key"<% if(providers.rescuetime && providers.rescuetime.api_key) { %> value="<%= providers.rescuetime.api_key %>"<% } %> required>
           <button class="button" type="submit">Go !</button>
         </form>
         <hr />

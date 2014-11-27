@@ -9,6 +9,7 @@ exports.strategy = function (req, res) {
     description: req.body.description,
     url: req.body.url
   };
+  console.log(diploma);
   db.users.update({_id: req.user._id, 'providers.diplomas.index': req.body.index}, {$set: {"providers.diplomas.$": diploma}}, function() {
     return res.redirect('/admin');
   });
