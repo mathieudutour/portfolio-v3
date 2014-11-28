@@ -318,7 +318,7 @@
             var clientX, clientY, _ref1;
             event.preventDefault();
             if (!this.moved) {
-              addClass(this.element, 'moved');
+              classie.addClass(this.element, 'moved');
               this.moved = true;
             }
             _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
@@ -332,7 +332,7 @@
             var clientX, clientY, _ref1;
             event.preventDefault();
             if (!this.moved) {
-              addClass(this.element, 'moved');
+              classie.addClass(this.element, 'moved');
               this.moved = true;
             }
             _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
@@ -344,7 +344,7 @@
             var clientX, clientY, _ref1;
             event.preventDefault();
             if (!this.moved) {
-              addClass(this.element, 'moved');
+              classie.addClass(this.element, 'moved');
               this.moved = true;
             }
             _ref1 = this.getCoordinatesFromEvent(event), clientX = _ref1.clientX, clientY = _ref1.clientY;
@@ -506,7 +506,7 @@
 
       CirclesUI.prototype.appeared = function() {
         var addCSSRule, css, keyframes, s, self;
-        addClass(this.element, "appeared");
+        classie.addClass(this.element, "appeared");
         this.moved = false;
         css = "" + this.vendorPrefix.css + "animation : appear 1s; " + this.vendorPrefix.css + "animation-delay: -400ms;";
         keyframes = "0% { " + this.vendorPrefix.css + "transform:translate3d(" + ((this.ew - this.circleDiameter) / 2) + "px, " + ((this.eh - this.circleDiameter) / 2) + "px, 0); opacity: 0; } 40% { opacity: 0; }";
@@ -529,7 +529,7 @@
         }
         self = this;
         return setTimeout((function() {
-          return removeClass(self.element, "appeared");
+          return classie.removeClass(self.element, "appeared");
         }), 1000);
       };
 
@@ -611,22 +611,22 @@
 
       CirclesUI.prototype.setCirclePosition = function(circle, forceUpdate) {
         if (circle.x > -this.circleDiameter && circle.x < this.ew + this.circleDiameter && circle.y > -this.circleDiameter && circle.y < this.eh + this.circleDiameter) {
-          addClass(circle, this.classVisible);
+          classie.addClass(circle, this.classVisible);
           if (circle.x > this.circleDiameter * 1 / 2 && circle.x < this.ew - this.circleDiameter * 3 / 2 && circle.y > this.circleDiameter * 1 / 3 && circle.y < this.eh - this.circleDiameter * 3 / 2) {
-            if (!hasClass(circle, this.classBig)) {
-              addClass(circle, this.classBig);
+            if (!classie.hasClass(circle, this.classBig)) {
+              classie.addClass(circle, this.classBig);
               return this.setPositionAndScale(circle, circle.x, circle.y, 1, true);
             } else {
               return this.setPositionAndScale(circle, circle.x, circle.y, 1, forceUpdate);
             }
-          } else if (hasClass(circle, this.classBig)) {
-            removeClass(circle, this.classBig);
+          } else if (classie.hasClass(circle, this.classBig)) {
+            classie.removeClass(circle, this.classBig);
             return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333, true);
           } else {
             return this.setPositionAndScale(circle, circle.x, circle.y, 0.33333, forceUpdate);
           }
-        } else if (hasClass(circle, this.classVisible)) {
-          return removeClass(circle, this.classVisible);
+        } else if (classie.hasClass(circle, this.classVisible)) {
+          return classie.removeClass(circle, this.classVisible);
         }
       };
 
@@ -913,10 +913,15 @@
       };
 
       Draggable.prototype.onMouseMove = function(event) {
-        var clientX, clientY, _ref;
+        var clientX, clientY, droppable, _i, _len, _ref, _ref1;
         _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
         this.ix = clientX;
         this.iy = clientY;
+        _ref1 = this.droppables;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          droppable = _ref1[_i];
+          droppable.highlight(this);
+        }
         return this.callbackDragging(event);
       };
 
@@ -939,7 +944,8 @@
           this.handle.addEventListener('mousedown', this.onMouseDown);
           this.handle.addEventListener('mouseup', this.onMouseUp);
           this.handle.addEventListener('touchstart', this.onMouseDown);
-          return this.handle.addEventListener('touchend', this.onMouseUp);
+          this.handle.addEventListener('touchend', this.onMouseUp);
+          return window.addEventListener('resize', this.onWindowResize);
         }
       };
 
@@ -950,7 +956,8 @@
           this.handle.removeEventListener('mousedown', this.onMouseDown);
           this.handle.removeEventListener('mouseup', this.onMouseUp);
           this.handle.removeEventListener('touchstart', this.onMouseDown);
-          return this.handle.removeEventListener('touchend', this.onMouseUp);
+          this.handle.removeEventListener('touchend', this.onMouseUp);
+          return window.addEventListener('resize', this.onWindowResize);
         }
       };
 
@@ -1048,11 +1055,11 @@
         };
         self = this;
         droppable = find(this.droppables, function(droppable) {
-          return droppable.isDroppable(self.element);
+          return droppable.isDroppable(self);
         });
         this.callbackDrop(event, droppable != null);
         if (droppable != null) {
-          return droppable.accept(this.element);
+          return droppable.accept(this);
         } else {
           return this.goBack();
         }
@@ -1080,27 +1087,20 @@
     var DEFAULTS, Draggable, NAME;
     NAME = 'Droppable';
     DEFAULTS = {
-      axis: null,
-      containment: false,
-      grid: [1, 1],
-      handle: false,
+      percentageIn: 0.5,
       precision: 1,
-      classDragging: "is-dragging",
-      callbackDragStart: function() {},
-      callbackDragging: function() {},
-      callbackDrop: function() {},
-      droppables: []
+      classDroppable: "is-droppable",
+      classNotDroppable: "is-droppable",
+      callbackDrop: function() {}
     };
     return Draggable = (function() {
       function Draggable(element, options) {
-        var data, key, _ref;
+        var data, key;
         this.element = element;
         data = {
-          axis: this.data(this.element, 'wrap'),
-          containment: this.data(this.element, 'relative-input'),
-          handle: this.data(this.element, 'clipe-relative-input'),
-          precision: this.data(this.element, 'invert-x'),
-          classDragging: this.data(this.element, 'invert-y')
+          percentageIn: this.data(this.element, 'percentageIn'),
+          classDroppable: this.data(this.element, 'class-droppable'),
+          classNotDroppable: this.data(this.element, 'class-not-droppable')
         };
         for (key in data) {
           if (data[key] === null) {
@@ -1108,69 +1108,11 @@
           }
         }
         this.extend(this, DEFAULTS, options, data);
-        this.handle = this.element;
-        this.started = false;
-        this.dragging = false;
-        this.raf = null;
         this.bounds = null;
         this.ex = 0;
         this.ey = 0;
         this.ew = 0;
         this.eh = 0;
-        this.ww = 0;
-        this.wh = 0;
-        this.fix = 0;
-        this.fiy = 0;
-        this.ix = 0;
-        this.iy = 0;
-        this.vendorPrefix = (function() {
-          var dom, pre, styles;
-          styles = window.getComputedStyle(document.documentElement, "");
-          pre = (Array.prototype.slice.call(styles).join("").match(/-(moz|webkit|ms)-/) || (styles.OLink === "" && ["", "o"]))[1];
-          dom = "WebKit|Moz|MS|O".match(new RegExp("(" + pre + ")", "i"))[1];
-          return {
-            dom: dom,
-            lowercase: pre,
-            css: "-" + pre + "-",
-            js: pre[0].toUpperCase() + pre.substr(1)
-          };
-        })();
-        _ref = (function(transform) {
-          var el2d, el3d, has2d, has3d;
-          el2d = document.createElement("p");
-          el3d = document.createElement("p");
-          has2d = void 0;
-          has3d = void 0;
-          document.body.insertBefore(el2d, null);
-          if (typeof el2d.style[transform] !== 'undefined') {
-            document.body.insertBefore(el3d, null);
-            el2d.style[transform] = "translate(1px,1px)";
-            has2d = window.getComputedStyle(el2d).getPropertyValue(transform);
-            el3d.style[transform] = "translate3d(1px,1px,1px)";
-            has3d = window.getComputedStyle(el3d).getPropertyValue(transform);
-            document.body.removeChild(el3d);
-          }
-          document.body.removeChild(el2d);
-          return [typeof has2d !== 'undefined' && has2d.length > 0 && has2d !== "none", typeof has3d !== 'undefined' && has3d.length > 0 && has3d !== "none"];
-        })(this.vendorPrefix.css + 'transform'), this.transform2DSupport = _ref[0], this.transform3DSupport = _ref[1];
-        this.setPosition = this.transform3DSupport ? function(x, y) {
-          x = x.toFixed(this.precision) + 'px';
-          y = y.toFixed(this.precision) + 'px';
-          return this.css(this.element, this.vendorPrefix.js + 'Transform', 'translate3d(' + x + ',' + y + ',0)');
-        } : this.transform2DSupport ? function(element, x, y, s) {
-          x = x.toFixed(this.precision) + 'px';
-          y = y.toFixed(this.precision) + 'px';
-          return this.css(this.element, this.vendorPrefix.js + 'Transform', 'translate(' + x + ',' + y + ')');
-        } : function(element, x, y, s) {
-          x = x.toFixed(this.precision) + 'px';
-          y = y.toFixed(this.precision) + 'px';
-          this.element.style.left = x;
-          return this.element.style.top = y;
-        };
-        this.onMouseDown = this.onMouseDown.bind(this);
-        this.onMouseMove = this.onMouseMove.bind(this);
-        this.onMouseUp = this.onMouseUp.bind(this);
-        this.onAnimationFrame = this.onAnimationFrame.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
         this.initialise();
       }
@@ -1213,92 +1155,38 @@
         }
       };
 
-      Draggable.prototype.onAnimationFrame = function(now) {
-        this.setPosition(this.ix - this.fix + this.offsetx, this.iy - this.fiy + this.offsety);
-        return this.raf = requestAnimationFrame(this.onAnimationFrame);
+      Draggable.prototype.getOffset = function(el) {
+        var offset;
+        offset = el.getBoundingClientRect();
+        return {
+          top: offset.top + this.scrollY(),
+          left: offset.left + this.scrollX()
+        };
       };
 
-      Draggable.prototype.getComputedTranslate = function(obj) {
-        var mat, style, transform;
-        if (!window.getComputedStyle) {
-          return;
-        }
-        style = getComputedStyle(obj);
-        transform = style.transform || style.webkitTransform || style.mozTransform;
-        mat = transform.match(/^matrix3d\((.+)\)$/);
-        if (mat) {
-          return [parseFloat(mat[1].split(', ')[12]), parseFloat(mat[1].split(', ')[13])];
-        }
-        mat = transform.match(/^matrix\((.+)\)$/);
-        if (mat) {
-          return [parseFloat(mat[1].split(', ')[4]), parseFloat(mat[1].split(', ')[5])];
-        } else {
-          return [0, 0];
-        }
+      Draggable.prototype.scrollX = function() {
+        return window.pageXOffset || window.document.documentElement.scrollLeft;
       };
 
-      Draggable.prototype.onMouseDown = function(event) {
-        var clientX, clientY, _ref, _ref1;
-        if (!this.dragging) {
-          if ((event.changedTouches != null) && event.changedTouches.length > 0) {
-            this.activeTouch = event.changedTouches[0].identifier;
-          } else {
-            event.preventDefault();
-          }
-          _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
-          this.fix = this.ix = clientX;
-          this.fiy = this.iy = clientY;
-          _ref1 = this.getComputedTranslate(this.element), this.offsetx = _ref1[0], this.offsety = _ref1[1];
-          this.enableDrag();
-          return this.callbackDragStart(event);
-        }
+      Draggable.prototype.scrollY = function() {
+        return window.pageYOffset || window.document.documentElement.scrollTop;
       };
 
-      Draggable.prototype.onMouseMove = function(event) {
-        var clientX, clientY, _ref;
-        _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
-        this.ix = clientX;
-        this.iy = clientY;
-        return this.callbackDragging(event);
+      Draggable.prototype.isDroppable = function(draggable) {
+        var height1, offset1, offset2, width1;
+        offset1 = getOffset(draggable.element);
+        width1 = draggable.element.offsetWidth;
+        height1 = draggable.element.offsetHeight;
+        offset2 = getOffset(this.element);
+        return !(offset2.left > offset1.left + width1 - width1 * this.percentageIn || offset2.left + this.width < offset1.left + width1 * this.percentageIn || offset2.top > offset1.top + height1 - height1 * this.percentageIn || offset2.top + this.height < offset1.top + height1 * this.percentageIn);
       };
 
       Draggable.prototype.initialise = function() {
-        var style;
         this.updateDimensions();
-        if (this.transform3DSupport) {
-          this.accelerate(this.element);
-        }
-        style = window.getComputedStyle(this.element);
-        if (style.getPropertyValue('position') === 'static') {
-          this.element.style.position = 'relative';
-        }
-        return this.start();
-      };
-
-      Draggable.prototype.start = function() {
-        if (!this.started) {
-          this.started = true;
-          this.handle.addEventListener('mousedown', this.onMouseDown);
-          this.handle.addEventListener('mouseup', this.onMouseUp);
-          this.handle.addEventListener('touchstart', this.onMouseDown);
-          return this.handle.addEventListener('touchend', this.onMouseUp);
-        }
-      };
-
-      Draggable.prototype.stop = function() {
-        if (this.started) {
-          this.started = false;
-          cancelAnimationFrame(this.raf);
-          this.handle.removeEventListener('mousedown', this.onMouseDown);
-          this.handle.removeEventListener('mouseup', this.onMouseUp);
-          this.handle.removeEventListener('touchstart', this.onMouseDown);
-          return this.handle.removeEventListener('touchend', this.onMouseUp);
-        }
+        return window.addEventListener('resize', this.onWindowResize);
       };
 
       Draggable.prototype.updateDimensions = function() {
-        this.ww = window.innerWidth;
-        this.wh = window.innerHeight;
         return this.updateBounds();
       };
 
@@ -1307,104 +1195,29 @@
         this.ex = this.bounds.left;
         this.ey = this.bounds.top;
         this.ew = this.bounds.width;
-        return this.eh = this.bounds.height;
-      };
-
-      Draggable.prototype.enableDrag = function() {
-        if (!this.dragging) {
-          this.dragging = true;
-          classie.add(this.element, this.classDragging);
-          window.addEventListener('mousemove', this.onMouseMove);
-          window.addEventListener('touchmove', this.onMouseMove);
-          return this.raf = requestAnimationFrame(this.onAnimationFrame);
-        }
-      };
-
-      Draggable.prototype.disableDrag = function() {
-        if (this.dragging) {
-          this.dragging = false;
-          classie.remove(this.element, this.classDragging);
-          window.removeEventListener('mousemove', this.onMouseMove);
-          return window.removeEventListener('touchmove', this.onMouseMove);
-        }
-      };
-
-      Draggable.prototype.css = function(element, property, value) {
-        return element.style[property] = value;
-      };
-
-      Draggable.prototype.accelerate = function(element) {
-        return this.css(element, this.vendorPrefix.transform, 'translate3d(0,0,0)');
+        this.eh = this.bounds.height;
+        this.width = this.element.offsetWidth;
+        return this.height = this.element.offsetHeight;
       };
 
       Draggable.prototype.onWindowResize = function(event) {
         return this.updateDimensions();
       };
 
-      Draggable.prototype.getCoordinatesFromEvent = function(event) {
-        if ((event.touches != null) && (event.touches.length != null) && event.touches.length > 0) {
-          this.getCoordinatesFromEvent = function(event) {
-            var find, self, touch;
-            find = function(arr, f) {
-              var e, _i, _len;
-              for (_i = 0, _len = arr.length; _i < _len; _i++) {
-                e = arr[_i];
-                if (f(e)) {
-                  return e;
-                }
-              }
-            };
-            self = this;
-            touch = find(event.touches, function(touch) {
-              return touch.identifier === self.activeTouch;
-            });
-            return {
-              clientX: touch.clientX,
-              clientY: touch.clientY
-            };
-          };
+      Draggable.prototype.highlight = function(draggable) {
+        if (this.isDroppable(draggable)) {
+          return classie.add(this.element, 'highlight');
         } else {
-          this.getCoordinatesFromEvent = function(event) {
-            return {
-              clientX: event.clientX,
-              clientY: event.clientY
-            };
-          };
-        }
-        return this.getCoordinatesFromEvent(event);
-      };
-
-      Draggable.prototype.onMouseUp = function(event) {
-        var droppable, find, self;
-        this.activeTouch = null;
-        this.disableDrag();
-        cancelAnimationFrame(this.raf);
-        find = function(arr, f) {
-          var e, _i, _len;
-          for (_i = 0, _len = arr.length; _i < _len; _i++) {
-            e = arr[_i];
-            if (f(e)) {
-              return e;
-            }
-          }
-        };
-        self = this;
-        droppable = find(this.droppables, function(droppable) {
-          return droppable.isDroppable(self.element);
-        });
-        this.callbackDrop(event, droppable != null);
-        if (droppable != null) {
-          return droppable.accept(this.element);
-        } else {
-          return this.goBack();
+          return classie.remove(this.element, 'highlight');
         }
       };
 
-      Draggable.prototype.goBack = function() {
-        return this.setPosition(this.offsetx, this.offsety);
+      Draggable.prototype.collect = function(draggable) {
+        classie.remove(this.element, 'highlight');
+        return this.callbackDrop(this, draggable);
       };
 
-      window[NAME] = Draggable;
+      window[NAME] = Droppable;
 
       return Draggable;
 

@@ -67,9 +67,7 @@ do (window, document) ->
 
     getOffset: ( el ) ->
       offset = el.getBoundingClientRect()
-      return
-        top : offset.top + @scrollY()
-        left : offset.left + @scrollX()
+      return {top: offset.top + @scrollY(),left: offset.left + @scrollX()}
 
     scrollX: () ->
       window.pageXOffset or window.document.documentElement.scrollLeft
@@ -103,16 +101,13 @@ do (window, document) ->
     onWindowResize: (event) ->
       @updateDimensions()
 
-    # highlight the droppable if it's ready to collect the draggable
-	highlight: ( draggable ) ->
-      if @isDroppable( draggable.element )
-		classie.add @element, 'highlight'
+    highlight: (draggable) ->
+      if @isDroppable draggable
+        classie.add @element, 'highlight'
       else
         classie.remove @element, 'highlight'
 
-	# accepts a draggable element...
-	collect: ( draggable ) ->
-      # remove highlight class from droppable element
+    collect: (draggable) ->
       classie.remove @element, 'highlight'
       @callbackDrop this, draggable
 
