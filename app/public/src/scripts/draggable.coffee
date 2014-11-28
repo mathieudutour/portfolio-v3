@@ -18,6 +18,7 @@ do (window, document) ->
     callbackDragging: () ->
     callbackDrop: () ->
     acceptDrop: () -> yes
+    droppables: []
 
   class Draggable
     constructor : (@element, options) ->
@@ -248,7 +249,7 @@ do (window, document) ->
               return e
             return
           self = this
-          touch= find event.touches, (touch) -> touch.identifier is self.activeTouch
+          touch = find event.touches, (touch) -> touch.identifier is self.activeTouch
           return {clientX: touch.clientX, clientY: touch.clientY}
       # The user is using a mouse
       else
@@ -261,7 +262,20 @@ do (window, document) ->
       @activeTouch = null
       @disableDrag()
       cancelAnimationFrame(@raf)
-      @callbackDrop(event)
+      find = (arr, f) ->
+        for e in arr when f e
+          return e
+        return
+      self = this
+      droppable = find @droppables, (droppable) -> droppable.isDroppable(self.element)
+      @callbackDrop(event, droppable?)
+      if droppable?
+        droppable.accept(@element)
+      else
+        @goBack()
+
+    goBack: () ->
+      @setPosition(@offsetx, @offsety)
 
     # Expose CirclesUI
 

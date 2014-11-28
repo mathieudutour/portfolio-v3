@@ -749,7 +749,8 @@
       callbackDrop: function() {},
       acceptDrop: function() {
         return true;
-      }
+      },
+      droppables: []
     };
     return Draggable = (function() {
       function Draggable(element, options) {
@@ -1035,10 +1036,33 @@
       };
 
       Draggable.prototype.onMouseUp = function(event) {
+        var droppable, find, self;
         this.activeTouch = null;
         this.disableDrag();
         cancelAnimationFrame(this.raf);
-        return this.callbackDrop(event);
+        find = function(arr, f) {
+          var e, _i, _len;
+          for (_i = 0, _len = arr.length; _i < _len; _i++) {
+            e = arr[_i];
+            if (f(e)) {
+              return e;
+            }
+          }
+        };
+        self = this;
+        droppable = find(this.droppables, function(droppable) {
+          return droppable.isDroppable(self.element);
+        });
+        this.callbackDrop(event, droppable != null);
+        if (droppable != null) {
+          return droppable.accept(this.element);
+        } else {
+          return this.goBack();
+        }
+      };
+
+      Draggable.prototype.goBack = function() {
+        return this.setPosition(this.offsetx, this.offsety);
       };
 
       window[NAME] = Draggable;
