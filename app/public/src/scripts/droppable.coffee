@@ -14,7 +14,7 @@ do (window, document) ->
     classNotDroppable: "is-droppable"
     callbackDrop: () ->
 
-  class Draggable
+  class Droppable
     constructor : (@element, options) ->
       # Data Extraction
       data =

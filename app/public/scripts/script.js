@@ -1084,7 +1084,7 @@
    */
 
   (function(window, document) {
-    var DEFAULTS, Draggable, NAME;
+    var DEFAULTS, Droppable, NAME;
     NAME = 'Droppable';
     DEFAULTS = {
       percentageIn: 0.5,
@@ -1093,8 +1093,8 @@
       classNotDroppable: "is-droppable",
       callbackDrop: function() {}
     };
-    return Draggable = (function() {
-      function Draggable(element, options) {
+    return Droppable = (function() {
+      function Droppable(element, options) {
         var data, key;
         this.element = element;
         data = {
@@ -1117,7 +1117,7 @@
         this.initialise();
       }
 
-      Draggable.prototype.extend = function() {
+      Droppable.prototype.extend = function() {
         var master, object, _i, _len, _results;
         if (arguments.length > 1) {
           master = arguments[0];
@@ -1137,11 +1137,11 @@
         }
       };
 
-      Draggable.prototype.data = function(element, name) {
+      Droppable.prototype.data = function(element, name) {
         return this.deserialize(element.getAttribute('data-' + name));
       };
 
-      Draggable.prototype.deserialize = function(value) {
+      Droppable.prototype.deserialize = function(value) {
         if (value === "true") {
           return true;
         } else if (value === "false") {
@@ -1155,7 +1155,7 @@
         }
       };
 
-      Draggable.prototype.getOffset = function(el) {
+      Droppable.prototype.getOffset = function(el) {
         var offset;
         offset = el.getBoundingClientRect();
         return {
@@ -1164,15 +1164,15 @@
         };
       };
 
-      Draggable.prototype.scrollX = function() {
+      Droppable.prototype.scrollX = function() {
         return window.pageXOffset || window.document.documentElement.scrollLeft;
       };
 
-      Draggable.prototype.scrollY = function() {
+      Droppable.prototype.scrollY = function() {
         return window.pageYOffset || window.document.documentElement.scrollTop;
       };
 
-      Draggable.prototype.isDroppable = function(draggable) {
+      Droppable.prototype.isDroppable = function(draggable) {
         var height1, offset1, offset2, width1;
         offset1 = getOffset(draggable.element);
         width1 = draggable.element.offsetWidth;
@@ -1181,16 +1181,16 @@
         return !(offset2.left > offset1.left + width1 - width1 * this.percentageIn || offset2.left + this.width < offset1.left + width1 * this.percentageIn || offset2.top > offset1.top + height1 - height1 * this.percentageIn || offset2.top + this.height < offset1.top + height1 * this.percentageIn);
       };
 
-      Draggable.prototype.initialise = function() {
+      Droppable.prototype.initialise = function() {
         this.updateDimensions();
         return window.addEventListener('resize', this.onWindowResize);
       };
 
-      Draggable.prototype.updateDimensions = function() {
+      Droppable.prototype.updateDimensions = function() {
         return this.updateBounds();
       };
 
-      Draggable.prototype.updateBounds = function() {
+      Droppable.prototype.updateBounds = function() {
         this.bounds = this.element.parentNode.getBoundingClientRect();
         this.ex = this.bounds.left;
         this.ey = this.bounds.top;
@@ -1200,11 +1200,11 @@
         return this.height = this.element.offsetHeight;
       };
 
-      Draggable.prototype.onWindowResize = function(event) {
+      Droppable.prototype.onWindowResize = function(event) {
         return this.updateDimensions();
       };
 
-      Draggable.prototype.highlight = function(draggable) {
+      Droppable.prototype.highlight = function(draggable) {
         if (this.isDroppable(draggable)) {
           return classie.add(this.element, 'highlight');
         } else {
@@ -1212,14 +1212,14 @@
         }
       };
 
-      Draggable.prototype.collect = function(draggable) {
+      Droppable.prototype.collect = function(draggable) {
         classie.remove(this.element, 'highlight');
         return this.callbackDrop(this, draggable);
       };
 
       window[NAME] = Droppable;
 
-      return Draggable;
+      return Droppable;
 
     })();
   })(window, document);
