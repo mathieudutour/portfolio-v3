@@ -17,7 +17,6 @@ do (window, document) ->
     callbackDragStart: () ->
     callbackDragging: () ->
     callbackDrop: () ->
-    acceptDrop: () -> yes
     droppables: []
 
   class Draggable
@@ -176,6 +175,8 @@ do (window, document) ->
       {clientX, clientY} = @getCoordinatesFromEvent(event)
       @ix = clientX
       @iy = clientY
+      for droppable in @droppables
+        droppable.highlight this
       @callbackDragging(event)
 
     initialise: () ->
@@ -194,6 +195,7 @@ do (window, document) ->
         @handle.addEventListener('mouseup', @onMouseUp)
         @handle.addEventListener('touchstart', @onMouseDown)
         @handle.addEventListener('touchend', @onMouseUp)
+        window.addEventListener('resize', @onWindowResize)
 
     stop: () ->
       if @started
@@ -203,6 +205,7 @@ do (window, document) ->
         @handle.removeEventListener('mouseup', @onMouseUp)
         @handle.removeEventListener('touchstart', @onMouseDown)
         @handle.removeEventListener('touchend', @onMouseUp)
+        window.addEventListener('resize', @onWindowResize)
 
     updateDimensions: () ->
       @ww = window.innerWidth
@@ -267,10 +270,10 @@ do (window, document) ->
           return e
         return
       self = this
-      droppable = find @droppables, (droppable) -> droppable.isDroppable(self.element)
+      droppable = find @droppables, (droppable) -> droppable.isDroppable(self)
       @callbackDrop(event, droppable?)
       if droppable?
-        droppable.accept(@element)
+        droppable.accept(this)
       else
         @goBack()
 

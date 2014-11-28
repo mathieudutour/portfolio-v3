@@ -251,7 +251,7 @@ do (window, document) ->
           event.preventDefault()
 
           unless @moved
-            addClass(@element, 'moved')
+            classie.addClass(@element, 'moved')
             @moved = true
 
           # Cache event coordinates.
@@ -269,7 +269,7 @@ do (window, document) ->
           event.preventDefault()
 
           unless @moved
-            addClass(@element, 'moved')
+            classie.addClass(@element, 'moved')
             @moved = true
 
           # Cache event coordinates.
@@ -285,7 +285,7 @@ do (window, document) ->
           event.preventDefault()
 
           unless @moved
-            addClass(@element, 'moved')
+            classie.addClass(@element, 'moved')
             @moved = true
 
           # Cache event coordinates.
@@ -429,7 +429,7 @@ do (window, document) ->
       @rx = @maxx - @minx
 
     appeared: () ->
-      addClass(@element, "appeared")
+      classie.addClass(@element, "appeared")
       @moved = false
 
       css = "#{@vendorPrefix.css}animation : appear 1s;
@@ -472,7 +472,7 @@ do (window, document) ->
 
       self = this
       setTimeout ( ->
-        removeClass self.element, "appeared"
+        classie.removeClass self.element, "appeared"
       ), 1000
 
     updateDimensions: () ->
@@ -541,20 +541,20 @@ do (window, document) ->
 
     setCirclePosition: (circle, forceUpdate) ->
       if circle.x > -@circleDiameter and circle.x < @ew + @circleDiameter and circle.y > -@circleDiameter and circle.y < @eh + @circleDiameter
-        addClass(circle, @classVisible)
+        classie.addClass(circle, @classVisible)
         if circle.x > @circleDiameter*1/2 and circle.x < @ew - @circleDiameter*3/2 and circle.y > @circleDiameter*1/3 and circle.y < @eh - @circleDiameter*3/2
-          if !hasClass(circle, @classBig)
-            addClass(circle, @classBig)
+          if !classie.hasClass(circle, @classBig)
+            classie.addClass(circle, @classBig)
             @setPositionAndScale(circle, circle.x, circle.y, 1, yes)
           else
             @setPositionAndScale(circle, circle.x, circle.y, 1, forceUpdate)
-        else if hasClass(circle, @classBig)
-          removeClass(circle, @classBig)
+        else if classie.hasClass(circle, @classBig)
+          classie.removeClass(circle, @classBig)
           @setPositionAndScale(circle, circle.x, circle.y, 0.33333, yes)
         else
           @setPositionAndScale(circle, circle.x, circle.y, 0.33333, forceUpdate)
-      else if hasClass(circle, @classVisible)
-        removeClass(circle, @classVisible)
+      else if classie.hasClass(circle, @classVisible)
+        classie.removeClass(circle, @classVisible)
 
     onWindowResize: (event) ->
       @updateDimensions()

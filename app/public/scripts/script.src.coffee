@@ -305,7 +305,7 @@ do (window, document) ->
           event.preventDefault()
 
           unless @moved
-            addClass(@element, 'moved')
+            classie.addClass(@element, 'moved')
             @moved = true
 
           # Cache event coordinates.
@@ -323,7 +323,7 @@ do (window, document) ->
           event.preventDefault()
 
           unless @moved
-            addClass(@element, 'moved')
+            classie.addClass(@element, 'moved')
             @moved = true
 
           # Cache event coordinates.
@@ -339,7 +339,7 @@ do (window, document) ->
           event.preventDefault()
 
           unless @moved
-            addClass(@element, 'moved')
+            classie.addClass(@element, 'moved')
             @moved = true
 
           # Cache event coordinates.
@@ -483,7 +483,7 @@ do (window, document) ->
       @rx = @maxx - @minx
 
     appeared: () ->
-      addClass(@element, "appeared")
+      classie.addClass(@element, "appeared")
       @moved = false
 
       css = "#{@vendorPrefix.css}animation : appear 1s;
@@ -526,7 +526,7 @@ do (window, document) ->
 
       self = this
       setTimeout ( ->
-        removeClass self.element, "appeared"
+        classie.removeClass self.element, "appeared"
       ), 1000
 
     updateDimensions: () ->
@@ -595,20 +595,20 @@ do (window, document) ->
 
     setCirclePosition: (circle, forceUpdate) ->
       if circle.x > -@circleDiameter and circle.x < @ew + @circleDiameter and circle.y > -@circleDiameter and circle.y < @eh + @circleDiameter
-        addClass(circle, @classVisible)
+        classie.addClass(circle, @classVisible)
         if circle.x > @circleDiameter*1/2 and circle.x < @ew - @circleDiameter*3/2 and circle.y > @circleDiameter*1/3 and circle.y < @eh - @circleDiameter*3/2
-          if !hasClass(circle, @classBig)
-            addClass(circle, @classBig)
+          if !classie.hasClass(circle, @classBig)
+            classie.addClass(circle, @classBig)
             @setPositionAndScale(circle, circle.x, circle.y, 1, yes)
           else
             @setPositionAndScale(circle, circle.x, circle.y, 1, forceUpdate)
-        else if hasClass(circle, @classBig)
-          removeClass(circle, @classBig)
+        else if classie.hasClass(circle, @classBig)
+          classie.removeClass(circle, @classBig)
           @setPositionAndScale(circle, circle.x, circle.y, 0.33333, yes)
         else
           @setPositionAndScale(circle, circle.x, circle.y, 0.33333, forceUpdate)
-      else if hasClass(circle, @classVisible)
-        removeClass(circle, @classVisible)
+      else if classie.hasClass(circle, @classVisible)
+        classie.removeClass(circle, @classVisible)
 
     onWindowResize: (event) ->
       @updateDimensions()
@@ -699,7 +699,6 @@ do (window, document) ->
     callbackDragStart: () ->
     callbackDragging: () ->
     callbackDrop: () ->
-    acceptDrop: () -> yes
     droppables: []
 
   class Draggable
@@ -858,6 +857,8 @@ do (window, document) ->
       {clientX, clientY} = @getCoordinatesFromEvent(event)
       @ix = clientX
       @iy = clientY
+      for droppable in @droppables
+        droppable.highlight this
       @callbackDragging(event)
 
     initialise: () ->
@@ -876,6 +877,7 @@ do (window, document) ->
         @handle.addEventListener('mouseup', @onMouseUp)
         @handle.addEventListener('touchstart', @onMouseDown)
         @handle.addEventListener('touchend', @onMouseUp)
+        window.addEventListener('resize', @onWindowResize)
 
     stop: () ->
       if @started
@@ -885,6 +887,7 @@ do (window, document) ->
         @handle.removeEventListener('mouseup', @onMouseUp)
         @handle.removeEventListener('touchstart', @onMouseDown)
         @handle.removeEventListener('touchend', @onMouseUp)
+        window.addEventListener('resize', @onWindowResize)
 
     updateDimensions: () ->
       @ww = window.innerWidth
@@ -949,10 +952,10 @@ do (window, document) ->
           return e
         return
       self = this
-      droppable = find @droppables, (droppable) -> droppable.isDroppable(self.element)
+      droppable = find @droppables, (droppable) -> droppable.isDroppable(self)
       @callbackDrop(event, droppable?)
       if droppable?
-        droppable.accept(@element)
+        droppable.accept(this)
       else
         @goBack()
 
@@ -962,6 +965,128 @@ do (window, document) ->
     # Expose CirclesUI
 
     window[NAME] = Draggable
+
+###
+ * Droppable.coffee
+ * @author Mathieu Dutour - @MathieuDutour
+ * @description Drop an object
+###
+do (window, document) ->
+
+  # Constants
+  NAME = 'Droppable'
+  DEFAULTS =
+    percentageIn: 0.5
+    precision: 1
+    classDroppable: "is-droppable"
+    classNotDroppable: "is-droppable"
+    callbackDrop: () ->
+
+  class Draggable
+    constructor : (@element, options) ->
+      # Data Extraction
+      data =
+        percentageIn: @data(@element, 'percentageIn')
+        classDroppable: @data(@element, 'class-droppable')
+        classNotDroppable: @data(@element, 'class-not-droppable')
+
+      # Delete Null Data Values
+      for key of data
+        delete data[key] if data[key] is null
+
+      # Compose Settings Object
+      @extend(this, DEFAULTS, options, data);
+
+      # Element Bounds
+      @bounds = null
+      @ex = 0
+      @ey = 0
+      @ew = 0
+      @eh = 0
+
+      # Callbacks
+      @onWindowResize = @onWindowResize.bind(this)
+
+      # Initialise
+      @initialise()
+
+    extend: () ->
+      if arguments.length > 1
+        master = arguments[0]
+        for object in arguments
+          do (object) ->
+            for key of object
+              master[key] = object[key]
+
+    data: (element, name) ->
+      @deserialize(element.getAttribute('data-'+name))
+
+    deserialize: (value) ->
+      if value is "true"
+        return true
+      else if value is "false"
+        return false
+      else if value is "null"
+        return null
+      else if !isNaN(parseFloat(value)) and isFinite(value)
+        return parseFloat(value)
+      else
+        return value
+
+    getOffset: ( el ) ->
+      offset = el.getBoundingClientRect()
+      return
+        top : offset.top + @scrollY()
+        left : offset.left + @scrollX()
+
+    scrollX: () ->
+      window.pageXOffset or window.document.documentElement.scrollLeft
+    scrollY: () ->
+      window.pageYOffset or window.document.documentElement.scrollTop
+
+    isDroppable: ( draggable ) ->
+      offset1 = getOffset( draggable.element )
+      width1 = draggable.element.offsetWidth
+      height1 = draggable.element.offsetHeight
+      offset2 = getOffset( @element )
+
+      !(offset2.left > offset1.left + width1 - width1 * @percentageIn or offset2.left + @width < offset1.left + width1 * @percentageIn or offset2.top > offset1.top + height1 - height1 * @percentageIn or offset2.top + @height < offset1.top + height1 * @percentageIn )
+
+    initialise: () ->
+      @updateDimensions()
+      window.addEventListener('resize', @onWindowResize)
+
+    updateDimensions: () ->
+      @updateBounds()
+
+    updateBounds: () ->
+      @bounds = @element.parentNode.getBoundingClientRect()
+      @ex = @bounds.left
+      @ey = @bounds.top
+      @ew = @bounds.width
+      @eh = @bounds.height
+      @width = @element.offsetWidth
+      @height = @element.offsetHeight
+
+    onWindowResize: (event) ->
+      @updateDimensions()
+
+    # highlight the droppable if it's ready to collect the draggable
+	highlight: ( draggable ) ->
+      if @isDroppable( draggable.element )
+		classie.add @element, 'highlight'
+      else
+        classie.remove @element, 'highlight'
+
+	# accepts a draggable element...
+	collect: ( draggable ) ->
+      # remove highlight class from droppable element
+      classie.remove @element, 'highlight'
+      @callbackDrop this, draggable
+
+    # Expose CirclesUI
+
+    window[NAME] = Droppable
 
 do (window, document) ->
   THRESHOLD_DISTANCE = 75

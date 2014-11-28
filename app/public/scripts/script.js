@@ -747,9 +747,348 @@
       callbackDragStart: function() {},
       callbackDragging: function() {},
       callbackDrop: function() {},
-      acceptDrop: function() {
-        return true;
-      },
+      droppables: []
+    };
+    return Draggable = (function() {
+      function Draggable(element, options) {
+        var data, key, _ref;
+        this.element = element;
+        data = {
+          axis: this.data(this.element, 'wrap'),
+          containment: this.data(this.element, 'relative-input'),
+          handle: this.data(this.element, 'clipe-relative-input'),
+          precision: this.data(this.element, 'invert-x'),
+          classDragging: this.data(this.element, 'invert-y')
+        };
+        for (key in data) {
+          if (data[key] === null) {
+            delete data[key];
+          }
+        }
+        this.extend(this, DEFAULTS, options, data);
+        this.handle = this.element;
+        this.started = false;
+        this.dragging = false;
+        this.raf = null;
+        this.bounds = null;
+        this.ex = 0;
+        this.ey = 0;
+        this.ew = 0;
+        this.eh = 0;
+        this.ww = 0;
+        this.wh = 0;
+        this.fix = 0;
+        this.fiy = 0;
+        this.ix = 0;
+        this.iy = 0;
+        this.vendorPrefix = (function() {
+          var dom, pre, styles;
+          styles = window.getComputedStyle(document.documentElement, "");
+          pre = (Array.prototype.slice.call(styles).join("").match(/-(moz|webkit|ms)-/) || (styles.OLink === "" && ["", "o"]))[1];
+          dom = "WebKit|Moz|MS|O".match(new RegExp("(" + pre + ")", "i"))[1];
+          return {
+            dom: dom,
+            lowercase: pre,
+            css: "-" + pre + "-",
+            js: pre[0].toUpperCase() + pre.substr(1)
+          };
+        })();
+        _ref = (function(transform) {
+          var el2d, el3d, has2d, has3d;
+          el2d = document.createElement("p");
+          el3d = document.createElement("p");
+          has2d = void 0;
+          has3d = void 0;
+          document.body.insertBefore(el2d, null);
+          if (typeof el2d.style[transform] !== 'undefined') {
+            document.body.insertBefore(el3d, null);
+            el2d.style[transform] = "translate(1px,1px)";
+            has2d = window.getComputedStyle(el2d).getPropertyValue(transform);
+            el3d.style[transform] = "translate3d(1px,1px,1px)";
+            has3d = window.getComputedStyle(el3d).getPropertyValue(transform);
+            document.body.removeChild(el3d);
+          }
+          document.body.removeChild(el2d);
+          return [typeof has2d !== 'undefined' && has2d.length > 0 && has2d !== "none", typeof has3d !== 'undefined' && has3d.length > 0 && has3d !== "none"];
+        })(this.vendorPrefix.css + 'transform'), this.transform2DSupport = _ref[0], this.transform3DSupport = _ref[1];
+        this.setPosition = this.transform3DSupport ? function(x, y) {
+          x = x.toFixed(this.precision) + 'px';
+          y = y.toFixed(this.precision) + 'px';
+          return this.css(this.element, this.vendorPrefix.js + 'Transform', 'translate3d(' + x + ',' + y + ',0)');
+        } : this.transform2DSupport ? function(element, x, y, s) {
+          x = x.toFixed(this.precision) + 'px';
+          y = y.toFixed(this.precision) + 'px';
+          return this.css(this.element, this.vendorPrefix.js + 'Transform', 'translate(' + x + ',' + y + ')');
+        } : function(element, x, y, s) {
+          x = x.toFixed(this.precision) + 'px';
+          y = y.toFixed(this.precision) + 'px';
+          this.element.style.left = x;
+          return this.element.style.top = y;
+        };
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
+        this.onAnimationFrame = this.onAnimationFrame.bind(this);
+        this.onWindowResize = this.onWindowResize.bind(this);
+        this.initialise();
+      }
+
+      Draggable.prototype.extend = function() {
+        var master, object, _i, _len, _results;
+        if (arguments.length > 1) {
+          master = arguments[0];
+          _results = [];
+          for (_i = 0, _len = arguments.length; _i < _len; _i++) {
+            object = arguments[_i];
+            _results.push((function(object) {
+              var key, _results1;
+              _results1 = [];
+              for (key in object) {
+                _results1.push(master[key] = object[key]);
+              }
+              return _results1;
+            })(object));
+          }
+          return _results;
+        }
+      };
+
+      Draggable.prototype.data = function(element, name) {
+        return this.deserialize(element.getAttribute('data-' + name));
+      };
+
+      Draggable.prototype.deserialize = function(value) {
+        if (value === "true") {
+          return true;
+        } else if (value === "false") {
+          return false;
+        } else if (value === "null") {
+          return null;
+        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
+          return parseFloat(value);
+        } else {
+          return value;
+        }
+      };
+
+      Draggable.prototype.onAnimationFrame = function(now) {
+        this.setPosition(this.ix - this.fix + this.offsetx, this.iy - this.fiy + this.offsety);
+        return this.raf = requestAnimationFrame(this.onAnimationFrame);
+      };
+
+      Draggable.prototype.getComputedTranslate = function(obj) {
+        var mat, style, transform;
+        if (!window.getComputedStyle) {
+          return;
+        }
+        style = getComputedStyle(obj);
+        transform = style.transform || style.webkitTransform || style.mozTransform;
+        mat = transform.match(/^matrix3d\((.+)\)$/);
+        if (mat) {
+          return [parseFloat(mat[1].split(', ')[12]), parseFloat(mat[1].split(', ')[13])];
+        }
+        mat = transform.match(/^matrix\((.+)\)$/);
+        if (mat) {
+          return [parseFloat(mat[1].split(', ')[4]), parseFloat(mat[1].split(', ')[5])];
+        } else {
+          return [0, 0];
+        }
+      };
+
+      Draggable.prototype.onMouseDown = function(event) {
+        var clientX, clientY, _ref, _ref1;
+        if (!this.dragging) {
+          if ((event.changedTouches != null) && event.changedTouches.length > 0) {
+            this.activeTouch = event.changedTouches[0].identifier;
+          } else {
+            event.preventDefault();
+          }
+          _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+          this.fix = this.ix = clientX;
+          this.fiy = this.iy = clientY;
+          _ref1 = this.getComputedTranslate(this.element), this.offsetx = _ref1[0], this.offsety = _ref1[1];
+          this.enableDrag();
+          return this.callbackDragStart(event);
+        }
+      };
+
+      Draggable.prototype.onMouseMove = function(event) {
+        var clientX, clientY, _ref;
+        _ref = this.getCoordinatesFromEvent(event), clientX = _ref.clientX, clientY = _ref.clientY;
+        this.ix = clientX;
+        this.iy = clientY;
+        return this.callbackDragging(event);
+      };
+
+      Draggable.prototype.initialise = function() {
+        var style;
+        this.updateDimensions();
+        if (this.transform3DSupport) {
+          this.accelerate(this.element);
+        }
+        style = window.getComputedStyle(this.element);
+        if (style.getPropertyValue('position') === 'static') {
+          this.element.style.position = 'relative';
+        }
+        return this.start();
+      };
+
+      Draggable.prototype.start = function() {
+        if (!this.started) {
+          this.started = true;
+          this.handle.addEventListener('mousedown', this.onMouseDown);
+          this.handle.addEventListener('mouseup', this.onMouseUp);
+          this.handle.addEventListener('touchstart', this.onMouseDown);
+          return this.handle.addEventListener('touchend', this.onMouseUp);
+        }
+      };
+
+      Draggable.prototype.stop = function() {
+        if (this.started) {
+          this.started = false;
+          cancelAnimationFrame(this.raf);
+          this.handle.removeEventListener('mousedown', this.onMouseDown);
+          this.handle.removeEventListener('mouseup', this.onMouseUp);
+          this.handle.removeEventListener('touchstart', this.onMouseDown);
+          return this.handle.removeEventListener('touchend', this.onMouseUp);
+        }
+      };
+
+      Draggable.prototype.updateDimensions = function() {
+        this.ww = window.innerWidth;
+        this.wh = window.innerHeight;
+        return this.updateBounds();
+      };
+
+      Draggable.prototype.updateBounds = function() {
+        this.bounds = this.element.parentNode.getBoundingClientRect();
+        this.ex = this.bounds.left;
+        this.ey = this.bounds.top;
+        this.ew = this.bounds.width;
+        return this.eh = this.bounds.height;
+      };
+
+      Draggable.prototype.enableDrag = function() {
+        if (!this.dragging) {
+          this.dragging = true;
+          classie.add(this.element, this.classDragging);
+          window.addEventListener('mousemove', this.onMouseMove);
+          window.addEventListener('touchmove', this.onMouseMove);
+          return this.raf = requestAnimationFrame(this.onAnimationFrame);
+        }
+      };
+
+      Draggable.prototype.disableDrag = function() {
+        if (this.dragging) {
+          this.dragging = false;
+          classie.remove(this.element, this.classDragging);
+          window.removeEventListener('mousemove', this.onMouseMove);
+          return window.removeEventListener('touchmove', this.onMouseMove);
+        }
+      };
+
+      Draggable.prototype.css = function(element, property, value) {
+        return element.style[property] = value;
+      };
+
+      Draggable.prototype.accelerate = function(element) {
+        return this.css(element, this.vendorPrefix.transform, 'translate3d(0,0,0)');
+      };
+
+      Draggable.prototype.onWindowResize = function(event) {
+        return this.updateDimensions();
+      };
+
+      Draggable.prototype.getCoordinatesFromEvent = function(event) {
+        if ((event.touches != null) && (event.touches.length != null) && event.touches.length > 0) {
+          this.getCoordinatesFromEvent = function(event) {
+            var find, self, touch;
+            find = function(arr, f) {
+              var e, _i, _len;
+              for (_i = 0, _len = arr.length; _i < _len; _i++) {
+                e = arr[_i];
+                if (f(e)) {
+                  return e;
+                }
+              }
+            };
+            self = this;
+            touch = find(event.touches, function(touch) {
+              return touch.identifier === self.activeTouch;
+            });
+            return {
+              clientX: touch.clientX,
+              clientY: touch.clientY
+            };
+          };
+        } else {
+          this.getCoordinatesFromEvent = function(event) {
+            return {
+              clientX: event.clientX,
+              clientY: event.clientY
+            };
+          };
+        }
+        return this.getCoordinatesFromEvent(event);
+      };
+
+      Draggable.prototype.onMouseUp = function(event) {
+        var droppable, find, self;
+        this.activeTouch = null;
+        this.disableDrag();
+        cancelAnimationFrame(this.raf);
+        find = function(arr, f) {
+          var e, _i, _len;
+          for (_i = 0, _len = arr.length; _i < _len; _i++) {
+            e = arr[_i];
+            if (f(e)) {
+              return e;
+            }
+          }
+        };
+        self = this;
+        droppable = find(this.droppables, function(droppable) {
+          return droppable.isDroppable(self.element);
+        });
+        this.callbackDrop(event, droppable != null);
+        if (droppable != null) {
+          return droppable.accept(this.element);
+        } else {
+          return this.goBack();
+        }
+      };
+
+      Draggable.prototype.goBack = function() {
+        return this.setPosition(this.offsetx, this.offsety);
+      };
+
+      window[NAME] = Draggable;
+
+      return Draggable;
+
+    })();
+  })(window, document);
+
+
+  /*
+   * Droppable.coffee
+   * @author Mathieu Dutour - @MathieuDutour
+   * @description Drop an object
+   */
+
+  (function(window, document) {
+    var DEFAULTS, Draggable, NAME;
+    NAME = 'Droppable';
+    DEFAULTS = {
+      axis: null,
+      containment: false,
+      grid: [1, 1],
+      handle: false,
+      precision: 1,
+      classDragging: "is-dragging",
+      callbackDragStart: function() {},
+      callbackDragging: function() {},
+      callbackDrop: function() {},
       droppables: []
     };
     return Draggable = (function() {
