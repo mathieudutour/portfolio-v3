@@ -31,7 +31,7 @@ exports.strategy = new (require('passport-twitter').Strategy)({
         last_tweet: null
       };
       db.users.update({email: req.user.email}, {$set : {'providers.basic.avatar_provider': avatar_provider, 'providers.basic.avatar': avatar, 'providers.twitter': req.user.providers.twitter}}, {}, function() {
-        exports.twitterStrategy._oauth.get('https://api.twitter.com/1.1/statuses/user_timeline.json?count=1', token, tokenSecret, function(err, data) {
+        exports.strategy._oauth.get('https://api.twitter.com/1.1/statuses/user_timeline.json?count=1', token, tokenSecret, function(err, data) {
           if(err) {return done(err);}
           data = JSON.parse(data);
           db.users.update({_id: req.user._id}, {$set: {'providers.twitter.last_tweet': data[0].text}}, function() {done(null, req.user);});

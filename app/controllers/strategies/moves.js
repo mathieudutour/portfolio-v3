@@ -22,7 +22,7 @@ exports.strategy = new (require('./passport-moves').Strategy)({
         steps: 0
       };
       db.users.update({email: req.user.email}, {$set : { 'providers.moves': req.user.providers.moves}}, {}, function() {
-        exports.movesStrategy._oauth2.get('https://api.moves-app.com/api/1.1/user/summary/daily?pastDays=2', accessToken, function(err, data) {
+        exports.strategy._oauth2.get('https://api.moves-app.com/api/1.1/user/summary/daily?pastDays=2', accessToken, function(err, data) {
           if(err) {return done(err);}
           data = JSON.parse(data)[0].summary;
           var steps = 0;
